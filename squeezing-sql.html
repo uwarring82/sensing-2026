@@ -94,8 +94,9 @@
     <figure>
       <canvas id="phase" width="510" height="430"></canvas>
       <figcaption>① <b>Phase space</b> (X, P). Dashed circle = <span style="color:#64748b">SQL (vacuum)</span>;
-        ellipse = the squeezed state; the bar is the noise along your measurement axis — inside the
-        circle <span class="pill good">beats SQL</span>, outside is <span class="pill bad">worse</span>.</figcaption>
+        ellipse = the squeezed state; the bar is the noise along your measurement axis — the ellipse's
+        <i>shadow</i> on that axis (grey projection lines), not its radius. Inside the circle
+        <span class="pill good">beats SQL</span>, outside is <span class="pill bad">worse</span>.</figcaption>
     </figure>
     <figure>
       <canvas id="ang" width="510" height="430"></canvas>
@@ -217,8 +218,23 @@ function drawPhase(S, thDeg){
   const ux=Math.cos(th), uy=-Math.sin(th);
   ctx.strokeStyle='#0f766e'; ctx.setLineDash([4,4]); ctx.lineWidth=1.6;
   ctx.beginPath(); ctx.moveTo(cx-ux*R*sc, cy-uy*R*sc); ctx.lineTo(cx+ux*R*sc, cy+uy*R*sc); ctx.stroke(); ctx.setLineDash([]);
-  // noise bar = ±σθ along the axis
+  // noise bar = ±σθ along the axis — σθ is the ellipse's SHADOW (projection) onto this axis,
+  // NOT its radial intercept: the bar end is the foot of the perpendicular from the ellipse's
+  // tangent point, so it equals √V(θ) and stays consistent with the right-hand graph.
   const sigTh=Math.sqrt(Vrel(S,thDeg));
+  const tstar=Math.atan2(sigP*Math.sin(th), sigX*Math.cos(th));   // ellipse param where normal ∥ axis
+  const ex=sigX*Math.cos(tstar), ey=sigP*Math.sin(tstar);         // its (X,P) point on the 1σ ellipse
+  // projection lines tying each bar end to the ellipse (perpendicular to the measurement axis)
+  ctx.strokeStyle='#94a3b8'; ctx.setLineDash([3,3]); ctx.lineWidth=1.2;
+  for(const s of [1,-1]){
+    ctx.beginPath();
+    ctx.moveTo(cx + s*ex*sc, cy - s*ey*sc);                       // tangent point on the ellipse
+    ctx.lineTo(cx + s*ux*sigTh*sc, cy + s*uy*sigTh*sc);           // its shadow = the bar end
+    ctx.stroke();
+  }
+  ctx.setLineDash([]); ctx.fillStyle='#94a3b8';
+  for(const s of [1,-1]){ ctx.beginPath(); ctx.arc(cx + s*ex*sc, cy - s*ey*sc, 2.4, 0, 7); ctx.fill(); }
+  // the bar itself (the measured noise σθ), coloured by verdict vs the SQL
   ctx.strokeStyle = vColor(S,thDeg); ctx.lineWidth=6; ctx.lineCap='round';
   ctx.beginPath(); ctx.moveTo(cx-ux*sigTh*sc, cy-uy*sigTh*sc); ctx.lineTo(cx+ux*sigTh*sc, cy+uy*sigTh*sc); ctx.stroke(); ctx.lineCap='butt';
   ctx.restore();
