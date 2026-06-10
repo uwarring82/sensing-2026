@@ -92,7 +92,8 @@
     <li><a href="#a6">6 · Transduction</a><span class="t bridge">bridge</span></li>
   </ol>
   <p style="margin:12px 0 0;font-size:15px"><b style="color:#1f4e6b">Platforms:</b>
-    <a href="#p-nv">NV centre → spin-½</a> &nbsp;·&nbsp; <a href="#p-gw">GW detector → harmonic oscillator</a></p>
+    <a href="#p-nv">NV centre → spin-½</a> &nbsp;·&nbsp; <a href="#p-gw">GW detector → harmonic oscillator</a>
+    &nbsp;·&nbsp; <a href="#p-ion">trapped ions → both, coupled</a></p>
 </nav>
 
 <!-- ============ ANCHOR 1 ============ -->
@@ -314,9 +315,12 @@
 
 <!-- ===================== PLATFORMS ===================== -->
 <h2 class="plat-head">Platforms — the same two abstractions, in real hardware</h2>
-<p class="plat-lede">This interlude leans on two platforms the Quantum Hardware course meets only in
-passing. The point of each primer: neither is exotic — both are <i>just</i> the building blocks you
-already know, a <b>spin-½</b> and a <b>harmonic oscillator</b>, dressed in hardware.</p>
+<p class="plat-lede">This interlude leans on three platforms. The point of each primer: none is exotic —
+each is <i>just</i> the building blocks you already know, a <b>spin-½</b> and a <b>harmonic oscillator</b>,
+dressed in hardware. The NV centre and the gravitational-wave detector the Quantum Hardware course meets
+only in passing; <b>trapped atomic ions</b> are this group's home platform — and the one where both abstractions
+live natively in a single atom, a textbook spin-½ alongside the ion's own quantized motion, with the
+tools to wire them together.</p>
 
 <!-- ============ PLATFORM: NV ============ -->
 <section class="card platform" id="p-nv">
@@ -373,6 +377,42 @@ already know, a <b>spin-½</b> and a <b>harmonic oscillator</b>, dressed in hard
     <li>Aasi <i>et al.</i> (LIGO Scientific Collaboration), <i>Advanced LIGO</i>, <a href="https://doi.org/10.1088/0264-9381/32/7/074001" target="_blank" rel="noopener noreferrer">Class. Quantum Grav. 32, 074001 (2015)</a> — open access; the detector hardware.</li>
     <li>Danilishin &amp; Khalili, <i>Quantum Measurement Theory in Gravitational-Wave Detectors</i>, <a href="https://doi.org/10.12942/lrr-2012-5" target="_blank" rel="noopener noreferrer">Living Rev. Relativity 15, 5 (2012)</a> — open access; the shot-noise / back-action / SQL framing.</li>
     <li>Schnabel, <i>Squeezed states of light in laser interferometers</i>, <a href="https://arxiv.org/abs/1611.03986" target="_blank" rel="noopener noreferrer">Phys. Rep. 684, 1 (2017)</a> — the quadrature / squeezing pedagogy.</li>
+  </ul>
+</section>
+
+<!-- ============ PLATFORM: TRAPPED IONS ============ -->
+<section class="card platform" id="p-ion">
+  <div class="anchno">Platform · a spin-½ <i>and</i> a harmonic oscillator — coupled</div>
+  <h3>Trapped atomic ions</h3>
+  <p class="back">shows up in: <a href="#a2">noise &amp; coherence</a> · <a href="#a4">the ladder</a> · <a href="#a5">back-action &amp; squeezing</a> · <a href="#a6">transduction</a></p>
+
+  <div class="lab">What it is</div>
+  <p>One or more atomic ions held in a radio-frequency (Paul) trap, whose oscillating field makes a
+  time-averaged, <b>near-harmonic</b> well (a static 3D trap is forbidden by Earnshaw's theorem). The ions
+  are laser-cooled — Doppler first, then on a resolved sideband — to near the motional ground state.</p>
+
+  <div class="lab">Why it's "just" a spin-½ <i>and</i> a harmonic oscillator</div>
+  <p>Unlike a qubit wired to a separate cavity, here the oscillator is the ion's <i>own</i> quantized motion —
+  both halves are native and exceptionally clean. Two long-lived internal levels (optical/metastable, or a
+  hyperfine/Zeeman pair) make a textbook <b>spin-½</b>, the same one behind Ramsey, coherence and the
+  <a href="#a4">ladder</a>. The ions' <b>motion</b> is a set of quantized normal modes — three per ion —
+  each a harmonic oscillator with phonons and quadratures, home to ground-state cooling and motional
+  <a href="#a5">squeezing</a>.</p>
+
+  <div class="lab">Coupling the two — the distinctive trick</div>
+  <p>A laser tuned to a motional <b>sideband</b> couples spin to phonon: the red sideband (Jaynes–Cummings)
+  removes a phonon as it flips the spin; the blue (anti-JC) adds one. That one knob gives sideband cooling,
+  maps spin ↔ motion (<a href="#a6">transduction</a>), and — using the shared mode as a quantum <b>bus</b> —
+  drives entangling gates (the Mølmer–Sørensen gate, robust because the motion is only virtually excited).</p>
+
+  <div class="lab">What the idealisation hides</div>
+  <p class="bound"><b>"Two clean levels and one perfect oscillator" is a limit, not the device</b> — the pseudopotential is only near-harmonic, and excess micromotion plus anomalous heating from electrode-surface electric-field noise are what really bound performance.</p>
+
+  <div class="lab">Introducing reviews</div>
+  <ul class="refs">
+    <li>Leibfried, Blatt, Monroe &amp; Wineland, <i>Quantum dynamics of single trapped ions</i>, <a href="https://doi.org/10.1103/RevModPhys.75.281" target="_blank" rel="noopener noreferrer">Rev. Mod. Phys. 75, 281 (2003)</a> — the definitive review: the ion as spin-½ <i>and</i> oscillator, with the laser coupling worked out.</li>
+    <li>Wineland <i>et al.</i>, <i>Experimental issues in coherent quantum-state manipulation of trapped atomic ions</i>, <a href="https://doi.org/10.6028/jres.103.019" target="_blank" rel="noopener noreferrer">J. Res. NIST 103, 259 (1998)</a> — open access; the nuts-and-bolts of internal-plus-motional control.</li>
+    <li>Bruzewicz <i>et al.</i>, <i>Trapped-ion quantum computing: progress and challenges</i>, <a href="https://arxiv.org/abs/1904.04178" target="_blank" rel="noopener noreferrer">Appl. Phys. Rev. 6, 021314 (2019)</a> — open; the modern map of qubit types, gates and scaling.</li>
   </ul>
 </section>
 
