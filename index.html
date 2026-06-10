@@ -45,6 +45,13 @@
   .spine a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
     border:1.5px solid var(--line); border-radius:999px; padding:4px 12px}
   .spine a:hover{border-color:var(--accent)}
+  .abstract{max-width:850px; margin:28px auto 6px; background:var(--card); border:1px solid var(--line);
+    border-top:4px solid var(--accent); border-radius:12px; padding:22px 28px; box-shadow:0 1px 3px rgba(20,40,60,.05)}
+  .abstract .eyebrow{font:700 12px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--accent)}
+  .abstract h2{font-size:22px; margin:8px 0 8px; color:var(--ink)}
+  .abstract p{margin:10px 0; font-size:16.5px; line-height:1.7; color:#2c3a47}
+  .abstract .em{font-style:italic}
   footer{color:var(--muted); font-size:13px; margin-top:36px; border-top:1px solid var(--line); padding-top:14px; text-align:center}
 </style>
 </head>
@@ -59,6 +66,26 @@
   accelerometer feels gravity, how an atomic clock keeps time to <b>1 part in 10<sup>18</sup></b>, and how
   squeezing and entanglement push measurement past the <b>standard quantum limit</b>. Three rooms — pick a door.</p>
 </header>
+
+<section class="abstract">
+  <div class="eyebrow">An opinionated note</div>
+  <h2>Why one page, not many</h2>
+  <p>Knowledge fragments. We slice sensing into clocks and gyroscopes, classical and quantum,
+  "your field" and "mine" — and each shard, polished in isolation, starts to look like a world of its own.
+  We think that is a mistake: the interesting physics lives in the <i>seams</i>. So we keep the pieces in
+  one room and in conversation — lecture, workshop and library, several voices and registers at once —
+  on the conviction that a robust understanding is a <span class="em">consensus across perspectives</span>,
+  not the verdict of any single one.</p>
+  <p>Sensing makes the case. The classical-to-quantum boundary is no sharp wall but a gradient, and sensing
+  sits squarely on it. You can spend a measurement resource in <b>space</b> or in <b>time</b> — read many
+  atoms at once, or one atom many times over. In most regimes it is the same bargain: the <b>ensemble
+  average equals the time average</b>, and precision sharpens as 1/√N either way — the standard quantum
+  limit. Push beyond it, with squeezing or entanglement, and the symmetry <span class="em">seems</span> to
+  break: a correlation shared <span class="em">across</span> particles is not obviously the same resource as
+  a single particle correlated with its own past. Whether scattering in space and scattering in time really
+  part ways past the SQL is exactly the kind of question no lone viewpoint settles — which is the whole
+  reason to keep them side by side.</p>
+</section>
 
 <nav class="doors">
   <a class="door lec" href="lectures.html">
