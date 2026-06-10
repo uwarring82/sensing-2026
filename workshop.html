@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sensing 2026 — the hub</title>
+<!--
+  Sensing 2026 · Pillar-2 hub · landing page (Iteration 0). Single offline file, no requests.
+  Spine-at-a-glance + the §9.1 spaced-week calendar + per-anchor cards. NOT a gated interactive.
+-->
+<style>
+  :root{ --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#fff; --accent:#0f766e;
+    --core:#0f766e; --micro:#7c3aed; --bridge:#d97706; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:8px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  h1{font-size:32px; margin:10px 0 4px}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  h2{font-size:22px; margin:30px 0 4px}
+  .lede{color:var(--muted); margin:2px 0 14px; font-size:16px}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:14px 0;
+    box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  /* spine */
+  .spine{display:grid; grid-template-columns:1fr; gap:14px}
+  @media(min-width:780px){ .spine{grid-template-columns:1fr 1fr} }
+  .sess h3{margin:0 0 8px; font-size:18px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{font-size:14px; font-weight:700; border-radius:999px; padding:5px 12px; border:1.5px solid; text-decoration:none}
+  .chip.core{color:var(--core); border-color:var(--core)} .chip.core:hover{background:var(--core);color:#fff}
+  .chip.micro{color:var(--micro); border-color:var(--micro)} .chip.micro:hover{background:var(--micro);color:#fff}
+  .chip.bridge{color:var(--bridge); border-color:var(--bridge)} .chip.bridge:hover{background:var(--bridge);color:#fff}
+  .hubnote{text-align:center; font-weight:700; color:var(--accent); margin:10px 0 0}
+  .legend{font-size:14px; color:var(--muted); margin-top:10px}
+  .legend b.core{color:var(--core)} .legend b.micro{color:var(--micro)} .legend b.bridge{color:var(--bridge)}
+  /* calendar */
+  table{border-collapse:collapse; width:100%; font-size:16px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#eef5f4; font-size:14px} td .a{font-weight:700}
+  .ck{display:flex; align-items:center; gap:8px} .ck input{width:20px;height:20px;accent-color:var(--accent)}
+  tr.tut td{background:#fafdfc; font-weight:700}
+  /* anchor cards */
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
+  .acard{border:1px solid var(--line); border-top:5px solid var(--line); border-radius:10px; padding:14px 16px; background:#fff}
+  .acard.live{border-top-color:var(--accent)} .acard.soon{opacity:.72}
+  .acard h3{margin:0 0 2px; font-size:18px} .acard .badge{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em}
+  .badge.core{color:var(--core)} .badge.micro{color:var(--micro)} .badge.bridge{color:var(--bridge)}
+  .acard p{margin:8px 0; font-size:15px; color:#2c3a47}
+  .acard .links{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px}
+  .acard a.btn{font-size:14px; font-weight:700; text-decoration:none; color:#fff; background:var(--accent);
+    border-radius:7px; padding:6px 12px} .acard a.btn.ghost{background:#fff; color:var(--accent); border:1.5px solid var(--accent)}
+  .acard .soonlbl{font-size:14px; color:var(--muted); font-weight:700}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a href="index.html" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none">↩ Sensing 2026 home</a>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · the workshop</span></div>
+  <h1>Extreme sensing — from your senses to quantum limits</h1>
+  <p class="sub">Two 90-min lectures · one spaced week of exercises · one tutorial. The lectures
+  <i>tease</i> from this hub; the exercises <i>pull</i> you back to it; you build your own understanding here.</p>
+</header>
+
+<h2>The spine — one idea, six anchors</h2>
+<p class="lede">Everything hangs off six anchor concepts, revisited at increasing depth. The hub is the centre;
+lecture and exercises are the two channels into it.</p>
+<section>
+  <div class="spine">
+    <div class="sess">
+      <h3>Sensing I — how do ordinary sensors fail, and how do we quantify it?</h3>
+      <div class="chips">
+        <a class="chip core" href="#a1">1 · Trade-off triangle</a>
+        <a class="chip core" href="#a2">2 · Noise &amp; Allan</a>
+        <a class="chip micro" href="#a3">3 · SQL 1/√N</a>
+      </div>
+    </div>
+    <div class="sess">
+      <h3>Sensing II — what can quantum resources improve, and what do they make fragile?</h3>
+      <div class="chips">
+        <a class="chip core" href="#a4">4 · Quantum ladder</a>
+        <a class="chip core" href="#a5">5 · Back-action</a>
+        <a class="chip bridge" href="#a6">6 · Transduction</a>
+      </div>
+    </div>
+  </div>
+  <p class="hubnote">↑ lecture teases · ↓ exercises pull — the hub is the persistent centre ↑</p>
+  <p class="legend"><b class="core">core</b> (live, deep) · <b class="micro">micro-core</b> (a short live worked example, then web-depth)
+    · <b class="bridge">bridge</b> (exercise pulling from the page)</p>
+</section>
+
+<h2>The spaced week — three 30-min sessions</h2>
+<p class="lede">Do these in <b>three separate sittings</b> across the week — not one cram. Tick them off;
+your progress is saved on this device.</p>
+<section>
+  <table>
+    <thead><tr><th>Session (space them out)</th><th>Anchors</th><th>Exercise — do &amp; log</th></tr></thead>
+    <tbody id="cal"></tbody>
+  </table>
+  <p class="legend" id="calhint"></p>
+</section>
+
+<h2>The anchors</h2>
+<p class="lede">A student who missed the lecture can still enter the spine here. All six anchors are live — five interactive, one static.</p>
+<section>
+  <div class="cards" id="cards"></div>
+</section>
+
+<h2>The other rooms</h2>
+<p class="lede">The workshop is the hands-on room; here are the others.</p>
+<section>
+  <p style="margin:0 0 10px"><a href="lectures.html" style="font-weight:700;color:#b45309;font-size:18px;text-decoration:none">▶ Lecture — the story →</a> &nbsp;the two interludes as one arc, from humanoid to quantum sensing.</p>
+  <p style="margin:0 0 10px"><a href="reference.html" style="font-weight:700;color:#8a5a2b;font-size:18px;text-decoration:none">▶ Reference Library →</a> &nbsp;definitions, equations, boundaries &amp; references — one card per anchor.</p>
+  <p style="margin:0"><a href="resources.html" style="font-weight:700;color:var(--accent);font-size:18px;text-decoration:none">▶ Go broader →</a> &nbsp;curated videos, papers &amp; textbooks per anchor (optional depth).</p>
+</section>
+
+<footer>
+  Sensing 2026 — the interactive hub · University of Freiburg. Single-file pages, work offline,
+  no tracking. The lectures tease from here; the exercises bring you back.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const CAL=[
+  {s:'1 — early week', a:'1 triangle · 2 noise/Allan', x:'design task (pick 2 technologies) + noise-trace task'},
+  {s:'2 — mid week',   a:'3 SQL (web-depth) · 4 ladder', x:'coin-flip / photon-counting + pick-the-rung'},
+  {s:'3 — late week',  a:'5 back-action · 6 transduction', x:'squeezing-band task + diagnose a broken transduction chain'},
+  {s:'Tutorial — end of week', a:'—', x:'discuss your logbooks (90 min, tutor-led)', tut:true},
+];
+const ANCHORS=[
+  {id:'a1', n:1, tier:'core',   t:'Trade-off triangle', d:'Sensitivity, dynamic range, bandwidth — you cannot max all three. Drag the budget around the triangle.',
+     play:'anchor-1-triangle.html'},
+  {id:'a2', n:2, tier:'core',   t:'Noise & Allan deviation', d:'Mean → PSD → Allan deviation. Find the averaging time where more data stops helping.',
+     play:'allan-psd-explorer.html'},
+  {id:'a3', n:3, tier:'micro',  t:'The standard quantum limit', d:'Why precision ∝ 1/√N — the classical wall (independent Poisson). The vacuum disk that squeezing beats.',
+     play:'squeezing-sql.html'},
+  {id:'a4', n:4, tier:'core',   t:'The quantum ladder', d:'Coherent → squeezed → entangled → QEC. Decide when a rung is worth its fragility.',
+     play:'quantum-ladder.html'},
+  {id:'a5', n:5, tier:'core',   t:'Back-action', d:'Measurement disturbs. Squeeze one quadrature, pay in the other — where does it help vs hurt?',
+     play:'squeezing-sql.html'},
+  {id:'a6', n:6, tier:'bridge', t:'Transduction', d:'Photons ↔ phonons, spin ↔ motion — every rung of the ladder needs a transduction chain.',
+     page:'anchor-6-transduction.html'},
+];
+const TIER={core:'core',micro:'micro-core',bridge:'bridge'};
+
+// ---- weekly calendar with persisted checkboxes ----
+const cal=document.getElementById('cal');
+let saved={}; try{ saved=JSON.parse(localStorage.getItem('sensing2026.week')||'{}'); }catch(e){ saved={}; }
+CAL.forEach((row,i)=>{
+  const tr=document.createElement('tr'); if(row.tut) tr.className='tut';
+  const tdS=document.createElement('td');
+  if(row.tut){ tdS.innerHTML='<span class="a">'+row.s+'</span>'; }
+  else{
+    const lab=document.createElement('label'); lab.className='ck';
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!saved['s'+i];
+    cb.addEventListener('change',()=>{ saved['s'+i]=cb.checked;
+      try{ localStorage.setItem('sensing2026.week', JSON.stringify(saved)); }catch(e){} });
+    lab.appendChild(cb); lab.appendChild(document.createTextNode(' '+row.s));
+    tdS.appendChild(lab);
+  }
+  const tdA=document.createElement('td'); tdA.innerHTML='<span class="a">'+row.a+'</span>';
+  const tdX=document.createElement('td'); tdX.textContent=row.x;
+  tr.append(tdS,tdA,tdX); cal.appendChild(tr);
+});
+document.getElementById('calhint').textContent='≈ 2 anchors per 30-min session · one logbook entry each · checkboxes saved in this browser only.';
+
+// ---- anchor cards ----
+const cards=document.getElementById('cards');
+for(const a of ANCHORS){
+  const href=a.play||a.page, label=a.play?'▶ Open interactive':'▶ Open page', live=!!href;
+  const c=document.createElement('div'); c.className='acard '+(live?'live':'soon'); c.id=a.id;
+  const ref='<a href="reference.html#'+a.id+'" style="font-size:14px;font-weight:700;color:#8a5a2b;text-decoration:none;align-self:center">Reference ↗</a>';
+  const links = live
+    ? '<div class="links"><a class="btn" href="'+href+'">'+label+'</a>'+ref+'</div>'
+    : '<div class="links">'+ref+'</div>';
+  c.innerHTML='<span class="badge '+a.tier+'">'+TIER[a.tier]+' · anchor '+a.n+'</span>'+
+    '<h3>'+a.t+'</h3><p>'+a.d+'</p>'+links;
+  cards.appendChild(c);
+}
+</script>
+</body>
+</html>

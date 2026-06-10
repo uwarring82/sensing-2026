@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The quantum ladder — resource vs fragility · Sensing 2026</title>
+<!--
+  Sensing 2026 · Pillar-2 hub · Anchor 4 (the quantum ladder & scaling; the resource–fragility axis).
+  Slice-2 flagship. Single self-contained file: no external requests, works offline, hand-rolled
+  canvas plotting. Reconstruction four-beat: Try · Notice · Explain · Connect (DR-01 §B form).
+  Scaling model is SCHEMATIC with correct asymptotic slopes (see the math-on-demand): SQL 1/√N,
+  squeezed ξ/√N, GHZ ideal 1/N, GHZ realistic = bathtub with a noise-set sweet spot (Huelga 1997).
+-->
+<style>
+  :root{
+    --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#ffffff;
+    --sql:#2563eb; --sq:#0f766e; --ghzi:#7c3aed; --ghzr:#dc2626; --qec:#d97706; --accent:#0f766e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
+  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
+    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
+  .beat-nav a:hover{background:var(--accent); color:#fff}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px}
+  h2 .beat{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--accent)}
+  .presets{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 14px; align-items:center}
+  button{font:inherit; font-size:15px; font-weight:700; cursor:pointer; border:1.5px solid var(--ink);
+    background:#fff; color:var(--ink); border-radius:8px; padding:8px 14px}
+  button:hover{background:var(--ink); color:#fff}
+  button.preset{border-color:var(--line)}
+  button.preset.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px 24px; align-items:end}
+  .ctl label{display:block; font-weight:700; font-size:15px; margin-bottom:4px}
+  .ctl .val{font-weight:400; color:var(--muted)}
+  input[type=range]{width:100%; accent-color:var(--accent); height:26px}
+  .qec{display:flex; align-items:center; gap:8px; font-weight:700}
+  .qec input{width:22px; height:22px; accent-color:var(--qec)}
+  .rungs{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin:14px 0 4px}
+  .rung{border:1.5px solid var(--line); border-left-width:6px; border-radius:8px; padding:8px 12px; cursor:pointer; background:#fff}
+  .rung:hover{background:#f0fdfa}
+  .rung.active{box-shadow:0 0 0 2px var(--accent) inset}
+  .rung b{display:block; font-size:15px}
+  .rung .sc{font-size:14px; color:var(--muted)} .rung .pl{font-size:13px; color:var(--muted)}
+  .rung a{font-size:13px}
+  figure{margin:14px 0 0} canvas{width:100%; height:auto; display:block; background:#fff;
+    border:1px solid var(--line); border-radius:8px}
+  figcaption{font-size:14px; color:var(--muted); margin-top:6px}
+  .readout{font-size:19px; line-height:1.55} .readout b{color:var(--ink)}
+  .pill{display:inline-block; padding:1px 8px; border-radius:6px; font-weight:700; font-size:15px}
+  .pill.sql{background:#dbeafe;color:#1e3a8a} .pill.sq{background:#ccfbf1;color:#115e59}
+  .pill.ghz{background:#ede9fe;color:#5b21b6} .pill.bad{background:#fee2e2;color:#991b1b}
+  details{margin-top:10px} summary{cursor:pointer; font-weight:700; color:var(--accent)}
+  .connect ul{margin:6px 0 0; padding-left:22px} .connect li{margin:6px 0}
+  .check{background:#f0fdfa; border-left:4px solid var(--accent); padding:12px 16px; border-radius:0 8px 8px 0; margin-top:12px; font-size:17px}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
+  .hint{font-size:14px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a href="workshop.html" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none">← Sensing 2026 hub</a>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · Anchor 4 · The quantum ladder</span></div>
+  <h1>More entanglement — always better?</h1>
+  <p class="sub">Phase uncertainty Δφ vs number of atoms N. Climb the ladder; then turn on noise and
+  watch which resource actually <i>wins</i>.</p>
+  <nav class="beat-nav">
+    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
+    <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
+  </nav>
+</header>
+
+<section id="try">
+  <h2><span class="beat">Try this</span> Climb the rungs, then add decoherence</h2>
+  <p style="margin:0 0 12px"><b>The question:</b> the Heisenberg limit (1/N) beats the standard
+  quantum limit (1/√N) — so should you always reach for the most entangled state? Set the noise and
+  see.</p>
+
+  <div class="presets" id="presets">
+    <span class="hint" style="font-weight:700;color:var(--ink)">Decoherence:</span>
+    <button class="preset" data-s="0">Ideal (none)</button>
+    <button class="preset" data-s="0.333">Low</button>
+    <button class="preset active" data-s="0.634">Realistic</button>
+    <button class="preset" data-s="0.841">High</button>
+    <label class="qec"><input type="checkbox" id="qec"> +QEC (level 4)</label>
+  </div>
+
+  <div class="controls">
+    <div class="ctl">
+      <label>Decoherence <span class="val" id="v-noise"></span></label>
+      <input type="range" id="noise" min="0" max="1" step="0.001" value="0.634">
+      <p class="hint">sets the GHZ <i>sweet spot</i> N* — more noise, smaller N*</p>
+    </div>
+    <div class="ctl">
+      <label>Atoms you commit, N <span class="val" id="v-N"></span></label>
+      <input type="range" id="Nsel" min="0" max="3.301" step="0.01" value="2">
+      <p class="hint">the dashed vertical line — read each strategy off there</p>
+    </div>
+  </div>
+
+  <div class="rungs" id="rungs"></div>
+
+  <figure>
+    <canvas id="plot" width="1040" height="440"></canvas>
+    <figcaption>Δφ vs N (log–log). <span class="pill sql">SQL 1/√N</span>
+      <span class="pill sq">squeezed ξ/√N</span> <span class="pill ghz">GHZ ideal 1/N</span>
+      <span class="pill bad">GHZ realistic</span> — click a rung to highlight; ◆ marks the GHZ sweet spot.</figcaption>
+  </figure>
+</section>
+
+<section id="notice">
+  <h2><span class="beat">Notice this</span> Which resource actually wins?</h2>
+  <p class="readout" id="readout">…</p>
+</section>
+
+<section id="explain">
+  <h2><span class="beat">Explain this</span></h2>
+  <p>At zero noise the GHZ line (1/N) is best at every N. Turn up decoherence and it grows a
+  <b>bathtub</b> — a sweet spot, then it climbs. <b>Why does piling more atoms into one entangled
+  state eventually make the measurement <i>worse</i>, and why can plain atoms overtake it?</b></p>
+  <details>
+    <summary>Reveal a one-paragraph answer</summary>
+    <p>A GHZ state of N atoms is N times more sensitive to phase — that is the 1/N gain — but it also
+    <b>dephases N times faster</b>: one stray photon scrambles the whole entangled register. So as N
+    grows, the usable coherence time shrinks, and past a noise-set <b>sweet spot N*</b> the fragility
+    outweighs the gain. Independent atoms (SQL) carry no such penalty: each fails on its own, so their
+    1/√N keeps improving and eventually <i>overtakes</i> the saturated GHZ. Spin-squeezing sits in
+    between — a smaller, more robust gain. The fix for the fragility is not "more entanglement" but
+    <b>protecting it</b>: that is level 4, quantum error correction (toggle +QEC to push N* back out).</p>
+  </details>
+  <details>
+    <summary>Show the math — slopes &amp; the schematic</summary>
+    <p>SQL: independent probes give Δφ ∝ N<sup>−1/2</sup> (this is the same 1/√N wall as the
+    white-noise floor in the anchor-2 explorer). Squeezing lowers the prefactor: ξ/√N, ξ&lt;1
+    (Caves 1981). A GHZ/NOON state reaches the Heisenberg limit Δφ ∝ N<sup>−1</sup> (Giovannetti
+    <i>et al.</i> 2011). <b>Schematic note:</b> the realistic curve here is a teaching cartoon —
+    Δφ ≈ max(1/N, N/N*²), a bathtub with its minimum 1/N* at N = N*. Its <i>asymptotic message</i> is
+    the real result: under uncorrelated dephasing the Heisenberg advantage is <b>lost</b> and one
+    reverts toward 1/√N (Huelga <i>et al.</i> 1997; Demkowicz-Dobrzański <i>et al.</i> 2012). +QEC
+    pushes N* up by protecting coherence.</p>
+  </details>
+</section>
+
+<section id="connect" class="connect">
+  <h2><span class="beat">Now connect it</span></h2>
+  <ul>
+    <li><b>Back to anchor 2:</b> the blue <span class="pill sql">SQL 1/√N</span> line is the very same
+      −½ slope you met as the white-noise floor in the Allan explorer. The ladder is about
+      <i>bending that line</i>; decoherence is the “drift” that limits how far you can bend it — and
+      the GHZ bathtub is the Allan bathtub's twin (a resource that <i>stops helping</i> past a sweet spot).</li>
+    <li><b>Forward to anchor 5 (back-action) &amp; QEC:</b> protecting the entangled probe — back-action
+      evasion, error correction — is how you keep the 1/N gain in a noisy world (level 4).</li>
+  </ul>
+  <div class="check">
+    <b>Exercise check.</b> At <i>Realistic</i> noise, set N to 100. Read off Δφ for the SQL line and for
+    the realistic GHZ line, and say in one sentence which strategy you would actually build — and why
+    "reach for the Heisenberg limit" is the wrong instinct here.
+  </div>
+</section>
+
+<footer>
+  Single-file, offline, no tracking. Schematic model — asymptotic slopes are faithful; see the
+  math-on-demand. Sources: Caves, PRD 23, 1693 (1981); Giovannetti, Lloyd &amp; Maccone, Nat. Photon.
+  5, 222 (2011); Demkowicz-Dobrzański <i>et al.</i>, PRX (2012) / Huelga <i>et al.</i>, PRL 79, 3865 (1997).
+</footer>
+
+</div>
+
+<script>
+"use strict";
+//============================ scaling model (schematic; slopes faithful) ====================
+function NstarFromS(s){ return Math.pow(10, 3.3 - 3.0*s); }      // sweet spot vs decoherence
+const ySQL  = N => 1/Math.sqrt(N);
+const ySq   = (N,s)=> Math.min(1, 0.3 + 0.5*s)/Math.sqrt(N);
+const yGHZi = N => 1/N;
+const yGHZr = (N,Ns)=> Math.max(1/N, N/(Ns*Ns));                  // bathtub: min 1/Ns at N=Ns
+
+const RUNGS=[
+  {key:'sql', label:'1 · Coherent', sc:'Δφ ∝ 1/√N (SQL)', pl:'Ramsey; ion/atom clock',
+   color:getComputedStyle(document.documentElement).getPropertyValue('--sql').trim(),
+   paper:'Giovannetti+ 2011'},
+  {key:'sq', label:'2S · Squeezed', sc:'Δφ ∝ ξ/√N, ξ<1', pl:'spin-squeezed Sr; LIGO',
+   color:getComputedStyle(document.documentElement).getPropertyValue('--sq').trim(),
+   paper:'Caves 1981'},
+  {key:'ghz', label:'3 · Entangled (GHZ)', sc:'Δφ ∝ 1/N (Heisenberg)', pl:'10-ion GHZ; NOON',
+   color:getComputedStyle(document.documentElement).getPropertyValue('--ghzi').trim(),
+   paper:'Giovannetti+ 2011'},
+  {key:'qec', label:'4 · + QEC', sc:'keeps 1/N in noise', pl:'NV / ions (emerging)',
+   color:getComputedStyle(document.documentElement).getPropertyValue('--qec').trim(),
+   paper:'Demkowicz-Dobrzański+'},
+];
+const NMIN=1, NMAX=2000;
+const LW=1040, LH=440;   // logical drawing size (matches canvas attribute width/height)
+let highlight=null;  // rung key or null
+
+//============================ canvas log-log plot ===========================================
+function draw(){
+  const s=+els.noise.value, qec=els.qec.checked;
+  const Ns=NstarFromS(s)*(qec?50:1);
+  const Nsel=Math.round(Math.pow(10, +els.Nsel.value));
+
+  // sample curves
+  const xs=[], C={sql:[],sq:[],ghzi:[],ghzr:[]};
+  for(let k=0;k<=160;k++){ const N=Math.pow(10, Math.log10(NMIN)+(Math.log10(NMAX)-Math.log10(NMIN))*k/160);
+    xs.push(N); C.sql.push(ySQL(N)); C.sq.push(ySq(N,s)); C.ghzi.push(yGHZi(N)); C.ghzr.push(yGHZr(N,Ns)); }
+
+  const cv=els.plot;
+  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W=LW,H=LH;
+  ctx.clearRect(0,0,W,H);
+  const padL=70,padR=18,padT=22,padB=46, w=W-padL-padR, h=H-padT-padB;
+  let ymin=Infinity,ymax=-Infinity;
+  for(const key in C) for(const v of C[key]){ if(v<ymin)ymin=v; if(v>ymax)ymax=v; }
+  const lxmn=Math.log10(NMIN),lxmx=Math.log10(NMAX);
+  const lymn=Math.log10(ymin)-0.1, lymx=Math.log10(ymax)+0.1;
+  const X=N=> padL+(Math.log10(N)-lxmn)/(lxmx-lxmn)*w;
+  const Y=v=> padT+(1-(Math.log10(v)-lymn)/(lymx-lymn))*h;
+
+  // grid
+  ctx.strokeStyle='#eef2f6'; ctx.lineWidth=1;
+  for(let e=0;e<=Math.ceil(lxmx);e++){ const N=Math.pow(10,e); if(N<NMIN||N>NMAX)continue;
+    const x=X(N); ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+h); ctx.stroke(); }
+  for(let e=Math.floor(lymn);e<=Math.ceil(lymx);e++){ const y=Y(Math.pow(10,e));
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+w,y); ctx.stroke(); }
+  ctx.strokeStyle='#e2e8f0'; ctx.strokeRect(padL,padT,w,h);
+
+  // vertical "your N" marker
+  ctx.strokeStyle='#94a3b8'; ctx.setLineDash([5,5]); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(X(Nsel),padT); ctx.lineTo(X(Nsel),padT+h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#64748b'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('N = '+Nsel, X(Nsel), padT+14);
+
+  function curve(arr,color,dash,wdt,dim){ ctx.strokeStyle=color; ctx.globalAlpha=dim?0.18:1;
+    ctx.setLineDash(dash||[]); ctx.lineWidth=wdt; ctx.beginPath();
+    for(let i=0;i<xs.length;i++){ const x=X(xs[i]),y=Y(arr[i]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+    ctx.stroke(); ctx.globalAlpha=1; ctx.setLineDash([]); }
+  const dim=k=> highlight && highlight!==k;
+  curve(C.ghzi, RUNGS[2].color, [7,5], 2, dim('ghz'));            // GHZ ideal (dashed)
+  curve(C.sql,  RUNGS[0].color, null, 2.6, dim('sql'));
+  curve(C.sq,   RUNGS[1].color, null, 2.6, dim('sq'));
+  curve(C.ghzr, '#dc2626',      null, 3.0, dim('ghz'));           // GHZ realistic (solid red)
+
+  // sweet-spot diamond on the realistic GHZ
+  if(Ns>=NMIN && Ns<=NMAX){ const sx=X(Ns), sy=Y(1/Ns);
+    ctx.fillStyle='#dc2626'; ctx.beginPath();
+    ctx.moveTo(sx,sy-6);ctx.lineTo(sx+6,sy);ctx.lineTo(sx,sy+6);ctx.lineTo(sx-6,sy);ctx.closePath(); ctx.fill();
+    ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText(' N* sweet spot', sx+8, sy-6); }
+
+  // axes labels
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  for(let e=0;e<=Math.ceil(lxmx);e++){ const N=Math.pow(10,e); if(N<NMIN||N>NMAX)continue;
+    ctx.fillText(N>=1?N.toString():N, X(N), padT+h+18); }
+  ctx.textAlign='right';
+  for(let e=Math.floor(lymn);e<=Math.ceil(lymx);e++){ const v=Math.pow(10,e);
+    ctx.fillText('10'+sup(e), padL-6, Y(v)+4); }
+  ctx.fillStyle='#15212e'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('number of atoms  N  →', padL+w/2, H-10);
+  ctx.save(); ctx.translate(16,padT+h/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('phase uncertainty  Δφ', 0,0); ctx.restore();
+
+  updateReadout(s, Ns, Nsel, qec);
+}
+function sup(n){ const m={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(n).split('').map(c=>m[c]||c).join(''); }
+
+//============================ readout ======================================================
+function updateReadout(s, Ns, Nsel, qec){
+  const v={SQL:ySQL(Nsel), squeezed:ySq(Nsel,s), 'GHZ (ideal)':yGHZi(Nsel), 'GHZ (real)':yGHZr(Nsel,Ns)};
+  // best *achievable* strategy = min over the three real options (ideal GHZ is the dream, excluded)
+  const real={SQL:v.SQL, squeezed:v.squeezed, 'GHZ (real)':v['GHZ (real)']};
+  let best=null; for(const k in real) if(best===null||real[k]<real[best]) best=k;
+  const gainVsSQL = (v.SQL/real[best]);
+  const ghzBeatsSQL = v['GHZ (real)'] < v.SQL;
+  const cls = best==='SQL'?'sql':best==='squeezed'?'sq':'ghz';
+  let lead;
+  if(s<0.02){
+    lead = `<b>No noise:</b> the <span class="pill ghz">GHZ 1/N</span> line wins at every N — entanglement
+      is pure profit. (Real devices are never here.)`;
+  } else {
+    lead = `At this noise the GHZ sweet spot is <b>N* ≈ ${Math.round(Ns)}</b> ◆ — beyond it, more
+      entanglement <i>hurts</i>. At your <b>N = ${Nsel}</b> the best real strategy is
+      <span class="pill ${cls}">${best}</span> (Δφ ≈ ${real[best].toExponential(2)}, ${gainVsSQL.toFixed(1)}× better than SQL).
+      ${ ghzBeatsSQL ? '' : '<b>Here a full GHZ is actually <span class="pill bad">worse than plain atoms</span>.</b>' }`;
+  }
+  els.readout.innerHTML = lead + (qec
+    ? `<br><span style="font-size:15px;color:#d97706"><b>+QEC on:</b> protecting coherence pushed N* out to ≈ ${Math.round(Ns)} — the Heisenberg gain is back within reach.</span>`
+    : `<br><span style="font-size:15px;color:#5b6b7b">Toggle <b>+QEC</b> to see level-4 protection push N* back out.</span>`);
+}
+
+//============================ wiring =======================================================
+const els={ noise:document.getElementById('noise'), Nsel:document.getElementById('Nsel'),
+  qec:document.getElementById('qec'), plot:document.getElementById('plot'),
+  readout:document.getElementById('readout'), presets:document.getElementById('presets'),
+  rungs:document.getElementById('rungs'), vnoise:document.getElementById('v-noise'),
+  vN:document.getElementById('v-N') };
+
+function renderRungs(){
+  els.rungs.innerHTML='';
+  for(const r of RUNGS){
+    const isQec = r.key==='qec';
+    const active = isQec ? els.qec.checked : (highlight===r.key);   // qec card mirrors the toggle, never 'highlight'
+    const d=document.createElement('div'); d.className='rung'+(active?' active':'');
+    d.style.borderLeftColor=r.color;
+    const note = isQec ? ' · click to toggle' : '';
+    d.innerHTML=`<b style="color:${r.color}">${r.label}</b><span class="sc">${r.sc}</span>`+
+      `<span class="pl">${r.pl} · ${r.paper}${note}</span>`;
+    d.addEventListener('click',()=>{
+      if(isQec){ els.qec.checked=!els.qec.checked; renderRungs(); render(); }  // toggle level-4 protection
+      else { highlight = (highlight===r.key? null : r.key); renderRungs(); draw(); }
+    });
+    els.rungs.appendChild(d);
+  }
+}
+function syncLabels(){ els.vnoise.textContent='('+(+els.noise.value).toFixed(2)+')';
+  els.vN.textContent='('+Math.round(Math.pow(10,+els.Nsel.value))+')'; }
+function render(){ syncLabels(); draw(); }
+
+els.noise.addEventListener('input',()=>{ [...els.presets.querySelectorAll('.preset')].forEach(b=>b.classList.remove('active')); render(); });
+els.Nsel.addEventListener('input', render);
+els.qec.addEventListener('change',()=>{ renderRungs(); render(); });   // keep the qec rung card in sync
+els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(!b)return;
+  els.noise.value=b.dataset.s;
+  [...els.presets.querySelectorAll('.preset')].forEach(x=>x.classList.toggle('active', x===b));
+  render(); });
+window.addEventListener('resize', draw);
+
+renderRungs(); render();
+</script>
+</body>
+</html>

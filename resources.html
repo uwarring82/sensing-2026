@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go broader — the resource library · Sensing 2026</title>
+<!--
+  Sensing 2026 · Pillar-2 hub · Perspective layer: the "go broader" resource library.
+  Single self-contained file. NO external requests (no CDN, no remote fonts/scripts/images/iframes)
+  so it paints offline in <2s. EXCEPTION for this page: external <a href> navigations to
+  videos/papers/textbooks ARE expected — they are clicks, not page-load requests. Still NO remote
+  <script>/<link>/<img>/<iframe> embeds.
+  Reconstruction four-beat applied to the act of *choosing depth*: The question · Try this ·
+  Notice this · Explain this (math-on-demand) · Now connect it. One section per anchor (1–6),
+  each with a tiered MUST / SHOULD / CAN list (<=3 items).
+  Style block adapted from quantum-ladder.html (shared hub palette + .wrap/section/h1/h2/.tag/
+  .beat-nav/.pill/.check/footer).
+-->
+<style>
+  :root{
+    --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#ffffff;
+    --accent:#0f766e;
+    --must:#dc2626; --should:#2563eb; --can:#7c3aed;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
+  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
+    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
+  .beat-nav a:hover{background:var(--accent); color:#fff}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  h2 .beat{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--accent)}
+  h2 .num{font-size:13px; font-weight:800; color:#fff; background:var(--ink); border-radius:999px;
+    padding:2px 10px; letter-spacing:.03em}
+  h3{font-size:16px; margin:16px 0 8px; letter-spacing:.04em; text-transform:uppercase}
+  p{margin:0 0 12px}
+  a{color:var(--accent)}
+  .lead{font-size:19px; line-height:1.55}
+  .lead b{color:var(--ink)}
+  /* tier blocks */
+  .tier{border-left:5px solid var(--line); border-radius:0 8px 8px 0; padding:4px 0 4px 16px; margin:6px 0 16px}
+  .tier.must{border-left-color:var(--must)}
+  .tier.should{border-left-color:var(--should)}
+  .tier.can{border-left-color:var(--can)}
+  .tier h3{margin-top:6px}
+  .tier.must h3{color:var(--must)} .tier.should h3{color:var(--should)} .tier.can h3{color:var(--can)}
+  .res{margin:10px 0}
+  .res a.title{font-weight:700; font-size:18px; text-decoration:none}
+  .res a.title:hover{text-decoration:underline}
+  .res .why{font-size:16px; color:var(--muted); margin:2px 0 0}
+  .res .why b{color:var(--ink)}
+  /* pills / badges */
+  .pill{display:inline-block; padding:1px 8px; border-radius:6px; font-weight:700; font-size:13px;
+    letter-spacing:.03em; text-transform:uppercase}
+  .pill.video{background:#fee2e2;color:#991b1b}
+  .pill.paper{background:#dbeafe;color:#1e3a8a}
+  .pill.textbook{background:#ede9fe;color:#5b21b6}
+  .pill.must{background:#fee2e2;color:#991b1b}
+  .pill.should{background:#dbeafe;color:#1e3a8a}
+  .pill.can{background:#ede9fe;color:#5b21b6}
+  .clip{display:inline-block; font-weight:700; font-size:14px; color:var(--ink);
+    background:#f0fdfa; border:1px solid var(--accent); border-radius:6px; padding:0 7px}
+  .ext{font-size:13px; color:var(--muted)}
+  /* this-anchor's-own interactive cross-link */
+  .ownlink{display:inline-block; margin-top:8px; font-size:15px; font-weight:700; text-decoration:none;
+    color:var(--accent); border:1.5px solid var(--accent); border-radius:999px; padding:4px 13px}
+  .ownlink:hover{background:var(--accent); color:#fff}
+  .ownlink::before{content:"↩ "; }
+  details{margin-top:10px} summary{cursor:pointer; font-weight:700; color:var(--accent)}
+  details p{margin:8px 0 0}
+  .check{background:#f0fdfa; border-left:4px solid var(--accent); padding:12px 16px;
+    border-radius:0 8px 8px 0; margin-top:12px; font-size:17px}
+  .hubref{background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:14px 18px; margin:14px 0}
+  .hubref b{color:#92400e}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
+  .hint{font-size:14px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <span class="tag">Sensing 2026 · Perspective layer · Go broader</span>
+  <h1>The resource library — read &amp; watch <i>after</i> the core work</h1>
+  <p class="sub">Depth AFTER the core work — these are optional. Do the interactive first; come here when
+  you want the rigorous "why" behind what you just played with.</p>
+  <nav class="beat-nav">
+    <a href="index.html">↩ Home</a><a href="workshop.html">⌂ Workshop</a>
+    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
+    <a href="#explain">3 · Explain this</a>
+    <a href="#a1">A1</a><a href="#a2">A2</a><a href="#a3">A3</a>
+    <a href="#a4">A4</a><a href="#a5">A5</a><a href="#a6">A6</a>
+    <a href="#connect">Now connect it</a>
+  </nav>
+</header>
+
+<section id="try">
+  <h2><span class="beat">Try this</span> Open the hook, then pick your depth</h2>
+  <p class="lead"><b>The question:</b> the interactives gave you the intuition — but how deep should you
+  actually go, and <i>which</i> source repays the time? This page answers that for each of the six
+  anchors with a three-tier ladder: <b>MUST</b> (the one 5–20 min source to do now), <b>SHOULD</b> (the
+  rigorous counterpoint), <b>CAN</b> (the open-ended rabbit hole).</p>
+  <p>Start with the single best accessible hook for the whole hub — a viral claim turned into a real
+  physics lesson:</p>
+  <div class="res">
+    <span class="pill video">Video</span> <span class="pill must">Must · hook</span>
+    <a class="title" href="https://www.youtube.com/watch?v=SVTPv4sI_Jc&amp;t=952s" target="_blank" rel="noopener noreferrer">Veritasium — "Can a quantum sensor detect your heartbeat from 60&nbsp;km away?"</a>
+    <span class="clip">▶ 15:52–18:30</span>
+    <p class="why">YouTube lists it under the clickbait title <i>"The CIA's new tech doesn't make sense"</i>
+    (22 min). It turns the viral <b>"Ghost Murmur"</b> claim into a concrete sensitivity-limit lesson:
+    the heart's field is ~50–100&nbsp;pT, falls off as <b>1/r³</b>, and at ~50–100&nbsp;km would demand a
+    sensor ~<b>18 orders of magnitude</b> more sensitive than today's diamond magnetometers. Maps to
+    Anchor 1 (sensitivity vs range), with a secondary tie to Anchor 3 (the SQL/shot-noise floor).</p>
+  </div>
+  <p class="hint">Everything below opens in a new tab. Pick one tier per anchor; you do not need all
+  eighteen sources.</p>
+</section>
+
+<section id="notice">
+  <h2><span class="beat">Notice this</span> How to read the three tiers</h2>
+  <p class="lead">Each anchor's list is sorted by <i>effort-to-payoff</i>, not by difficulty for its own
+  sake:</p>
+  <p><span class="pill must">Must</span> &nbsp;the one source to do <b>now</b> — accessible, 5–20 min,
+  builds the intuition the interactive started. &nbsp;
+  <span class="pill should">Should</span> &nbsp;the <b>rigorous counterpoint</b> — a real instrument or
+  the canonical review that makes the hand-waving quantitative. &nbsp;
+  <span class="pill can">Can</span> &nbsp;the <b>open-ended payoff</b> — where the idea cashes out in
+  new physics or a record-setting machine.</p>
+  <p>Type tags: <span class="pill video">Video</span> <span class="pill paper">Paper</span>
+  <span class="pill textbook">Textbook</span>. A <span class="clip">▶ time range</span> on a long video
+  is the excerpt worth scrubbing to.</p>
+</section>
+
+<section id="explain">
+  <h2><span class="beat">Explain this</span> Why a tiered library beats a flat reading list</h2>
+  <p>A flat list hides the one move that matters: <b>do the interactive first, then read exactly one
+  level deeper than you need.</b> The MUST source closes the loop the simulation opened; the SHOULD
+  source shows you the same effect in a real device so you trust it; the CAN source is optional reward.
+  The anchors are also a <i>chain</i> — sensitivity (1) is limited by noise (2), whose floor is the SQL
+  (3), which the quantum ladder (4) and back-action/squeezing (5) push below, all readable only through
+  transduction (6).</p>
+  <details>
+    <summary>Show the math — the one inequality every anchor circles</summary>
+    <p>The thread is a single scaling statement. For <b>N</b> independent probes (atoms, photons,
+    averages) the phase/field uncertainty falls as the <b>standard quantum limit</b>
+    Δφ ∝ N<sup>−1/2</sup> — the same −½ slope as a white-noise Allan/PSD floor (Anchors&nbsp;2–3).
+    Squeezing lowers the <i>prefactor</i> (ξ/√N, ξ&lt;1; Caves&nbsp;1981, Anchor&nbsp;5), and an ideal
+    entangled GHZ/NOON state reaches the <b>Heisenberg limit</b> Δφ ∝ N<sup>−1</sup>
+    (Giovannetti–Lloyd–Maccone&nbsp;2011, Anchor&nbsp;4) — but realistic decoherence claws that gain
+    back toward 1/√N (Huelga&nbsp;1997; Demkowicz-Dobrzański&nbsp;2012). Every paper below is, in the
+    end, a fight over the constant in front of N<sup>−1/2</sup> and whether you can bend the exponent
+    toward −1. The single best umbrella reference is the Degen–Reinhard–Cappellaro review,
+    <a href="https://doi.org/10.1103/RevModPhys.89.035002" target="_blank" rel="noopener noreferrer">Rev. Mod. Phys. 89, 035002 (2017)</a>.</p>
+  </details>
+</section>
+
+<!-- ================= ANCHOR 1 ================= -->
+<section id="a1">
+  <h2><span class="num">Anchor 1</span> Sensitivity · dynamic-range · bandwidth trade-off</h2>
+  <a class="ownlink" href="anchor-1-triangle.html">Back to the Anchor 1 interactive — the trade-off triangle</a>
+
+  <div class="tier must">
+    <h3><span class="pill must">Must</span> do this now</h3>
+    <div class="res">
+      <span class="pill video">Video</span>
+      <a class="title" href="https://www.youtube.com/watch?v=SVTPv4sI_Jc&amp;t=952s" target="_blank" rel="noopener noreferrer">Veritasium — "Can a quantum sensor detect your heartbeat from 60&nbsp;km away?"</a>
+      <span class="clip">▶ 15:52–18:30</span>
+      <p class="why"><b>Why this:</b> turns the viral CIA "Ghost Murmur" claim into a concrete
+      sensitivity-limit lesson (1/r³ falloff, ~18 orders of magnitude short, background noise) — the
+      perfect 5-min accessible hook for sensitivity vs. range. <span class="ext">(YouTube title:
+      "The CIA's new tech doesn't make sense.")</span></p>
+    </div>
+  </div>
+
+  <div class="tier should">
+    <h3><span class="pill should">Should</span> read/watch for rigor</h3>
+    <div class="res">
+      <span class="pill video">Video</span>
+      <a class="title" href="https://www.youtube.com/watch?v=6ggFdovvhdU&amp;t=1430s" target="_blank" rel="noopener noreferrer">Jörg Wrachtrup — "Nanoscale Quantum Sensing"</a>
+      <span class="clip">▶ 23:50–25:00</span>
+      <p class="why"><b>Why this:</b> puts real numbers on NV-magnetometry sensitivity — record NV floors
+      of a few hundred pT/√Hz, ~2 orders short of atomic-vapor magnetometers and far short of SQUIDs
+      (fT/√Hz) — the rigorous counterpoint to the Veritasium feasibility argument.</p>
+    </div>
+  </div>
+
+  <div class="tier can">
+    <h3><span class="pill can">Can</span> go deeper (open-ended)</h3>
+    <div class="res">
+      <span class="pill textbook">Textbook</span>
+      <a class="title" href="https://ebookcentral.proquest.com/lib/ubfreiburg/detail.action?docID=482251#goto_toc" target="_blank" rel="noopener noreferrer">Riehle, <i>Frequency Standards: Basics and Applications</i>, ch. 3</a>
+      <p class="why"><b>Why this:</b> formalizes how integration time, bandwidth and noise floor set the
+      achievable sensitivity (Allan-deviation / PSD framing) — the quantitative backbone behind the
+      videos' hand-waving.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANCHOR 2 ================= -->
+<section id="a2">
+  <h2><span class="num">Anchor 2</span> Noise &amp; Allan deviation</h2>
+  <a class="ownlink" href="allan-psd-explorer.html">Back to the Anchor 2 interactive — the Allan / PSD explorer</a>
+
+  <div class="tier must">
+    <h3><span class="pill must">Must</span> do this now</h3>
+    <div class="res">
+      <span class="pill textbook">Textbook</span>
+      <a class="title" href="https://ebookcentral.proquest.com/lib/ubfreiburg/detail.action?docID=482251#goto_toc" target="_blank" rel="noopener noreferrer">Riehle, <i>Frequency Standards: Basics and Applications</i>, ch. 3</a>
+      <p class="why"><b>Why this:</b> the canonical 10-min read on Allan deviation and characterizing
+      white / flicker / random-walk noise — exactly the anchor's core vocabulary.</p>
+    </div>
+  </div>
+
+  <div class="tier should">
+    <h3><span class="pill should">Should</span> read for rigor</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1126/science.1154622" target="_blank" rel="noopener noreferrer">Rosenband <i>et al.</i> — "Frequency Ratio of Al⁺ and Hg⁺ Single-Ion Optical Clocks; Metrology at the 17th Decimal Place," Science 319, 1808 (2008)</a>
+      <p class="why"><b>Why this:</b> a real instrument pushed to 5.2×10⁻¹⁷ — read it for how
+      Allan-deviation noise budgeting plays out in a record-setting clock comparison.</p>
+    </div>
+  </div>
+
+  <div class="tier can">
+    <h3><span class="pill can">Can</span> go deeper (open-ended)</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1103/PhysRevLett.130.253001" target="_blank" rel="noopener noreferrer">Filzinger <i>et al.</i> — "Improved Limits on the Coupling of Ultralight Bosonic Dark Matter to Photons from Optical Atomic Clock Comparisons," PRL 130, 253001 (2023)</a>
+      <p class="why"><b>Why this:</b> the open-ended payoff of low-noise, long-averaging clock
+      comparisons — turning Allan-limited stability into new-physics limits on fine-structure-constant
+      drift.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANCHOR 3 ================= -->
+<section id="a3">
+  <h2><span class="num">Anchor 3</span> The standard quantum limit (1/√N)</h2>
+  <a class="ownlink" href="squeezing-sql.html">Back to the Anchor 3/5 interactive — squeezing &amp; the SQL</a>
+
+  <div class="tier must">
+    <h3><span class="pill must">Must</span> do this now</h3>
+    <div class="res">
+      <a class="title" href="squeezing-sql.html">▶ Start with the Anchor 3/5 interactive — squeezing &amp; the SQL</a>
+      <p class="why"><b>Why this:</b> the cleanest hands-on intro to the standard quantum limit is the
+      hub's own widget — the vacuum's uncertainty disk literally <i>is</i> the 1/√N floor. Five minutes
+      of dragging beats any lecture here; then read the review below for the conceptual map.</p>
+    </div>
+  </div>
+
+  <div class="tier should">
+    <h3><span class="pill should">Should</span> read for rigor</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1038/nphoton.2011.35" target="_blank" rel="noopener noreferrer">Giovannetti, Lloyd &amp; Maccone — "Advances in Quantum Metrology," Nature Photonics 5, 222 (2011)</a>
+      <p class="why"><b>Why this:</b> the standard review contrasting the 1/√N SQL with the 1/N
+      Heisenberg limit — the conceptual map for the whole hub.
+      <span class="ext">(Open access: <a href="https://arxiv.org/abs/1102.2318" target="_blank" rel="noopener noreferrer">arXiv:1102.2318</a>.)</span></p>
+    </div>
+  </div>
+
+  <div class="tier can">
+    <h3><span class="pill can">Can</span> go deeper (open-ended)</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://arxiv.org/abs/1611.03986" target="_blank" rel="noopener noreferrer">Schnabel — "Squeezed states of light and their applications in laser interferometers," Phys. Rep. 684, 1 (2017)</a>
+      <p class="why"><b>Why this:</b> an open-access review that builds the interferometric shot-noise
+      (standard quantum) limit from first principles, then shows how squeezing beats it — bridges directly
+      into anchors 4 and 5. <span class="ext">(Open access on arXiv.)</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANCHOR 4 ================= -->
+<section id="a4">
+  <h2><span class="num">Anchor 4</span> The quantum ladder (coherence → squeezing → entanglement → QEC)</h2>
+  <a class="ownlink" href="quantum-ladder.html">Back to the Anchor 4 interactive — the quantum ladder</a>
+
+  <div class="tier must">
+    <h3><span class="pill must">Must</span> do this now</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1103/PhysRevLett.79.3865" target="_blank" rel="noopener noreferrer">Huelga <i>et al.</i> — "Improvement of Frequency Standards with Quantum Entanglement," PRL 79, 3865 (1997)</a>
+      <p class="why"><b>Why this:</b> the foundational result that entanglement helps frequency standards
+      — and that decoherence claws back the gain, the first rung-vs-noise tension on the ladder.
+      <span class="ext">(Open access: <a href="https://arxiv.org/abs/quant-ph/9707014" target="_blank" rel="noopener noreferrer">arXiv:quant-ph/9707014</a>.)</span></p>
+    </div>
+  </div>
+
+  <div class="tier should">
+    <h3><span class="pill should">Should</span> read for rigor</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1038/ncomms2067" target="_blank" rel="noopener noreferrer">Demkowicz-Dobrzański, Kołodyński &amp; Guță — "The elusive Heisenberg limit in quantum-enhanced metrology," Nature Communications 3, 1063 (2012)</a>
+      <p class="why"><b>Why this:</b> shows realistic decoherence generically reduces quantum enhancement
+      to a constant factor (not 1/N) — the sober ceiling on climbing the ladder.
+      <span class="ext">(Open access: <a href="https://arxiv.org/abs/1201.3940" target="_blank" rel="noopener noreferrer">arXiv:1201.3940</a>.)</span></p>
+    </div>
+  </div>
+
+  <div class="tier can">
+    <h3><span class="pill can">Can</span> go deeper (open-ended)</h3>
+    <div class="res">
+      <span class="pill video">Video</span>
+      <a class="title" href="https://www.youtube.com/watch?v=6ggFdovvhdU&amp;t=2070s" target="_blank" rel="noopener noreferrer">Jörg Wrachtrup — "Nanoscale Quantum Sensing" (T₂ / coherence-limited sensitivity segment)</a>
+      <span class="clip">▶ 34:30–37:00</span>
+      <p class="why"><b>Why this:</b> the coherence time T₂ (~3 ms here) sets the best NV sensitivity in
+      the no-entanglement regime (σ ∝ 1/√T₂) — the first rung before any entanglement. (The talk covers
+      the T₂ limit but does not actually demo dynamical decoupling.)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANCHOR 5 ================= -->
+<section id="a5">
+  <h2><span class="num">Anchor 5</span> Back-action / squeezing</h2>
+  <a class="ownlink" href="squeezing-sql.html">Back to the Anchor 5 interactive — squeezing &amp; the SQL</a>
+
+  <div class="tier must">
+    <h3><span class="pill must">Must</span> do this now</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1103/PhysRevD.23.1693" target="_blank" rel="noopener noreferrer">Caves — "Quantum-mechanical noise in an interferometer," Phys. Rev. D 23, 1693 (1981)</a>
+      <p class="why"><b>Why this:</b> the origin of squeezed-light metrology — it names the two quantum
+      noises (photon-counting vs. radiation-pressure back-action) and shows squeezing trades one for the
+      other.</p>
+    </div>
+  </div>
+
+  <div class="tier should">
+    <h3><span class="pill should">Should</span> read for rigor</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1103/PhysRevX.13.041021" target="_blank" rel="noopener noreferrer">LIGO Scientific Collaboration — "Broadband Quantum Enhancement of the LIGO Detectors with Frequency-Dependent Squeezing," Phys. Rev. X 13, 041021 (2023)</a>
+      <p class="why"><b>Why this:</b> Caves' idea realized — frequency-dependent squeezing beats BOTH
+      shot noise and radiation-pressure back-action across the band, raising detection rate up to 65%.</p>
+    </div>
+  </div>
+
+  <div class="tier can">
+    <h3><span class="pill can">Can</span> go deeper (open-ended)</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://arxiv.org/abs/1611.03986" target="_blank" rel="noopener noreferrer">Schnabel — "Squeezed states of light and their applications in laser interferometers," Phys. Rep. 684, 1 (2017)</a>
+      <p class="why"><b>Why this:</b> the open-access review of how squeezed vacuum injected at the dark
+      port reshapes quantum noise below the SQL — the exact mechanism behind LIGO's squeezing upgrade.
+      <span class="ext">(Open access on arXiv.)</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANCHOR 6 ================= -->
+<section id="a6">
+  <h2><span class="num">Anchor 6</span> Transduction (photons ⇄ phonons)</h2>
+  <a class="ownlink" href="anchor-6-transduction.html">Back to the Anchor 6 page — transduction</a>
+
+  <div class="tier must">
+    <h3><span class="pill must">Must</span> do this now</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1126/science.aaw2884" target="_blank" rel="noopener noreferrer">Burd <i>et al.</i> — "Quantum amplification of mechanical oscillator motion," Science 364, 1163 (2019)</a>
+      <p class="why"><b>Why this:</b> a trapped-ion oscillator where light-driven squeezing amplifies
+      sub-zero-point motion by 17.5 dB with ideally no added noise — photon⇄phonon transduction made
+      concrete.</p>
+    </div>
+  </div>
+
+  <div class="tier should">
+    <h3><span class="pill should">Should</span> watch for rigor</h3>
+    <div class="res">
+      <span class="pill video">Video</span>
+      <a class="title" href="https://www.youtube.com/watch?v=BfBm6t3CQWo&amp;t=2390s" target="_blank" rel="noopener noreferrer">Nathalie de Leon — "Introduction to quantum sensing with NV centers in diamond" (optical spin-readout segment)</a>
+      <span class="clip">▶ 39:50–41:15</span>
+      <p class="why"><b>Why this:</b> spin-dependent fluorescence = transducing a spin/microwave signal
+      into countable photons — the everyday face of transduction in a sensor.</p>
+    </div>
+  </div>
+
+  <div class="tier can">
+    <h3><span class="pill can">Can</span> go deeper (open-ended)</h3>
+    <div class="res">
+      <span class="pill paper">Paper</span>
+      <a class="title" href="https://doi.org/10.1103/PhysRevLett.116.061102" target="_blank" rel="noopener noreferrer">LIGO Scientific Collaboration — "Observation of Gravitational Waves from a Binary Black Hole Merger," PRL 116, 061102 (2016)</a>
+      <p class="why"><b>Why this:</b> the ultimate transducer — a spacetime strain converted to mirror
+      displacement → optical phase → photocurrent; the open-ended payoff of the whole chain.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONNECT ================= -->
+<section id="connect">
+  <h2><span class="beat">Now connect it</span> Bring the depth back to the bench</h2>
+  <p class="lead">You came here to <i>go broader</i>. Now fold it back into the six interactives so the
+  reading sticks:</p>
+  <div class="hubref">
+    <b>One umbrella reference for the whole hub:</b> if you read only one thing beyond your chosen
+    anchor, make it the Degen–Reinhard–Cappellaro review,
+    <a href="https://doi.org/10.1103/RevModPhys.89.035002" target="_blank" rel="noopener noreferrer">"Quantum sensing," Rev. Mod. Phys. 89, 035002 (2017)</a> — it ties all six anchors together.
+  </div>
+  <p>Trace the chain across the interactives, MUST source in hand each time:</p>
+  <ul>
+    <li><b>Anchor 1 → 2 → 3:</b> the Veritasium 1/r³ argument bottoms out at a <i>noise floor</i>
+      (<a href="allan-psd-explorer.html">Allan / PSD explorer</a>), whose −½ slope is the
+      <i>standard quantum limit</i> (<a href="squeezing-sql.html">squeezing &amp; SQL</a>).</li>
+    <li><b>Anchor 4 → 5:</b> the ladder (<a href="quantum-ladder.html">quantum-ladder.html</a>) bends
+      that −½ slope toward −1, while back-action / squeezing
+      (<a href="squeezing-sql.html">squeezing-sql.html</a>) buys it back below the SQL when entanglement
+      is too fragile.</li>
+    <li><b>Anchor 6:</b> none of it is readable without
+      <a href="anchor-6-transduction.html">transduction</a> — the photons⇄phonons step every paper here
+      quietly depends on.</li>
+  </ul>
+  <div class="check">
+    <b>Exercise check.</b> Pick the anchor you found hardest in the interactive. Open <i>only its MUST
+    source</i>, watch/read the excerpt, and write one sentence: what did the source explain that the
+    simulation left implicit? Then decide — in one more sentence — whether you actually need its SHOULD
+    or CAN source, or whether the intuition is now enough. That decision <i>is</i> the skill this page
+    teaches.
+  </div>
+</section>
+
+<footer>
+  Single-file, offline, no tracking. <b>Links open externally</b> in a new tab — these are navigations
+  to videos / papers / textbooks, not page-load requests, so the page itself stays fully offline (no
+  remote script, style, image, or iframe is loaded). DOIs may be paywalled but are canonical; several
+  papers have open-access arXiv versions noted inline.
+  Sources by anchor — A1: Veritasium (YouTube SVTPv4sI_Jc); Wrachtrup (YouTube 6ggFdovvhdU); Riehle,
+  doi.org/10.1002/3527605991. A2: Riehle; Rosenband <i>et al.</i>, doi.org/10.1126/science.1154622;
+  Filzinger <i>et al.</i>, doi.org/10.1103/PhysRevLett.130.253001. A3: Giovannetti, Lloyd &amp; Maccone, doi.org/10.1038/nphoton.2011.35 (arXiv:1102.2318);
+  Schnabel, arXiv:1611.03986. A4: Huelga <i>et al.</i>, doi.org/10.1103/PhysRevLett.79.3865;
+  Demkowicz-Dobrzański <i>et al.</i>, doi.org/10.1038/ncomms2067; Wrachtrup. A5: Caves,
+  doi.org/10.1103/PhysRevD.23.1693; LIGO, doi.org/10.1103/PhysRevX.13.041021; Schnabel, arXiv:1611.03986. A6:
+  Burd <i>et al.</i>, doi.org/10.1126/science.aaw2884; de Leon; LIGO,
+  doi.org/10.1103/PhysRevLett.116.061102. Hub-wide umbrella: Degen, Reinhard &amp; Cappellaro,
+  doi.org/10.1103/RevModPhys.89.035002.
+</footer>
+
+</div>
+</body>
+</html>

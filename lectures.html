@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture summaries — Sensing I &amp; II · Sensing 2026</title>
+<!--
+  Sensing 2026 · LECTURE piece (public). Web-native summaries of the two 90-min interludes, evolved
+  from the 2025 typeset notes (U. Warring). Each beat links into the Workshop interactive and the
+  Library reference card. Single offline file, no external requests. No tutor/answer content.
+-->
+<style>
+  :root{ --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#fff; --accent:#0f766e; --lec:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:820px; margin:0 auto; padding:24px 22px 72px}
+  a{color:var(--accent)}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:18px}
+  a.home{font-size:14px; font-weight:700; color:var(--accent); text-decoration:none}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:#fff; background:var(--lec); padding:3px 9px; border-radius:4px; margin-top:8px}
+  h1{font-size:30px; margin:10px 0 4px} .sub{color:var(--muted); font-size:17px; margin:0}
+  .jump{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+  .jump a{font-size:14px; font-weight:700; text-decoration:none; color:var(--lec);
+    border:1.5px solid var(--lec); border-radius:999px; padding:4px 12px}
+  .jump a:hover{background:var(--lec); color:#fff}
+  section.session{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:22px 26px; margin:20px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  section.session > h2{font-size:26px; margin:0 0 2px; border-bottom:2px solid var(--lec); padding-bottom:8px; color:#7c3a07}
+  .when{color:var(--muted); font-size:15px; font-style:italic; margin:6px 0 14px}
+  h3{font-size:19px; margin:20px 0 4px}
+  p{margin:8px 0}
+  .links{font-size:15px; color:var(--muted); margin:4px 0 0}
+  .links a{font-weight:700}
+  .pill{display:inline-block; font-size:13px; font-weight:700; border-radius:999px; padding:2px 9px; margin-right:4px}
+  .pill.w{background:#ccfbf1;color:#115e59} .pill.l{background:#fde8d0;color:#7c3a07}
+  blockquote{margin:16px 0 0; padding:12px 16px; background:#fff7ed; border-left:4px solid var(--lec);
+    border-radius:0 8px 8px 0; font-style:italic; color:#5b4327}
+  .arc{background:#f0fdfa; border-left:4px solid var(--accent); padding:10px 14px; border-radius:0 8px 8px 0; font-size:16px}
+  footer{color:var(--muted); font-size:13px; margin-top:28px; border-top:1px solid var(--line); padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a class="home" href="index.html">↩ Sensing 2026 home</a>
+  <div><span class="tag">Lecture · the story</span></div>
+  <h1>From humanoid sensing to the quantum limit</h1>
+  <p class="sub">Two 90-minute interludes, read as one arc. Each idea links to a hands-on
+  <span class="pill w">workshop</span> widget and a <span class="pill l">library</span> card.</p>
+  <nav class="jump">
+    <a href="#s1">Sensing I — ordinary sensors</a>
+    <a href="#s2">Sensing II — quantum sensors</a>
+  </nav>
+</header>
+
+<!-- ===================== SENSING I ===================== -->
+<section class="session" id="s1">
+  <h2>Sensing I — from humanoid to extreme sensing</h2>
+  <p class="when">90 minutes · how do ordinary sensors fail, and how do we quantify the failure?</p>
+
+  <p class="arc">The arc: your own senses are a feedback system → a sensor is a transducer with three
+  competing virtues → a phone can weigh the Earth, if you respect its noise → and a clock can keep time
+  so well it becomes a gravity detector.</p>
+
+  <h3>Sensing is information processing</h3>
+  <p>We begin with the sensor suite you were born with — eyes, ears, skin, the vestibular system. These
+  are not passive channels: they feed a real-time processor (the brain) that builds a model of the world,
+  predicts, and acts. Catching a ball is the whole loop in one second — see, predict, move, correct. Every
+  engineered sensor mirrors this: detect, convert, interpret, and (sometimes) feed back.</p>
+
+  <h3>What is a physical sensor?</h3>
+  <p>A sensor <b>transduces</b> a physical change into a signal we can read, usually digitised through an
+  analog-to-digital converter (which already costs us resolution). Its quality is captured by three numbers
+  that <i>trade against each other</i>: <b>sensitivity</b> (the smallest change it resolves), <b>dynamic
+  range</b> (smallest to largest), and <b>bandwidth</b> (how fast a change it follows). No device maximises
+  all three — a sensor is a choice of corner.</p>
+  <p class="links"><span class="pill w">workshop</span> <a href="anchor-1-triangle.html">drag the trade-off triangle</a> &nbsp;·&nbsp; <span class="pill l">library</span> <a href="reference.html#a1">anchor 1 card</a></p>
+
+  <h3>Measuring small <i>g</i> with a smartphone</h3>
+  <p>A MEMS accelerometer — a microscopic proof mass on a spring — lets your phone measure gravity to about
+  a part in 10<sup>3</sup>. Do it carefully and the lesson is <b>systematics</b>: flip the phone and the two
+  readings disagree in the third digit. To know what your number means you need the noise toolbox — the
+  <b>mean and standard error</b>, the <b>power spectral density</b>, and the <b>Allan deviation</b>, which
+  tells you exactly when averaging longer stops helping.</p>
+  <p class="links"><span class="pill w">workshop</span> <a href="allan-psd-explorer.html">the Allan / PSD explorer</a> &nbsp;·&nbsp; <span class="pill l">library</span> <a href="reference.html#a2">anchor 2 card</a></p>
+
+  <h3>Measuring time, from galaxies to optical clocks</h3>
+  <p>Clocks are sensors of time, and they span an astonishing range — from a planet's orbit to a single
+  ion oscillating 10<sup>15</sup> times a second. The best optical atomic clocks reach <b>1 part in
+  10<sup>18</sup></b>. At that precision relativity intrudes: raise the clock by a centimetre and it ticks
+  measurably faster — so a clock becomes a <b>gravitational sensor</b>. The floor that limits a single
+  clock's averaging is the <b>standard quantum limit</b>, 1/√N.</p>
+  <p class="links"><span class="pill l">library</span> <a href="reference.html#a3">anchor 3 card (the SQL)</a></p>
+
+  <h3>Networks beat individuals</h3>
+  <p>A network of sensors uses <b>correlations</b> — shared information — to sharpen precision and accuracy
+  beyond any single device. Quantum-mechanically, <b>entanglement</b> (stronger than correlation) takes this
+  further, enabling collective measurements below the classical limit. That is the doorway into Sensing II.</p>
+
+  <blockquote>To carry with you: a network of observers — sensors, or people — combines noisy local data
+  into something more reliable. How can shared information reduce uncertainty, and how can discussion reduce
+  misunderstanding?</blockquote>
+</section>
+
+<!-- ===================== SENSING II ===================== -->
+<section class="session" id="s2">
+  <h2>Sensing II — extreme quantum sensing</h2>
+  <p class="when">90 minutes · what can quantum resources improve, and what do they make fragile?</p>
+
+  <p class="arc">The arc: a ladder of quantum resources bends the 1/√N limit → but every rung you climb is
+  more fragile → squeezing buys a modest, robust gain by moving noise around → and the whole game is
+  balancing what you gain against what you break.</p>
+
+  <h3>The quantum ladder</h3>
+  <p>Quantum metrology is a ladder. A <b>coherent</b> probe sits at the standard quantum limit, 1/√N;
+  <b>squeezing</b> lowers the prefactor to ξ/√N; multipartite <b>entanglement</b> (GHZ / NOON states)
+  reaches the <b>Heisenberg limit</b>, 1/N; and error-corrected entanglement aims to keep 1/N in a noisy
+  world. The catch — the spine of the whole session — is that a stronger resource is also a more fragile
+  one.</p>
+  <p class="links"><span class="pill w">workshop</span> <a href="quantum-ladder.html">climb the quantum ladder</a> &nbsp;·&nbsp; <span class="pill l">library</span> <a href="reference.html#a4">anchor 4 card</a></p>
+
+  <h3>Spin-½ sensors: clocks, constants and dark matter</h3>
+  <p>Comparing two optical clocks is precise enough to ask whether the <b>fine-structure constant</b> drifts,
+  and to set limits on <b>ultralight dark matter</b> coupling to ordinary matter. The same spin-½ toolbox runs
+  on nitrogen-vacancy (NV) centres in diamond — quantum sensors that work at room temperature, even inside
+  living cells, trading some coherence for ruggedness and spatial resolution.</p>
+
+  <h3>Photons and phonons — one toolbox, two carriers</h3>
+  <p>Quantum sensing moves signals between <b>photons</b> (light) and <b>phonons</b> (mechanical motion of
+  trapped ions). The same recipe — prepare a vacuum, displace it, make Fock or squeezed states, then read out —
+  applies to both; only the hardware differs. Reading a tiny motion means <b>transducing</b> it: ion motion →
+  spin → fluorescence photons.</p>
+  <p class="links"><span class="pill w">workshop</span> <a href="anchor-6-transduction.html">photons vs phonons</a> &nbsp;·&nbsp; <span class="pill l">library</span> <a href="reference.html#a6">anchor 6 card</a></p>
+
+  <h3>Back-action and squeezing</h3>
+  <p>Every measurement disturbs its conjugate observable — that is <b>back-action</b>, and Heisenberg fixes the
+  product ΔX·ΔP. <b>Squeezing</b> doesn't beat that product; it <i>redistributes</i> the noise, narrowing one
+  quadrature below the vacuum (the SQL) at the cost of the other. LIGO injects squeezed vacuum at the dark port,
+  with <b>frequency-dependent</b> squeezing, to push gravitational-wave noise below the standard quantum limit.</p>
+  <p class="links"><span class="pill w">workshop</span> <a href="squeezing-sql.html">squeeze the vacuum</a> &nbsp;·&nbsp; <span class="pill l">library</span> <a href="reference.html#a5">anchor 5 card</a></p>
+
+  <h3>Case studies &amp; the design rule</h3>
+  <p>The frontier today: a single trapped Mg⁺ ion resolving nanometre displacements and zeptonewton forces;
+  LIGO sensing space-time strain at 1 part in 10<sup>23</sup>; a spin-squeezed strontium clock at 10<sup>−18</sup>.
+  The practical rule that ties them together: <b>balance gain against fragility</b>. A few dB of squeezing often
+  gives the best net sensitivity today; Heisenberg-scale entanglement pays a decoherence tax unless you protect
+  it with error correction.</p>
+
+  <blockquote>To carry with you: if we could measure without back-action — completely and repeatedly — what
+  would we lose about the world? In quantum mechanics the observer is never fully detached; perhaps that is
+  true of inquiry more broadly.</blockquote>
+</section>
+
+<footer>
+  Lecture summaries · evolved from the 2025 <i>Sensing I &amp; II</i> typeset notes (U. Warring).
+  ↩ <a href="index.html">Sensing 2026 home</a> · <a href="workshop.html">workshop</a> · <a href="reference.html">library</a>.
+  Single offline page, no tracking.
+</footer>
+
+</div>
+</body>
+</html>

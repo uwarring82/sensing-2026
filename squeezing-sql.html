@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squeezing &amp; the standard quantum limit · Sensing 2026</title>
+<!--
+  Sensing 2026 · Pillar-2 hub · Anchors 3 (SQL / shot noise) & 5 (back-action / squeezing).
+  Slice-3 flagship. Single offline file, hand-rolled canvas. Four-beat: Try·Notice·Explain·Connect.
+  The vacuum disk = the SQL (= the 1/√N wall of anchors 2 & 4). Squeezing redistributes noise:
+  buy precision in one quadrature, pay in the conjugate (area ΔXΔP = ½ conserved). Verified physics.
+-->
+<style>
+  :root{ --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#fff; --accent:#0f766e;
+    --good:#16a34a; --bad:#dc2626; --sq:#2563eb; --sql:#64748b; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:20px}
+  .tag{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:#fff;background:var(--accent);padding:3px 9px;border-radius:4px}
+  h1{font-size:30px;margin:10px 0 4px;line-height:1.15}.sub{color:var(--muted);font-size:17px;margin:0}
+  .beat-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .beat-nav a{font-size:14px;font-weight:700;text-decoration:none;color:var(--accent);
+    border:1.5px solid var(--accent);border-radius:999px;padding:4px 12px}.beat-nav a:hover{background:var(--accent);color:#fff}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  h2{font-size:22px;margin:0 0 12px;display:flex;align-items:baseline;gap:10px}
+  h2 .beat{font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px;align-items:center}
+  button{font:inherit;font-size:15px;font-weight:700;cursor:pointer;border:1.5px solid var(--line);
+    background:#fff;color:var(--ink);border-radius:8px;padding:8px 14px}
+  button:hover{background:var(--ink);color:#fff}
+  button.preset.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px 24px}
+  .ctl label{display:block;font-weight:700;font-size:15px;margin-bottom:4px}.ctl .val{font-weight:400;color:var(--muted)}
+  input[type=range]{width:100%;accent-color:var(--accent);height:26px}
+  .plots{display:grid;grid-template-columns:1fr;gap:18px}@media(min-width:820px){.plots{grid-template-columns:1fr 1fr}}
+  figure{margin:0}canvas{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:8px}
+  figcaption{font-size:14px;color:var(--muted);margin-top:6px}
+  .readout{font-size:19px;line-height:1.55}.readout b{color:var(--ink)}
+  .pill{display:inline-block;padding:1px 8px;border-radius:6px;font-weight:700;font-size:15px}
+  .pill.good{background:#dcfce7;color:#14532d}.pill.bad{background:#fee2e2;color:#991b1b}
+  details{margin-top:10px}summary{cursor:pointer;font-weight:700;color:var(--accent)}
+  .connect ul{margin:6px 0 0;padding-left:22px}.connect li{margin:6px 0}
+  .check{background:#f0fdfa;border-left:4px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-top:12px;font-size:17px}
+  footer{color:var(--muted);font-size:13px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
+  .hint{font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a href="workshop.html" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none">← Sensing 2026 hub</a>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · Anchors 3 &amp; 5 · Squeezing &amp; the SQL</span></div>
+  <h1>Beat shot noise — for free?</h1>
+  <p class="sub">The vacuum's uncertainty disk <i>is</i> the standard quantum limit. Squeeze one
+  quadrature below it — and watch the price you pay in the other.</p>
+  <nav class="beat-nav">
+    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
+    <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
+  </nav>
+</header>
+
+<section id="try">
+  <h2><span class="beat">Try this</span> Squeeze the state, then misalign the measurement</h2>
+  <p style="margin:0 0 12px"><b>The question:</b> if squeezing pushes the noise below the shot-noise
+  limit, why not just squeeze as hard as possible? Crank it — then nudge the measurement angle.</p>
+
+  <div class="presets" id="presets">
+    <span class="hint" style="font-weight:700;color:var(--ink)">Squeezing:</span>
+    <button class="preset" data-s="0">Vacuum (SQL)</button>
+    <button class="preset active" data-s="6">6 dB (LIGO)</button>
+    <button class="preset" data-s="12">12 dB</button>
+    <button class="preset" data-s="20">20 dB (greedy)</button>
+  </div>
+
+  <div class="controls">
+    <div class="ctl">
+      <label>Squeezing <span class="val" id="v-sq"></span></label>
+      <input type="range" id="sq" min="0" max="20" step="0.5" value="6">
+      <p class="hint">squeezed-quadrature variance, in dB below shot noise</p>
+    </div>
+    <div class="ctl">
+      <label>Measurement angle θ <span class="val" id="v-th"></span></label>
+      <input type="range" id="th" min="0" max="90" step="1" value="0">
+      <p class="hint">0° = measure the squeezed quadrature · 90° = the anti-squeezed one</p>
+    </div>
+  </div>
+
+  <div class="plots">
+    <figure>
+      <canvas id="phase" width="510" height="430"></canvas>
+      <figcaption>① <b>Phase space</b> (X, P). Dashed circle = <span style="color:#64748b">SQL (vacuum)</span>;
+        ellipse = the squeezed state; the bar is the noise along your measurement axis — inside the
+        circle <span class="pill good">beats SQL</span>, outside is <span class="pill bad">worse</span>.</figcaption>
+    </figure>
+    <figure>
+      <canvas id="ang" width="510" height="430"></canvas>
+      <figcaption>② <b>Noise vs measurement angle</b> (dB vs the SQL). Below 0 = beats shot noise; above
+        0 = worse. The more you squeeze, the <i>narrower</i> the winning window.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="notice">
+  <h2><span class="beat">Notice this</span> What did squeezing actually buy?</h2>
+  <p class="readout" id="readout">…</p>
+</section>
+
+<section id="explain">
+  <h2><span class="beat">Explain this</span></h2>
+  <p>At θ = 0 more squeezing always looks better. Rotate the angle a few degrees with 20 dB on, and
+  the noise shoots <i>above</i> the SQL. <b>Why does harder squeezing make the measurement more
+  fragile, not just better — and what did you never actually remove?</b></p>
+  <details>
+    <summary>Reveal a one-paragraph answer</summary>
+    <p>Heisenberg fixes the <b>area</b> of the uncertainty patch: ΔX·ΔP = ½, always. Squeezing doesn't
+    remove noise — it <b>moves</b> it, thinning one quadrature by ξ = e<sup>−r</sup> and fattening the
+    other by 1/ξ. If your measurement axis sits exactly on the thin direction, you win by ξ. But the fat
+    direction holds <i>enormous</i> anti-squeezed noise (1/ξ² in variance), so a small angle error — a
+    little phase jitter — leaks that fat variance in and you lose. The harder you squeeze, the fatter the
+    other quadrature, the less misalignment you can tolerate. There is an <b>optimal finite squeezing</b>
+    set by how well you control the phase — which is why LIGO runs ~6 dB, not 20.</p>
+  </details>
+  <details>
+    <summary>Show the math</summary>
+    <p>For a squeezed vacuum with the squeezed quadrature at X, the variance measured along an axis at
+    angle θ is V(θ)/σ₀² = e<sup>−2r</sup>cos²θ + e<sup>+2r</sup>sin²θ, with the squeeze strength S (dB)
+    giving e<sup>−2r</sup> = 10<sup>−S/10</sup>. At θ = 0 the variance is 10<sup>−S/10</sup> (i.e. −S dB,
+    a factor 10<sup>S/10</sup> below the SQL); at θ = 90° it is 10<sup>+S/10</sup> (+S dB, a factor
+    10<sup>S/10</sup> <i>above</i>). The product of the two quadrature
+    widths is e<sup>−r</sup>·e<sup>+r</sup> = 1 — the area is conserved (Heisenberg). The SQL itself
+    (S = 0) is the vacuum disk, and it is the <b>same 1/√N shot-noise floor</b> you met as the white-noise
+    wall (anchor 2) and the SQL line (anchor 4).</p>
+  </details>
+</section>
+
+<section id="connect" class="connect">
+  <h2><span class="beat">Now connect it</span></h2>
+  <ul>
+    <li><b>This disk is the wall.</b> The dashed vacuum circle is the standard quantum limit — the very
+      same 1/√N you met as the Allan white-noise floor (anchor 2) and the SQL line on the ladder (anchor 4).</li>
+    <li><b>This is the ladder's “2S” rung.</b> Measuring the squeezed quadrature gives ξ/√N, ξ < 1 — that
+      is exactly how squeezing bends the SQL line down on the quantum ladder (anchor 4).</li>
+    <li><b>Back-action (anchor 5).</b> You bought X-precision by inflating P — you can't beat both. Measuring
+      only one quadrature (stroboscopic / back-action evasion) is how you dodge the disturbance into the
+      part you don't read.</li>
+  </ul>
+  <div class="check">
+    <b>Exercise check.</b> Set <i>20 dB (greedy)</i> and slide θ to 10°. Read the noise-vs-SQL number, and
+    compare it to <i>6 dB</i> at the same angle. Say in one line why “squeeze harder” is the wrong instinct.
+  </div>
+</section>
+
+<footer>
+  Single-file, offline, no tracking. Sources: Caves, PRD 23, 1693 (1981); LIGO frequency-dependent
+  squeezing, PRX 13, 041021 (2023). Verified: projected variance, area conservation, the 20 dB / 10°
+  fragility (+4.8 dB vs SQL).
+</footer>
+
+</div>
+
+<script>
+"use strict";
+//=================== model (verified) ===================
+const Vrel = (S,thDeg)=>{ const th=thDeg*Math.PI/180;
+  return Math.pow(10,-S/10)*Math.cos(th)**2 + Math.pow(10,S/10)*Math.sin(th)**2; };
+const dB = v => 10*Math.log10(v);
+const crossover = S => {                         // θ (deg) where noise returns to the SQL (0 dB)
+  // e^-2r cos² + e^2r sin² = 1  ->  tan²θ = (1 - 10^-S/10)/(10^S/10 - 1)
+  if(S<=0) return 90;
+  const a=Math.pow(10,-S/10), b=Math.pow(10,S/10);
+  return Math.atan(Math.sqrt((1-a)/(b-1)))*180/Math.PI;
+};
+
+const els={ sq:document.getElementById('sq'), th:document.getElementById('th'),
+  vsq:document.getElementById('v-sq'), vth:document.getElementById('v-th'),
+  phase:document.getElementById('phase'), ang:document.getElementById('ang'),
+  readout:document.getElementById('readout'), presets:document.getElementById('presets') };
+
+// logical drawing size for both canvases (matches their attribute width/height)
+const LW=510, LH=430;
+
+//=================== phase-space panel ===================
+function drawPhase(S, thDeg){
+  const cv=els.phase;
+  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W=LW, H=LH;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2, R=3.6, sc=(Math.min(W,H)/2-26)/R;   // view ±R·σ0
+  const sigX=Math.pow(10,-S/20), sigP=Math.pow(10,S/20);     // std devs (σ0=1)
+  const th=thDeg*Math.PI/180;
+  // grid + axes
+  ctx.strokeStyle='#eef2f6'; ctx.lineWidth=1;
+  for(let g=-3;g<=3;g++){ ctx.beginPath(); ctx.moveTo(cx+g*sc,cy-R*sc);ctx.lineTo(cx+g*sc,cy+R*sc);ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-R*sc,cy+g*sc);ctx.lineTo(cx+R*sc,cy+g*sc);ctx.stroke(); }
+  ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(cx-R*sc,cy);ctx.lineTo(cx+R*sc,cy); ctx.moveTo(cx,cy-R*sc);ctx.lineTo(cx,cy+R*sc); ctx.stroke();
+  ctx.fillStyle='#64748b'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('X (squeezed)', cx+R*sc-86, cy-6); ctx.fillText('P', cx+6, cy-R*sc+14);
+  // clip to plot box
+  ctx.save(); ctx.beginPath(); ctx.rect(cx-R*sc,cy-R*sc,2*R*sc,2*R*sc); ctx.clip();
+  // SQL vacuum circle
+  ctx.strokeStyle='#64748b'; ctx.setLineDash([5,5]); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx,cy,sc,0,7); ctx.stroke(); ctx.setLineDash([]);
+  // squeezed ellipse (1σ)
+  ctx.strokeStyle='#2563eb'; ctx.fillStyle='rgba(37,99,235,.10)'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.ellipse(cx,cy, sigX*sc, sigP*sc, 0, 0, 7); ctx.fill(); ctx.stroke();
+  // measurement axis (through origin at angle θ; P is up so screen y is negative)
+  const ux=Math.cos(th), uy=-Math.sin(th);
+  ctx.strokeStyle='#0f766e'; ctx.setLineDash([4,4]); ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.moveTo(cx-ux*R*sc, cy-uy*R*sc); ctx.lineTo(cx+ux*R*sc, cy+uy*R*sc); ctx.stroke(); ctx.setLineDash([]);
+  // noise bar = ±σθ along the axis
+  const sigTh=Math.sqrt(Vrel(S,thDeg)); const beats = sigTh<1;
+  ctx.strokeStyle = beats? '#16a34a' : '#dc2626'; ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(cx-ux*sigTh*sc, cy-uy*sigTh*sc); ctx.lineTo(cx+ux*sigTh*sc, cy+uy*sigTh*sc); ctx.stroke(); ctx.lineCap='butt';
+  ctx.restore();
+  ctx.fillStyle='#15212e'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('θ = '+thDeg+'°', cx-R*sc+6, cy+R*sc-8);
+}
+
+//=================== angle panel ===================
+function drawAngle(S, thDeg){
+  const cv=els.ang;
+  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W=LW, H=LH;
+  ctx.clearRect(0,0,W,H);
+  const padL=58,padR=16,padT=18,padB=40, w=W-padL-padR, h=H-padT-padB;
+  const ymax=22, ymin=-22;
+  const X=t=> padL + t/90*w;
+  const Y=v=> padT + (1-(v-ymin)/(ymax-ymin))*h;
+  // shading: good below 0, bad above
+  ctx.fillStyle='#dcfce7'; ctx.fillRect(padL,Y(0),w,padT+h-Y(0));
+  ctx.fillStyle='#fee2e2'; ctx.fillRect(padL,padT,w,Y(0)-padT);
+  ctx.strokeStyle='#e2e8f0'; ctx.strokeRect(padL,padT,w,h);
+  // gridlines
+  ctx.strokeStyle='#eef2f6'; ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif';
+  for(let v=-20;v<=20;v+=10){ const y=Y(v); ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+w,y);ctx.stroke();
+    ctx.textAlign='right'; ctx.fillText((v>0?'+':'')+v, padL-6, y+4); }
+  for(let t=0;t<=90;t+=30){ ctx.textAlign='center'; ctx.fillText(t+'°', X(t), padT+h+16); }
+  // SQL 0-dB line
+  ctx.strokeStyle='#64748b'; ctx.setLineDash([5,4]); ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(padL,Y(0)); ctx.lineTo(padL+w,Y(0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#475569'; ctx.font='600 12px sans-serif'; ctx.textAlign='left'; ctx.fillText('SQL (shot noise)', padL+4, Y(0)-5);
+  // curve
+  ctx.strokeStyle='#2563eb'; ctx.lineWidth=2.6; ctx.beginPath();
+  for(let t=0;t<=90;t+=0.5){ const v=Math.max(ymin,Math.min(ymax,dB(Vrel(S,t)))); const x=X(t),y=Y(v); t?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke();
+  // current θ marker
+  const yv=Math.max(ymin,Math.min(ymax,dB(Vrel(S,thDeg))));
+  ctx.strokeStyle='#0f766e'; ctx.setLineDash([4,4]); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(X(thDeg),padT); ctx.lineTo(X(thDeg),padT+h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#0f766e'; ctx.beginPath(); ctx.arc(X(thDeg),Y(yv),5,0,7); ctx.fill();
+  // axis label
+  ctx.fillStyle='#5b6b7b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('measurement angle θ  →', padL+w/2, H-8);
+  ctx.save(); ctx.translate(14,padT+h/2); ctx.rotate(-Math.PI/2); ctx.fillText('noise vs SQL  (dB)',0,0); ctx.restore();
+}
+
+//=================== readout ===================
+function render(){
+  const S=+els.sq.value, th=+els.th.value;
+  els.vsq.textContent='('+S.toFixed(1)+' dB)'; els.vth.textContent='('+th+'°)';
+  drawPhase(S,th); drawAngle(S,th);
+  const nowdB=dB(Vrel(S,th)), xi=Math.pow(10,-S/20), thc=crossover(S);
+  let lead;
+  if(S<0.25){
+    lead = `This is the bare <b>vacuum</b> — the standard quantum limit itself. Every angle reads
+      <b>0 dB</b>: shot noise, the 1/√N floor. Squeeze it to do better… in <i>one</i> direction.`;
+  } else {
+    const beats = nowdB<0;
+    lead = `Squeezed <b>${S.toFixed(0)} dB</b> (ξ = ${xi.toFixed(2)}). At your angle θ = <b>${th}°</b> the
+      noise is <span class="pill ${beats?'good':'bad'}">${nowdB>0?'+':''}${nowdB.toFixed(1)} dB vs the SQL</span>
+      — ${beats?'still beating shot noise':'<b>worse than shot noise</b>'}.
+      The winning window is only <b>θ &lt; ${thc.toFixed(1)}°</b> wide; past it the anti-squeezed noise takes over.`;
+  }
+  els.readout.innerHTML = lead +
+    `<br><span style="font-size:15px;color:#5b6b7b">Area ΔX·ΔP = ½ the whole time — you didn't remove
+    noise, you <i>moved</i> it. Harder squeezing ⇒ a narrower winning window (more fragile).</span>`;
+}
+
+els.sq.addEventListener('input',()=>{ [...els.presets.querySelectorAll('.preset')].forEach(b=>b.classList.remove('active')); render(); });
+els.th.addEventListener('input', render);
+els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(!b)return;
+  els.sq.value=b.dataset.s; [...els.presets.querySelectorAll('.preset')].forEach(x=>x.classList.toggle('active',x===b)); render(); });
+window.addEventListener('resize', render);
+render();
+</script>
+</body>
+</html>

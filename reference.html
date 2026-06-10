@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sensing 2026 — Reference Library</title>
+<!--
+  Sensing 2026 · TC-01 Reference Layer (v1.1). A SEPARATE surface from the hub: the "library"
+  (lookup), not the "workshop" (interactives). Deliberately a different visual room (serif/parchment).
+  One thin card per anchor: Definition · Canonical equation(s) · Boundary/common misuse (DR-01 B1) ·
+  References (linked, never rehosted, §10.9) · Schematic (harvested from the 2025 notes where one exists).
+  A card is a LINK TARGET the hub points into — never embedded in the try/notice/explain/connect flow.
+  Single offline file; external sources are <a href> navigations, not embeds.
+-->
+<style>
+  :root{ --ink:#2b2620; --soft:#6b6256; --rule:#d9cfba; --bg:#f4efe3; --card:#fffdf7;
+    --accent:#8a5a2b; --link:#1f4e6b; --tag:#5b4a33; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.6 Georgia,"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",serif;}
+  .wrap{max-width:920px; margin:0 auto; padding:26px 22px 72px}
+  a{color:var(--link)}
+  header.top{border-bottom:2px solid var(--ink); padding-bottom:16px; margin-bottom:8px}
+  .ribbon{font:700 12px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.22em;
+    text-transform:uppercase; color:#fff; background:var(--accent); padding:5px 10px; border-radius:2px}
+  h1{font-size:34px; margin:14px 0 4px; letter-spacing:.01em}
+  .sub{color:var(--soft); font-size:17px; margin:0; font-style:italic}
+  .lede{font-size:16px; color:var(--soft); margin:14px 0 0}
+  .lede a{font-weight:700}
+  /* index */
+  .index{background:var(--card); border:1px solid var(--rule); border-radius:6px; padding:16px 20px; margin:22px 0;
+    box-shadow:2px 2px 0 rgba(120,100,70,.10)}
+  .index h2{font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--tag); margin:0 0 10px;
+    font-family:ui-monospace,Menlo,Consolas,monospace}
+  .index ol{margin:0; padding-left:0; list-style:none; columns:2; column-gap:34px}
+  @media(max-width:620px){ .index ol{columns:1} }
+  .index li{margin:5px 0; break-inside:avoid}
+  .index a{text-decoration:none; font-weight:700} .index a:hover{text-decoration:underline}
+  .index .t{font:700 10px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase;
+    color:#fff; border-radius:2px; padding:2px 5px; margin-left:6px; vertical-align:1px}
+  .t.core{background:#6b6256} .t.micro{background:#7c5e3c} .t.bridge{background:#9a6a3a}
+  /* cards */
+  .card{background:var(--card); border:1px solid var(--rule); border-left:5px solid var(--accent);
+    border-radius:0 6px 6px 0; padding:20px 24px; margin:20px 0; box-shadow:2px 2px 0 rgba(120,100,70,.10)}
+  .card h3{font-size:24px; margin:0 0 2px} .card .anchno{color:var(--accent); font-size:15px;
+    font-family:ui-monospace,monospace; letter-spacing:.08em}
+  .back{font-size:14px} .back a{font-weight:700}
+  .lab{font:700 12px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--tag); margin:18px 0 6px; padding-bottom:3px; border-bottom:1px dotted var(--rule)}
+  .card p{margin:6px 0}
+  .eq{font-family:"Cambria Math",Cambria,Georgia,serif; font-size:18px; background:#f7f2e6;
+    border:1px solid var(--rule); border-radius:4px; padding:8px 12px; margin:6px 0; line-height:1.9}
+  .eq .lbl{color:var(--soft); font-size:14px; font-style:italic}
+  .bound{background:#fbf4e7; border-left:4px solid var(--accent); padding:10px 14px; border-radius:0 4px 4px 0;
+    font-style:italic}
+  .bound b{font-style:normal}
+  ul.refs{margin:6px 0 0; padding-left:20px} ul.refs li{margin:5px 0; font-size:16px}
+  table.fig{border-collapse:collapse; width:100%; font-family:-apple-system,system-ui,sans-serif; font-size:14px; margin:4px 0}
+  table.fig th,table.fig td{border:1px solid var(--rule); padding:6px 9px; text-align:left; vertical-align:top}
+  table.fig th{background:#efe7d4; font-size:13px}
+  .figcap{font-size:13px; color:var(--soft); margin-top:5px; font-style:italic}
+  .seefig{font-size:15px}
+  footer{color:var(--soft); font-size:13px; margin-top:30px; border-top:1px solid var(--rule); padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a href="index.html" style="font-size:14px;font-weight:700;text-decoration:none">↩ Sensing 2026 home</a><br>
+  <span class="ribbon" style="display:inline-block;margin-top:8px">Sensing 2026 · Reference Library</span>
+  <h1>The quiet archive</h1>
+  <p class="sub">Look things up here. The live experiments — the <i>workshop</i> — are in the
+  <a href="workshop.html">hub&nbsp;↗</a>.</p>
+  <p class="lede">A <b>lookup surface, not assigned reading</b>: each card is a link target the hub
+  and the exercises point <i>into</i> at the moment you need it. One thin card per anchor — definition,
+  the load-bearing equations, the one thing it does <i>not</i> imply, and where to read more. Cards
+  assume the course's working level (logs, 1/√N, basic quantum optics).</p>
+</header>
+
+<nav class="index">
+  <h2>Catalogue — mirrors the spine</h2>
+  <ol>
+    <li><a href="#a1">1 · Trade-off triangle</a><span class="t core">core</span></li>
+    <li><a href="#a2">2 · Noise · PSD · Allan</a><span class="t core">core</span></li>
+    <li><a href="#a3">3 · Standard quantum limit</a><span class="t micro">micro</span></li>
+    <li><a href="#a4">4 · Quantum ladder</a><span class="t core">core</span></li>
+    <li><a href="#a5">5 · Back-action · squeezing</a><span class="t core">core</span></li>
+    <li><a href="#a6">6 · Transduction</a><span class="t bridge">bridge</span></li>
+  </ol>
+</nav>
+
+<!-- ============ ANCHOR 1 ============ -->
+<section class="card" id="a1">
+  <div class="anchno">Anchor 1 · core</div>
+  <h3>The sensitivity–range–bandwidth trade-off</h3>
+  <p class="back"><a href="anchor-1-triangle.html">▶ workshop: the trade-off triangle</a></p>
+
+  <div class="lab">Definition</div>
+  <p>A sensor's performance is bounded by three competing figures of merit: <b>sensitivity</b> (the
+  smallest change it can resolve, set by its noise floor), <b>dynamic range</b> (the ratio of the
+  largest to smallest values it reads without saturating), and <b>bandwidth</b> (the band of input
+  frequencies it follows faithfully). These pull against one another, so a real sensor is a chosen
+  operating point on the triangle — not a maximum of all three at once.</p>
+
+  <div class="lab">Canonical relations</div>
+  <div class="eq">Dynamic range:&nbsp; DR [dB] = 20 · log<sub>10</sub>(x<sub>max</sub> / x<sub>min</sub>)</div>
+  <div class="eq">Precision from averaging:&nbsp; σ<sub>x̄</sub> = σ / √N &nbsp;<span class="lbl">(N independent samples — until correlations bite, → anchor 2)</span></div>
+
+  <div class="lab">Boundary / common misuse</div>
+  <p class="bound"><b>More sensitivity is not strictly better</b> — it is bought against dynamic range and bandwidth.</p>
+
+  <div class="lab">References</div>
+  <ul class="refs">
+    <li>Degen, Reinhard &amp; Cappellaro, <i>Quantum sensing</i>, <a href="https://doi.org/10.1103/RevModPhys.89.035002" target="_blank" rel="noopener noreferrer">Rev. Mod. Phys. 89, 035002 (2017)</a> — metrics &amp; context.</li>
+    <li>Manufacturer datasheets, e.g. <a href="https://www.analog.com/en/product-category/mems-accelerometers.html" target="_blank" rel="noopener noreferrer">Analog Devices MEMS accelerometers</a> — real sensitivity / range / bandwidth specs.</li>
+  </ul>
+
+  <div class="lab">Schematic — three sensors, three corners</div>
+  <table class="fig">
+    <thead><tr><th>Sensor</th><th>Sensitivity</th><th>Dynamic range</th><th>Bandwidth</th></tr></thead>
+    <tbody>
+      <tr><td>Dark-adapted eye</td><td>≈ single photon</td><td>~10⁶</td><td>~10–60 Hz</td></tr>
+      <tr><td>MEMS accelerometer</td><td>~10⁻³ m/s²</td><td>0–80 m/s²</td><td>&lt; 100 Hz</td></tr>
+      <tr><td>Ion optical clock</td><td>~1 part in 10¹⁸</td><td>one line ± few MHz</td><td>~1/hour</td></tr>
+    </tbody>
+  </table>
+  <p class="figcap">From the 2025 <i>Sensing&nbsp;I</i> notes. No row wins all three corners.</p>
+</section>
+
+<!-- ============ ANCHOR 2 ============ -->
+<section class="card" id="a2">
+  <div class="anchno">Anchor 2 · core</div>
+  <h3>Noise, PSD, and the Allan deviation</h3>
+  <p class="back"><a href="allan-psd-explorer.html">▶ workshop: the Allan / PSD explorer</a></p>
+
+  <div class="lab">Definition</div>
+  <p>Noise is read three complementary ways. The <b>mean and standard error</b> summarise central value
+  and precision; the <b>power spectral density</b> (PSD) shows how variance is spread over frequency; and
+  the <b>Allan deviation</b> measures stability versus averaging time τ, separating white, flicker (pink),
+  and random-walk noise by their characteristic slopes. The Allan curve typically falls, flattens, then
+  rises — a "bathtub" whose minimum marks the best averaging time.</p>
+
+  <div class="lab">Canonical equations</div>
+  <div class="eq">Standard error of the mean:&nbsp; σ<sub>x̄</sub> = σ / √N</div>
+  <div class="eq">Allan variance:&nbsp; σ<sub>y</sub><sup>2</sup>(τ) = ½ ⟨ (ȳ<sub>i+1</sub> − ȳ<sub>i</sub>)<sup>2</sup> ⟩</div>
+  <div class="eq">Noise slopes:&nbsp; white σ<sub>y</sub> ∝ τ<sup>−1/2</sup>; flicker ∝ τ<sup>0</sup>; random walk ∝ τ<sup>+1/2</sup></div>
+
+  <div class="lab">Boundary / common misuse</div>
+  <p class="bound"><b>A minimum in the Allan deviation fixes the optimal averaging time; it does not</b> by itself identify the physical noise source.</p>
+
+  <div class="lab">References</div>
+  <ul class="refs">
+    <li>Riehle, <i>Frequency Standards: Basics and Applications</i>, ch. 3 — <a href="https://ebookcentral.proquest.com/lib/ubfreiburg/detail.action?docID=482251#goto_toc" target="_blank" rel="noopener noreferrer">UB Freiburg ebook</a> (the canonical treatment of Allan/PSD).</li>
+    <li>Allan, <i>Statistics of atomic frequency standards</i>, <a href="https://doi.org/10.1109/PROC.1966.4634" target="_blank" rel="noopener noreferrer">Proc. IEEE 54, 221 (1966)</a> — the original Allan-variance paper.</li>
+  </ul>
+
+  <div class="lab">Schematic — noise type ⇒ slope</div>
+  <table class="fig">
+    <thead><tr><th>Noise</th><th>PSD slope (vs f)</th><th>Allan slope (vs τ)</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>White</td><td>0</td><td>−½</td><td>averaging always helps</td></tr>
+      <tr><td>Flicker / pink</td><td>−1</td><td>0</td><td>a floor averaging can't beat</td></tr>
+      <tr><td>Random walk / drift</td><td>−2</td><td>+½</td><td>averaging eventually hurts</td></tr>
+    </tbody>
+  </table>
+  <p class="figcap">The bathtub minimum is where the −½ and +½ branches cross.</p>
+</section>
+
+<!-- ============ ANCHOR 3 ============ -->
+<section class="card" id="a3">
+  <div class="anchno">Anchor 3 · micro-core</div>
+  <h3>The standard quantum limit (1/√N)</h3>
+  <p class="back"><a href="squeezing-sql.html">▶ workshop: squeezing &amp; the SQL (the vacuum disk)</a></p>
+
+  <div class="lab">Definition</div>
+  <p>The <b>standard quantum limit</b> (SQL), or shot-noise limit, is the precision floor set by counting
+  statistics of <i>independent</i> quanta — photons, atoms, or repeated trials. A phase or field estimated
+  from N independent contributions has an uncertainty that falls only as 1/√N. It is the floor that
+  squeezing (anchor 5) and entanglement (anchor 4) set out to beat.</p>
+
+  <div class="lab">Canonical equations</div>
+  <div class="eq">SQL scaling:&nbsp; Δφ<sub>SQL</sub> ∝ 1 / √N</div>
+  <div class="eq">Counting origin:&nbsp; Var(N) = N&nbsp; ⇒ &nbsp;ΔN / N = 1 / √N <span class="lbl">(independent Poisson/Bernoulli)</span></div>
+  <div class="eq">Vacuum quadrature variance:&nbsp; ⟨ΔX²⟩ = ½ <span class="lbl">(the SQL "disk")</span></div>
+
+  <div class="lab">Boundary / common misuse</div>
+  <p class="bound"><b>The 1/√N scaling is not uniquely quantum</b> — it follows from independent classical counting statistics.</p>
+
+  <div class="lab">References</div>
+  <ul class="refs">
+    <li>Caves, <i>Quantum-mechanical noise in an interferometer</i>, <a href="https://doi.org/10.1103/PhysRevD.23.1693" target="_blank" rel="noopener noreferrer">Phys. Rev. D 23, 1693 (1981)</a>.</li>
+    <li>Giovannetti, Lloyd &amp; Maccone, <i>Advances in Quantum Metrology</i> — <a href="https://arxiv.org/abs/1102.2318" target="_blank" rel="noopener noreferrer">arXiv:1102.2318</a> (open access).</li>
+  </ul>
+
+  <div class="lab">Schematic</div>
+  <p class="seefig">The SQL <i>is</i> the vacuum's uncertainty disk — see it live in the
+  <a href="squeezing-sql.html">phase-space widget</a> (set squeezing to 0).</p>
+</section>
+
+<!-- ============ ANCHOR 4 ============ -->
+<section class="card" id="a4">
+  <div class="anchno">Anchor 4 · core</div>
+  <h3>The quantum ladder &amp; its scaling</h3>
+  <p class="back"><a href="quantum-ladder.html">▶ workshop: the quantum ladder</a></p>
+
+  <div class="lab">Definition</div>
+  <p>Quantum metrology is a ladder of resources. A <b>coherent</b> probe gives the SQL, 1/√N;
+  <b>squeezing</b> lowers the prefactor to ξ/√N (ξ&lt;1); multipartite <b>entanglement</b> (GHZ/NOON)
+  reaches the <b>Heisenberg limit</b>, 1/N; and entanglement <b>protected by error correction</b> aims to
+  keep 1/N in a noisy world. Each rung trades a stronger resource for greater fragility.</p>
+
+  <div class="lab">Canonical scalings</div>
+  <div class="eq">Coherent (SQL):&nbsp; Δφ ∝ 1/√N&nbsp; → &nbsp;Squeezed:&nbsp; ξ/√N (ξ&lt;1)&nbsp; → &nbsp;Heisenberg:&nbsp; Δφ ∝ 1/N</div>
+
+  <div class="lab">Boundary / common misuse</div>
+  <p class="bound"><b>A higher rung is not automatically better</b> once decoherence and overhead are counted — the resource–fragility trade.</p>
+
+  <div class="lab">References</div>
+  <ul class="refs">
+    <li>Degen, Reinhard &amp; Cappellaro, <a href="https://doi.org/10.1103/RevModPhys.89.035002" target="_blank" rel="noopener noreferrer">Rev. Mod. Phys. 89, 035002 (2017)</a> — the umbrella review.</li>
+    <li>Giovannetti, Lloyd &amp; Maccone, <a href="https://arxiv.org/abs/1102.2318" target="_blank" rel="noopener noreferrer">arXiv:1102.2318</a> — SQL vs Heisenberg map.</li>
+    <li>Demkowicz-Dobrzański <i>et al.</i>, <a href="https://arxiv.org/abs/1201.3940" target="_blank" rel="noopener noreferrer">arXiv:1201.3940</a> — why decoherence claws 1/N back toward 1/√N.</li>
+  </ul>
+
+  <div class="lab">Schematic — the rungs</div>
+  <table class="fig">
+    <thead><tr><th>Level</th><th>Key idea</th><th>Platform</th><th>Scaling</th></tr></thead>
+    <tbody>
+      <tr><td>1–2 Coherent</td><td>Ramsey / spin-echo superposition</td><td>ion, NV, atom clock</td><td>1/√N</td></tr>
+      <tr><td>2S Squeezed</td><td>redistribute noise</td><td>spin-squeezed clock; LIGO light</td><td>ξ/√N, ξ&lt;1</td></tr>
+      <tr><td>3 Entangled</td><td>GHZ / NOON, Heisenberg</td><td>10-ion GHZ; photonic NOON</td><td>1/N</td></tr>
+      <tr><td>4 + QEC</td><td>protect against noise</td><td>NV / ions (emerging)</td><td>retains 1/N</td></tr>
+    </tbody>
+  </table>
+  <p class="figcap">The level table from the 2025 <i>Sensing&nbsp;II</i> notes.</p>
+</section>
+
+<!-- ============ ANCHOR 5 ============ -->
+<section class="card" id="a5">
+  <div class="anchno">Anchor 5 · core</div>
+  <h3>Back-action &amp; squeezing</h3>
+  <p class="back"><a href="squeezing-sql.html">▶ workshop: squeezing &amp; the SQL</a></p>
+
+  <div class="lab">Definition</div>
+  <p><b>Back-action</b> is the unavoidable disturbance a measurement imposes on the conjugate observable
+  (Heisenberg). <b>Squeezing</b> reshapes quantum noise: it narrows one quadrature below the vacuum (the
+  SQL) at the cost of fattening the conjugate one — and it can be shaped across frequency. It lowers the
+  noise floor only where the measurement actually reads the squeezed quadrature; a small misalignment
+  lets the huge anti-squeezed variance leak back in.</p>
+
+  <div class="lab">Canonical equations</div>
+  <div class="eq">Heisenberg (area fixed):&nbsp; ΔX · ΔP ≥ ½</div>
+  <div class="eq">Squeezed / anti-squeezed variance:&nbsp; V<sub>∓</sub> = ½ e<sup>∓2r</sup></div>
+  <div class="eq">Measured along angle θ:&nbsp; V(θ) = ½ ( e<sup>−2r</sup>cos²θ + e<sup>+2r</sup>sin²θ )</div>
+
+  <div class="lab">Boundary / common misuse</div>
+  <p class="bound"><b>Squeezing does not beat the Heisenberg uncertainty product</b>; it redistributes variance between conjugate quadratures (and across frequency).</p>
+
+  <div class="lab">References</div>
+  <ul class="refs">
+    <li>Caves, <a href="https://doi.org/10.1103/PhysRevD.23.1693" target="_blank" rel="noopener noreferrer">Phys. Rev. D 23, 1693 (1981)</a> — radiation-pressure back-action &amp; squeezing.</li>
+    <li>Schnabel, <i>Squeezed states of light in laser interferometers</i> — <a href="https://arxiv.org/abs/1611.03986" target="_blank" rel="noopener noreferrer">arXiv:1611.03986</a> (open access).</li>
+    <li>LIGO, <i>Broadband quantum enhancement with frequency-dependent squeezing</i>, <a href="https://doi.org/10.1103/PhysRevX.13.041021" target="_blank" rel="noopener noreferrer">Phys. Rev. X 13, 041021 (2023)</a>.</li>
+  </ul>
+
+  <div class="lab">Schematic</div>
+  <p class="seefig">Phase space: the vacuum disk squeezed into an ellipse (area conserved) — see it live in the
+  <a href="squeezing-sql.html">phase-space widget</a>, and watch the noise pop back above the SQL as you misalign θ.</p>
+</section>
+
+<!-- ============ ANCHOR 6 ============ -->
+<section class="card" id="a6">
+  <div class="anchno">Anchor 6 · bridge</div>
+  <h3>Transduction (photons ⇄ phonons)</h3>
+  <p class="back"><a href="anchor-6-transduction.html">▶ workshop: transduction</a></p>
+
+  <div class="lab">Definition</div>
+  <p><b>Transduction</b> is the chain of physical couplings that turns the quantity of interest into a
+  readable signal — typically motion (phonons) ↔ spin ↔ light (photons). Quantum sensors live or die on
+  these chains: every rung of the ladder needs one to prepare and to read out the probe (e.g. a trapped
+  ion's tiny displacement is mapped to its spin, then to fluorescence photons).</p>
+
+  <div class="lab">Characteristic scales</div>
+  <div class="eq">Photons:&nbsp; ~150–1500 THz&nbsp; (0.2–2 µm, UV–near-IR)</div>
+  <div class="eq">Phonons (trapped-ion motion):&nbsp; 0.1–10 MHz&nbsp; (1–100 nm)</div>
+
+  <div class="lab">Boundary / common misuse</div>
+  <p class="bound"><b>A transduction chain is only as good as its</b> noisiest, least efficient link.</p>
+
+  <div class="lab">References</div>
+  <ul class="refs">
+    <li>Burd <i>et al.</i>, <i>Quantum amplification of mechanical oscillator motion</i>, <a href="https://doi.org/10.1126/science.aaw2884" target="_blank" rel="noopener noreferrer">Science 364, 1163 (2019)</a> — motion ↔ spin readout.</li>
+    <li>Degen, Reinhard &amp; Cappellaro, <a href="https://doi.org/10.1103/RevModPhys.89.035002" target="_blank" rel="noopener noreferrer">Rev. Mod. Phys. 89, 035002 (2017)</a> — transduction across platforms.</li>
+  </ul>
+
+  <div class="lab">Schematic — two carriers, one toolbox</div>
+  <table class="fig">
+    <thead><tr><th></th><th>Photons</th><th>Phonons (ion motion)</th></tr></thead>
+    <tbody>
+      <tr><td>Conjugate pair</td><td>E- and B-field quadratures</td><td>position x, momentum p</td></tr>
+      <tr><td>Cooling to vacuum</td><td>T ≈ 300 K is cold enough</td><td>active cooling &lt; 1 mK (sideband)</td></tr>
+      <tr><td>Squeezing</td><td>OPA / OPO crystal</td><td>parametric drive at 2× trap freq.</td></tr>
+      <tr><td>Readout</td><td>homo-/heterodyne</td><td>motion → spin → fluorescence</td></tr>
+    </tbody>
+  </table>
+  <p class="figcap">Condensed from the 2025 <i>Sensing&nbsp;II</i> photons-vs-phonons table.</p>
+</section>
+
+<footer>
+  Reference Library · single offline file, no tracking. External references are links (navigations),
+  never rehosted (course reference PDFs remain "for course use only"). This is the archive (lookup); the
+  interactive workshop is the <a href="workshop.html">hub</a>. Schematics harvested from the 2025 typeset notes
+  (U. Warring); bespoke figures deferred to v2.
+</footer>
+
+</div>
+</body>
+</html>

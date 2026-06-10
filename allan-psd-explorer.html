@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noise &amp; the limits of averaging — Allan/PSD explorer · Sensing 2026</title>
+<!--
+  Sensing 2026 · Pillar-2 hub · Anchor 2 (Noise & statistics: mean/SE → PSD → Allan deviation)
+  Slice-1 flagship interactive. Single self-contained file: no external requests, works offline,
+  hand-rolled canvas plotting so it paints fast on weak lecture-hall wifi (zero-friction, §7).
+  Structure follows the reconstruction four-beat: Try · Notice · Explain · Connect (§7).
+-->
+<style>
+  :root{
+    --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#ffffff;
+    --white:#2563eb; --pink:#ea580c; --rw:#16a34a; --real:#7c3aed; --mark:#dc2626;
+    --accent:#0f766e;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
+  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
+    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
+  .beat-nav a:hover{background:var(--accent); color:#fff}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px}
+  h2 .beat{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--accent)}
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px 24px}
+  .ctl label{display:block; font-weight:700; font-size:15px; margin-bottom:4px}
+  .ctl .val{font-weight:400; color:var(--muted)}
+  input[type=range]{width:100%; accent-color:var(--accent); height:26px}
+  .sw-white label{color:var(--white)} .sw-pink label{color:var(--pink)}
+  .sw-rw label{color:var(--rw)} .sw-drift label{color:var(--muted)}
+  .presets{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 16px}
+  button{font:inherit; font-size:15px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--ink); background:#fff; color:var(--ink);
+    border-radius:8px; padding:8px 14px}
+  button:hover{background:var(--ink); color:#fff}
+  button.preset{border-color:var(--line)}
+  button.preset.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .plots{display:grid; grid-template-columns:1fr; gap:18px}
+  @media(min-width:860px){ .plots{grid-template-columns:1fr 1fr} .plots .full{grid-column:1/-1} }
+  figure{margin:0}
+  canvas{width:100%; height:auto; display:block; background:#fff; border:1px solid var(--line);
+    border-radius:8px}
+  figcaption{font-size:14px; color:var(--muted); margin-top:6px}
+  .readout{font-size:19px; line-height:1.55}
+  .readout b{color:var(--ink)}
+  .pill{display:inline-block; padding:1px 8px; border-radius:6px; font-weight:700; font-size:15px}
+  .pill.white{background:#dbeafe; color:#1e3a8a} .pill.pink{background:#ffedd5; color:#9a3412}
+  .pill.rw{background:#dcfce7; color:#14532d} .pill.mark{background:#fee2e2; color:#991b1b}
+  details{margin-top:10px} summary{cursor:pointer; font-weight:700; color:var(--accent)}
+  details p{margin:10px 0 0}
+  .connect ul{margin:6px 0 0; padding-left:22px} .connect li{margin:6px 0}
+  .check{background:#f0fdfa; border-left:4px solid var(--accent); padding:12px 16px;
+    border-radius:0 8px 8px 0; margin-top:12px; font-size:17px}
+  .row{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:6px}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line);
+    padding-top:12px}
+  .hint{font-size:14px; color:var(--muted); margin:2px 0 0}
+  input[type=file]{font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a href="workshop.html" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none">← Sensing 2026 hub</a>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · Anchor 2 · Noise &amp; statistics</span></div>
+  <h1>Noise &amp; the limits of averaging</h1>
+  <p class="sub">A time series → its power spectrum (PSD) → its Allan deviation. Mix three kinds of
+  noise and watch <i>when averaging stops helping</i>.</p>
+  <nav class="beat-nav">
+    <a href="#try">1 · Try this</a>
+    <a href="#notice">2 · Notice this</a>
+    <a href="#explain">3 · Explain this</a>
+    <a href="#connect">4 · Now connect it</a>
+  </nav>
+</header>
+
+<!-- ============ TRY ============ -->
+<section id="try">
+  <h2><span class="beat">Try this</span> Mix the noise, watch all three views</h2>
+
+  <p style="margin:0 0 14px"><b>The question:</b> you averaged your phone’s accelerometer for
+  longer and longer — <i>why did the reading stop getting better?</i> Build a recipe (or load a
+  real trace) and find out.</p>
+
+  <div class="presets" id="presets">
+    <button class="preset" data-preset="white">White only</button>
+    <button class="preset" data-preset="pink">Pink (flicker) only</button>
+    <button class="preset" data-preset="rw">Random walk only</button>
+    <button class="preset active" data-preset="real">Realistic <i>g</i>-sensor</button>
+    <button id="resample" title="Draw a fresh random sample of the same recipe">↻ New sample</button>
+  </div>
+
+  <div class="controls">
+    <div class="ctl sw-white">
+      <label>White noise <span class="val" id="v-white"></span></label>
+      <input type="range" id="white" min="0" max="100" value="20">
+      <p class="hint">flat spectrum · averaging always helps (τ<sup>−1/2</sup>)</p>
+    </div>
+    <div class="ctl sw-pink">
+      <label>Pink / flicker (1/<i>f</i>) <span class="val" id="v-pink"></span></label>
+      <input type="range" id="pink" min="0" max="100" value="0">
+      <p class="hint">−1 slope · sets a <i>floor</i> averaging can't beat</p>
+    </div>
+    <div class="ctl sw-rw">
+      <label>Random walk / drift <span class="val" id="v-rw"></span></label>
+      <input type="range" id="rw" min="0" max="100" value="0">
+      <p class="hint">−2 slope · averaging eventually <i>hurts</i> (τ<sup>+1/2</sup>)</p>
+    </div>
+    <div class="ctl sw-drift">
+      <label>Samples <span class="val" id="v-n"></span></label>
+      <input type="range" id="npow" min="9" max="13" value="12">
+      <p class="hint">record length N = 2<sup>k</sup> points at f<sub>s</sub> = 100 Hz</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="loadtrace">⬇ Load the exercise trace (g-sensor)</button>
+    <span class="hint">the bundled trace used in the judgement task — one click, no download</span>
+  </div>
+  <div class="row">
+    <label for="csv" style="font-weight:700">…or load your own:</label>
+    <input type="file" id="csv" accept=".csv,.txt,text/plain">
+    <span class="hint" id="csv-status">one number per line; resets on any preset/slider</span>
+  </div>
+</section>
+
+<section>
+  <div class="plots">
+    <figure class="full">
+      <canvas id="ts" width="1040" height="240"></canvas>
+      <figcaption>① <b>Time series</b> — the raw reading vs time (mean removed). White looks fuzzy; random walk wanders.</figcaption>
+    </figure>
+    <figure>
+      <canvas id="psd" width="510" height="360"></canvas>
+      <figcaption>② <b>Power spectral density</b> (log–log) — slope tells the noise type: <span class="pill white">white ≈ 0</span> <span class="pill pink">pink ≈ −1</span> <span class="pill rw">walk ≈ −2</span></figcaption>
+    </figure>
+    <figure>
+      <canvas id="adev" width="510" height="360"></canvas>
+      <figcaption>③ <b>Allan deviation</b> (log–log vs averaging time τ) — the <span class="pill mark">red line</span> marks where more averaging stops helping.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ NOTICE ============ -->
+<section id="notice">
+  <h2><span class="beat">Notice this</span> What the curves are telling you</h2>
+  <p class="readout" id="readout">…</p>
+</section>
+
+<!-- ============ EXPLAIN ============ -->
+<section id="explain">
+  <h2><span class="beat">Explain this</span></h2>
+  <p>You just saw the Allan deviation fall, flatten, then rise as you add pink and random-walk noise.
+     <b>In your own words: why does averaging <i>eventually stop helping</i> — and why doesn’t more data fix it?</b></p>
+  <details>
+    <summary>Reveal a one-paragraph answer</summary>
+    <p>Averaging beats down <i>independent</i> fluctuations: N independent white-noise samples shrink the
+    mean’s uncertainty as 1/√N, so the Allan deviation falls with slope −½. But <b>pink</b> noise is
+    correlated across time — long stretches drift together, so averaging over a longer window can’t
+    cancel them; the curve flattens into a <i>flicker floor</i>. <b>Random-walk</b> noise is worse:
+    the longer you wait, the further the value has wandered from where it started, so averaging over a
+    long window actually adds error — the curve turns <i>up</i> with slope +½. The minimum between the
+    two is the <b>optimal averaging time</b>: average that long and no longer. More raw data doesn’t move
+    a drift-limited floor; only a better sensor (or modelling/removing the drift) does.</p>
+  </details>
+  <details>
+    <summary>Show the math — why −½, 0, +½?</summary>
+    <p><b>White noise:</b> samples are independent, so averaging m of them shrinks the mean’s standard
+    deviation by √m. With τ = m/f<sub>s</sub>, that is σ(τ) ∝ τ<sup>−1/2</sup>; the flat power spectrum
+    (slope 0) is the frequency-domain face of the same fact. This −½ line <i>is</i> the
+    <b>standard quantum limit</b> 1/√N when the “samples” are independent quanta (→ anchor 4).<br>
+    <b>Flicker / pink:</b> power ∝ 1/f means fluctuations are correlated across <i>all</i> timescales —
+    a longer average can’t cancel what drifts with it, so the Allan deviation goes <i>flat</i> (the floor).<br>
+    <b>Random walk:</b> the value is the running sum of little kicks (power ∝ 1/f²); the longer you wait,
+    the further it has wandered, so averaging over a long window <i>adds</i> error and σ(τ) ∝ τ<sup>+1/2</sup>.
+    The bathtub minimum is where the −½ and +½ lines cross.</p>
+  </details>
+</section>
+
+<!-- ============ CONNECT ============ -->
+<section id="connect" class="connect">
+  <h2><span class="beat">Now connect it</span></h2>
+  <ul>
+    <li><b>Back to the lecture:</b> this is the “systematic offset &amp; noise” story behind the
+      smartphone-<i>g</i> measurement — mean &amp; standard error tell you precision only if the noise is
+      white; PSD and Allan deviation reveal when it is <i>not</i>.</li>
+    <li><b>Forward to the ladder (anchor 4):</b> the white-noise −½ slope <i>is</i> the standard quantum
+      limit, 1/√N. Squeezing and entanglement are ways to bend that slope — but they can do nothing about
+      a flicker floor or a drift. First know which wall you are hitting.</li>
+  </ul>
+  <div class="check">
+    <b>Exercise check.</b> Set a recipe with all three noises on. On plot ③, read off the τ where the
+    Allan deviation bottoms out, and say in one line <i>which</i> noise dominates just below it and just
+    above it. (That τ is exactly where “more averaging stops helping.”)
+  </div>
+</section>
+
+<footer>
+  Single-file, offline, no tracking. Sources: Riehle, <i>Frequency Standards</i> (Allan/PSD, ch. 3);
+  the 2025 <i>Sensing I</i> notes (smartphone-<i>g</i>). Pink noise via Kellet’s economy filter;
+  Allan deviation = non-overlapping. Built for the Sensing 2026 hub.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+//==================================================================================
+// 0. Tiny numerics — all self-contained, no libraries.
+//==================================================================================
+const FS = 100;                       // sampling rate [Hz] (assumed)
+let lastGaussSpare = null;
+function gauss(){                      // standard normal, Box–Muller with spare
+  if(lastGaussSpare!==null){ const s=lastGaussSpare; lastGaussSpare=null; return s; }
+  let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random();
+  const r=Math.sqrt(-2*Math.log(u)), t=2*Math.PI*v;
+  lastGaussSpare=r*Math.sin(t); return r*Math.cos(t);
+}
+
+// Generate N samples from a recipe of white + pink + random-walk (+ offset for realism).
+function genSeries(N, amp){
+  const out=new Float64Array(N);
+  // pink filter state (Paul Kellet "economy" 3-pole approximation of 1/f)
+  let b0=0,b1=0,b2=0;
+  let walk=0;
+  for(let i=0;i<N;i++){
+    const w=gauss();
+    // pink
+    b0=0.99765*b0+w*0.0990460;
+    b1=0.96300*b1+w*0.2965164;
+    b2=0.57000*b2+w*1.0526913;
+    const pink=(b0+b1+b2+w*0.1848)*0.20;     // ~unit-scale
+    // random walk (integrated white)
+    walk+=gauss()*0.06;
+    out[i]= amp.white*w + amp.pink*pink + amp.rw*walk + amp.offset;
+  }
+  return out;
+}
+
+// The bundled "exercise trace": deterministic; matches data/realistic-g-trace.csv to its
+// 5-decimal rounding (same seed + constants). Generated in-browser so the page stays one offline file.
+function genBundledTrace(){
+  let a=20260609;                                  // fixed seed
+  const rnd=()=>{ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
+  let sp=null;
+  const g=()=>{ if(sp!==null){const s=sp;sp=null;return s;}
+    let u=0,v=0; while(u===0)u=rnd(); while(v===0)v=rnd();
+    const r=Math.sqrt(-2*Math.log(u)),t=2*Math.PI*v; sp=r*Math.sin(t); return r*Math.cos(t); };
+  const N=16384, out=new Float64Array(N); let b0=0,b1=0,b2=0,walk=0;
+  for(let i=0;i<N;i++){ const w=g();
+    b0=0.99765*b0+w*0.0990460; b1=0.96300*b1+w*0.2965164; b2=0.57000*b2+w*1.0526913;
+    const pink=(b0+b1+b2+w*0.1848)*0.20; walk+=g();
+    out[i]=9.8100 + 2.2e-3*w + 1.1e-4*pink + 1.3e-5*walk; }
+  return out;
+}
+
+// In-place iterative radix-2 FFT.
+function fft(re, im){
+  const n=re.length;
+  for(let i=1,j=0;i<n;i++){
+    let bit=n>>1; for(;j&bit;bit>>=1) j^=bit; j^=bit;
+    if(i<j){ const tr=re[i];re[i]=re[j];re[j]=tr; const ti=im[i];im[i]=im[j];im[j]=ti; }
+  }
+  for(let len=2;len<=n;len<<=1){
+    const ang=-2*Math.PI/len, wr=Math.cos(ang), wi=Math.sin(ang);
+    for(let i=0;i<n;i+=len){
+      let cwr=1,cwi=0;
+      for(let k=0;k<len/2;k++){
+        const a=i+k, b=i+k+len/2;
+        const vr=re[b]*cwr-im[b]*cwi, vi=re[b]*cwi+im[b]*cwr;
+        re[b]=re[a]-vr; im[b]=im[a]-vi; re[a]+=vr; im[a]+=vi;
+        const ncwr=cwr*wr-cwi*wi; cwi=cwr*wi+cwi*wr; cwr=ncwr;
+      }
+    }
+  }
+}
+
+// One-sided PSD with a Hann window, then averaged into log-spaced frequency bins.
+function computePSD(series, fs){
+  const n=series.length;
+  let mean=0; for(let i=0;i<n;i++) mean+=series[i]; mean/=n;
+  let N=1; while(N<n) N<<=1;
+  const re=new Float64Array(N), im=new Float64Array(N);
+  let wsum=0;
+  for(let i=0;i<n;i++){ const w=0.5-0.5*Math.cos(2*Math.PI*i/(n-1)); re[i]=(series[i]-mean)*w; wsum+=w*w; }
+  fft(re,im);
+  const f=[], p=[];
+  for(let k=1;k<N/2;k++){
+    f.push(k*fs/N);
+    p.push(2*(re[k]*re[k]+im[k]*im[k])/(fs*wsum));
+  }
+  return logBin(f,p,48);
+}
+
+// Average y over ~`bins` logarithmically spaced x-bins (variance reduction → clean slope).
+function logBin(x,y,bins){
+  const x0=x[0], x1=x[x.length-1];
+  const lo=Math.log10(x0), hi=Math.log10(x1), dw=(hi-lo)/bins;
+  const sx=new Array(bins).fill(0), sy=new Array(bins).fill(0), c=new Array(bins).fill(0);
+  for(let i=0;i<x.length;i++){
+    let b=Math.floor((Math.log10(x[i])-lo)/dw); if(b<0)b=0; if(b>=bins)b=bins-1;
+    sx[b]+=x[i]; sy[b]+=y[i]; c[b]++;
+  }
+  const fx=[], fy=[];
+  for(let b=0;b<bins;b++) if(c[b]>0){ fx.push(sx[b]/c[b]); fy.push(sy[b]/c[b]); }
+  return {x:fx,y:fy};
+}
+
+// Non-overlapping Allan deviation over geometrically spaced averaging factors m.
+function allanDev(series, tau0){
+  const n=series.length, taus=[], adevs=[];
+  for(let m=1; m<Math.floor(n/3); m=Math.max(m+1, Math.round(m*1.3))){
+    const M=Math.floor(n/m); if(M<2) break;
+    const means=new Float64Array(M);
+    for(let i=0;i<M;i++){ let a=0; for(let j=0;j<m;j++) a+=series[i*m+j]; means[i]=a/m; }
+    let s=0; for(let i=0;i<M-1;i++){ const d=means[i+1]-means[i]; s+=d*d; }
+    taus.push(m*tau0); adevs.push(Math.sqrt(s/(2*(M-1))));
+  }
+  return {taus, adevs};
+}
+
+//==================================================================================
+// 1. Canvas plotting (log–log and linear), DPR-aware, projector-legible.
+//==================================================================================
+// Logical drawing sizes (match each canvas's attribute width/height).
+const CANVAS_LOGICAL={ ts:{w:1040,h:240}, psd:{w:510,h:360}, adev:{w:510,h:360} };
+function setupCanvas(cv, LW, LH){
+  const dpr=Math.max(1, Math.min(3, window.devicePixelRatio||1));
+  cv.width  = Math.round(LW*dpr);
+  cv.height = Math.round(LH*dpr);
+  const W=LW, H=LH;                            // draw in logical coordinates
+  const ctx=cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  return {ctx,W,H};
+}
+function niceTicksLog(min,max){
+  const ticks=[]; let e=Math.floor(Math.log10(min));
+  for(; Math.pow(10,e)<=max*1.0001; e++){ const d=Math.pow(10,e); if(d>=min/1.0001) ticks.push(d); }
+  return ticks;
+}
+function fmt(v){
+  if(v===0) return '0';
+  const a=Math.abs(v);
+  if(a>=1e4||a<1e-3){ const e=Math.floor(Math.log10(a)); return '10'+sup(e); }
+  return (Math.round(v*1000)/1000).toString();
+}
+function sup(n){ const m={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(n).split('').map(c=>m[c]||c).join(''); }
+
+function plotLinear(cv, ys, color, title, LW, LH){
+  const {ctx,W,H}=setupCanvas(cv, LW, LH);
+  const padL=58,padR=14,padT=30,padB=34, w=W-padL-padR, h=H-padT-padB;
+  let mn=Infinity,mx=-Infinity; for(const y of ys){ if(y<mn)mn=y; if(y>mx)mx=y; }
+  if(mn===mx){mn-=1;mx+=1;} const pad=(mx-mn)*0.08; mn-=pad; mx+=pad;
+  const X=i=> padL + i/(ys.length-1)*w;
+  const Y=v=> padT + (1-(v-mn)/(mx-mn))*h;
+  // frame + zero line
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.strokeRect(padL,padT,w,h);
+  if(mn<0&&mx>0){ ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(padL,Y(0)); ctx.lineTo(padL+w,Y(0)); ctx.stroke(); }
+  // curve
+  ctx.strokeStyle=color; ctx.lineWidth=1.4; ctx.beginPath();
+  for(let i=0;i<ys.length;i++){ const x=X(i),y=Y(ys[i]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+  ctx.stroke();
+  // labels
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
+  ctx.fillText(title, padL, 20);
+  ctx.fillStyle='#5b6b7b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('time  →   ('+(ys.length/FS).toFixed(1)+' s at '+FS+' Hz)', padL+w/2, H-10);
+}
+
+function plotLogLog(cv, data, opts, LW, LH){
+  const {ctx,W,H}=setupCanvas(cv, LW, LH);
+  const padL=66,padR=16,padT=30,padB=44, w=W-padL-padR, h=H-padT-padB;
+  const xs=data.x, ys=data.y.map(v=> v<=0? 1e-12 : v);
+  let xmn=Infinity,xmx=-Infinity,ymn=Infinity,ymx=-Infinity;
+  for(let i=0;i<xs.length;i++){ if(xs[i]<xmn)xmn=xs[i]; if(xs[i]>xmx)xmx=xs[i];
+    if(ys[i]<ymn)ymn=ys[i]; if(ys[i]>ymx)ymx=ys[i]; }
+  const lymn=Math.log10(ymn), lymx=Math.log10(ymx); const ypad=(lymx-lymn)*0.1||0.5;
+  const lxmn=Math.log10(xmn), lxmx=Math.log10(xmx);
+  const X=v=> padL + (Math.log10(v)-lxmn)/(lxmx-lxmn)*w;
+  const Y=v=> padT + (1-(Math.log10(v)-(lymn-ypad))/((lymx+ypad)-(lymn-ypad)))*h;
+  // grid
+  ctx.strokeStyle='#eef2f6'; ctx.lineWidth=1;
+  for(const t of niceTicksLog(xmn,xmx)){ const x=X(t); ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+h); ctx.stroke(); }
+  for(const t of niceTicksLog(ymn/10,ymx*10)){ if(t<Math.pow(10,lymn-ypad)||t>Math.pow(10,lymx+ypad))continue;
+    const y=Y(t); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+w,y); ctx.stroke(); }
+  ctx.strokeStyle='#e2e8f0'; ctx.strokeRect(padL,padT,w,h);
+  // optional slope guides
+  if(opts.guides) for(const g of opts.guides){
+    const xa=xmn, xb=xmx, k=g.slope;
+    const ymid=Math.pow(10,(lymn+lymx)/2);
+    const ya=ymid*Math.pow(xa/Math.sqrt(xmn*xmx),k), yb=ymid*Math.pow(xb/Math.sqrt(xmn*xmx),k);
+    ctx.strokeStyle=g.color; ctx.globalAlpha=.35; ctx.lineWidth=6; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(X(xa),Y(ya)); ctx.lineTo(X(xb),Y(yb)); ctx.stroke(); ctx.globalAlpha=1;
+  }
+  // curve
+  ctx.strokeStyle=opts.color; ctx.lineWidth=2.4; ctx.setLineDash([]); ctx.beginPath();
+  for(let i=0;i<xs.length;i++){ const x=X(xs[i]),y=Y(ys[i]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+  ctx.stroke();
+  // marker (e.g. Allan minimum)
+  if(opts.mark){ const mx=X(opts.mark.x), my=Y(opts.mark.y);
+    ctx.strokeStyle='var' in opts? '#dc2626':'#dc2626'; ctx.strokeStyle='#dc2626';
+    ctx.setLineDash([6,5]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mx,padT); ctx.lineTo(mx,padT+h); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle='#dc2626'; ctx.beginPath(); ctx.arc(mx,my,5,0,7); ctx.fill();
+    ctx.font='600 13px sans-serif'; ctx.textAlign= mx> padL+w*0.6?'right':'left';
+    ctx.fillText(opts.mark.label, mx + (mx>padL+w*0.6? -8:8), padT+14);
+  }
+  // axis ticks + labels
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  for(const t of niceTicksLog(xmn,xmx)){ ctx.fillText(fmt(t), X(t), padT+h+16); }
+  ctx.textAlign='right';
+  for(const t of niceTicksLog(ymn,ymx)){ if(t<Math.pow(10,lymn-ypad)||t>Math.pow(10,lymx+ypad))continue;
+    ctx.fillText(fmt(t), padL-6, Y(t)+4); }
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
+  ctx.fillText(opts.title, padL, 20);
+  ctx.fillStyle='#5b6b7b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(opts.xlabel, padL+w/2, H-12);
+}
+
+//==================================================================================
+// 2. State + wiring.
+//==================================================================================
+const els={
+  white:document.getElementById('white'), pink:document.getElementById('pink'),
+  rw:document.getElementById('rw'), npow:document.getElementById('npow'),
+  vwhite:document.getElementById('v-white'), vpink:document.getElementById('v-pink'),
+  vrw:document.getElementById('v-rw'), vn:document.getElementById('v-n'),
+  ts:document.getElementById('ts'), psd:document.getElementById('psd'), adev:document.getElementById('adev'),
+  readout:document.getElementById('readout'), presets:document.getElementById('presets'),
+  resample:document.getElementById('resample'), csv:document.getElementById('csv'),
+  csvStatus:document.getElementById('csv-status'), loadtrace:document.getElementById('loadtrace')
+};
+const DEFAULT_HINT='one number per line; resets on any preset/slider';
+function clearPreset(){ [...els.presets.querySelectorAll('.preset')].forEach(b=>b.classList.remove('active')); }
+function clearLoadedTrace(){ if(loadedTrace){ loadedTrace=null; els.csv.value=''; els.csvStatus.textContent=DEFAULT_HINT; } }
+const PRESETS={
+  white:{white:50,pink:0,rw:0},
+  pink:{white:6,pink:60,rw:0},
+  rw:{white:6,pink:0,rw:55},
+  real:{white:22,pink:30,rw:22}
+};
+let loadedTrace=null;            // when a CSV is loaded, overrides the recipe
+
+function readRecipe(){
+  return {
+    white:+els.white.value/100*1.0,
+    pink:+els.pink.value/100*1.0,
+    rw:+els.rw.value/100*1.0,
+    offset:0
+  };
+}
+function applyPreset(name){
+  const p=PRESETS[name]; if(!p) return;
+  els.white.value=p.white; els.pink.value=p.pink; els.rw.value=p.rw;
+  loadedTrace=null; els.csv.value=''; els.csvStatus.textContent=DEFAULT_HINT;
+  [...els.presets.querySelectorAll('.preset')].forEach(b=>b.classList.toggle('active', b.dataset.preset===name));
+  render();
+}
+
+function render(){
+  els.vwhite.textContent='('+els.white.value+')';
+  els.vpink.textContent='('+els.pink.value+')';
+  els.vrw.textContent='('+els.rw.value+')';
+  const N=Math.pow(2, +els.npow.value);
+  els.vn.textContent='('+N.toLocaleString()+')';
+
+  let series;
+  if(loadedTrace){ series=loadedTrace; }
+  else { series=genSeries(N, readRecipe()); }
+
+  // remove mean for the time-series view
+  let mean=0; for(let i=0;i<series.length;i++) mean+=series[i]; mean/=series.length;
+  const centred=Array.from(series, v=>v-mean);
+
+  plotLinear(els.ts, centred, '#334155', '① Time series (mean removed)',
+    CANVAS_LOGICAL.ts.w, CANVAS_LOGICAL.ts.h);
+
+  const P=computePSD(series, FS);
+  plotLogLog(els.psd, P, {
+    color:'#1d4ed8', title:'② Power spectral density', xlabel:'frequency  f  [Hz]  →',
+    guides:[{slope:0,color:'#2563eb'},{slope:-1,color:'#ea580c'},{slope:-2,color:'#16a34a'}]
+  }, CANVAS_LOGICAL.psd.w, CANVAS_LOGICAL.psd.h);
+
+  const A=allanDev(series, 1/FS);
+  // find minimum (where averaging stops helping)
+  let mi=0; for(let i=1;i<A.adevs.length;i++) if(A.adevs[i]<A.adevs[mi]) mi=i;
+  const tauOpt=A.taus[mi], adevMin=A.adevs[mi];
+  const atEnd = mi>=A.adevs.length-2, atStart= mi<=1;
+  plotLogLog(els.adev, {x:A.taus,y:A.adevs}, {
+    color:'#0f766e', title:'③ Allan deviation σ(τ)', xlabel:'averaging time  τ  [s]  →',
+    guides:[{slope:-0.5,color:'#2563eb'}],
+    mark: atEnd? null : {x:tauOpt,y:adevMin,label:' τ_opt — averaging stops helping'}
+  }, CANVAS_LOGICAL.adev.w, CANVAS_LOGICAL.adev.h);
+
+  updateReadout(A, mi, atStart, atEnd);
+}
+
+function updateReadout(A, mi, atStart, atEnd){
+  const tauOpt=A.taus[mi].toFixed(2);
+  const w=+els.white.value, p=+els.pink.value, r=+els.rw.value;
+  let lead;
+  if(loadedTrace){
+    lead = atEnd
+      ? `Your loaded trace is still <b>averaging-down</b> across the whole range — looks <span class="pill white">white-noise limited</span>. Take more / longer data and it should keep improving.`
+      : `Your loaded trace bottoms out near <b>τ ≈ ${tauOpt} s</b> <span class="pill mark">(red line)</span> — beyond that, averaging stops paying. A floor or drift is limiting it, not shot-to-shot noise.`;
+  } else if(atEnd){
+    lead = `Pure-ish <span class="pill white">white noise</span>: the Allan deviation falls with slope <b>−½</b> across the whole range — every extra second of averaging still helps (this is the 1/√N law).`;
+  } else if(atStart){
+    lead = `<span class="pill rw">Drift / random walk</span> dominates: the curve turns <b>up</b> almost immediately — averaging <i>hurts</i>, because the value keeps wandering. More data won't help; a steadier sensor will.`;
+  } else {
+    let floor = (p>r) ? `a <span class="pill pink">flicker (pink) floor</span>` : `a <span class="pill rw">random-walk drift</span>`;
+    lead = `Mixed noise: averaging helps down to <b>τ ≈ ${tauOpt} s</b> <span class="pill mark">(red line)</span>, then ${floor} takes over and the curve flattens/rises. <b>That τ is your optimal averaging time</b> — average that long and no longer.`;
+  }
+  els.readout.innerHTML = lead +
+    `<br><span style="font-size:15px;color:#5b6b7b">Sliders now — white ${w}, pink ${p}, walk ${r}. ` +
+    `On the PSD, the faint guide lines show slopes 0 / −1 / −2 for white / pink / walk; on the Allan plot, −½ is the white-noise ideal.</span>`;
+}
+
+// CSV / text loader: take the first numeric token per line.
+els.csv.addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const vals=[];
+    for(const line of String(rd.result).split(/\r?\n/)){
+      if(/^\s*#/.test(line)) continue;            // skip header / comment lines
+      const m=line.match(/-?\d+(\.\d+)?([eE][-+]?\d+)?/);
+      if(m) vals.push(parseFloat(m[0]));
+    }
+    if(vals.length<32){ els.csvStatus.textContent='⚠ need ≥32 numbers — using the recipe instead'; loadedTrace=null; render(); return; }
+    loadedTrace=Float64Array.from(vals);
+    els.csvStatus.textContent=`✓ loaded ${vals.length.toLocaleString()} points (f_s assumed ${FS} Hz)`;
+    [...els.presets.querySelectorAll('.preset')].forEach(b=>b.classList.remove('active'));
+    render();
+  };
+  rd.readAsText(file);
+});
+
+// Moving the three noise sliders builds a recipe → drop the preset highlight and any loaded trace.
+['white','pink','rw'].forEach(id=>{
+  els[id].addEventListener('input',()=>{ clearPreset(); clearLoadedTrace(); render(); });
+});
+// Samples slider only changes record length (meaningless for a loaded trace) → clear a loaded one.
+els.npow.addEventListener('input',()=>{ clearLoadedTrace(); render(); });
+// "New sample" returns to generated mode AND clears the loaded-trace status (no stale "✓ loaded").
+els.resample.addEventListener('click',()=>{ clearLoadedTrace(); render(); });
+// One-click bundled exercise trace (deterministic; identical to the CSV).
+els.loadtrace.addEventListener('click',()=>{
+  loadedTrace=genBundledTrace(); clearPreset();
+  els.csvStatus.textContent='✓ exercise trace loaded (16,384 pts · g-sensor at rest)';
+  render();
+});
+els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(b) applyPreset(b.dataset.preset); });
+window.addEventListener('resize',()=>render());
+
+// Boot.
+applyPreset('real');
+</script>
+</body>
+</html>

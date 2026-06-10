@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The trade-off triangle — sensitivity · range · bandwidth · Sensing 2026</title>
+<!--
+  Sensing 2026 · Pillar-1 hub · Anchor 1 (the trade-off triangle: sensitivity · dynamic range · bandwidth).
+  Single self-contained file: NO external requests, works fully offline, inline-SVG widget (no canvas,
+  resolution-independent). Reconstruction four-beat: The question · Try · Notice · Explain · Connect.
+  The widget: drag a handle P inside an equilateral triangle; P's barycentric weights (wS,wD,wB) sum to
+  1 — "the budget you cannot exceed". Real sensors are plotted at fixed barycentric spots. A target zone
+  near the BANDWIDTH corner encodes the design exercise (10 nT @ 1 kHz). Spec tables + magnetometer table
+  fold into "Notice this" as evidence; the Claim/Evidence/Assumption/Limitation/Decision exercise follows.
+  Order-of-magnitude values from the 2025 Sensing I notes.
+-->
+<style>
+  :root{
+    --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#ffffff;
+    --accent:#0f766e;
+    --S:#2563eb;   /* sensitivity corner   */
+    --D:#d97706;   /* dynamic range corner */
+    --B:#7c3aed;   /* bandwidth corner     */
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  a.home{font-size:14px; font-weight:700; color:var(--accent); text-decoration:none}
+  h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
+  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
+    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
+  .beat-nav a:hover{background:var(--accent); color:#fff}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  h2 .beat{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--accent)}
+  h3{font-size:18px; margin:18px 0 8px}
+  p.q{font-size:19px; margin:0 0 14px}
+  .tri{font-size:16px; color:#2c3a47}
+  table{border-collapse:collapse; width:100%; font-size:15.5px; margin:6px 0}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#eef5f4; font-size:14px}
+  td.s{font-weight:700}
+  .b1 td:first-child{font-weight:700; width:30%; background:#fafdfc}
+  ul{margin:8px 0 0; padding-left:22px} li{margin:6px 0}
+  .note{font-size:14px; color:var(--muted)}
+  .presets{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 14px; align-items:center}
+  button{font:inherit; font-size:15px; font-weight:700; cursor:pointer; border:1.5px solid var(--ink);
+    background:#fff; color:var(--ink); border-radius:8px; padding:8px 14px}
+  button:hover{background:var(--ink); color:#fff}
+  button.preset{border-color:var(--line)}
+  button.preset.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .stage{display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start}
+  @media(max-width:760px){ .stage{grid-template-columns:1fr} }
+  figure{margin:0}
+  svg.widget{width:100%; height:auto; display:block; background:#fff;
+    border:1px solid var(--line); border-radius:8px; touch-action:none; cursor:grab}
+  svg.widget.dragging{cursor:grabbing}
+  figcaption{font-size:14px; color:var(--muted); margin-top:6px}
+  .bars{margin:0 0 12px}
+  .bar{display:flex; align-items:center; gap:10px; margin:7px 0}
+  .bar .nm{width:130px; font-weight:700; font-size:15px}
+  .bar .track{flex:1; height:20px; background:#eef2f6; border-radius:10px; overflow:hidden}
+  .bar .fill{height:100%; border-radius:10px; transition:width .05s linear}
+  .bar .pc{width:54px; text-align:right; font-weight:800; font-variant-numeric:tabular-nums}
+  .readout{font-size:18px; line-height:1.55} .readout b{color:var(--ink)}
+  .pill{display:inline-block; padding:1px 8px; border-radius:6px; font-weight:700; font-size:15px}
+  .pill.S{background:#dbeafe;color:#1e3a8a} .pill.D{background:#ffedd5;color:#9a3412}
+  .pill.B{background:#ede9fe;color:#5b21b6} .pill.tgt{background:#fee2e2;color:#991b1b}
+  .sum{font-weight:800}
+  details{margin-top:12px} summary{cursor:pointer; font-weight:700; color:var(--accent)}
+  .check{background:#f0fdfa; border-left:4px solid var(--accent); padding:12px 16px;
+    border-radius:0 8px 8px 0; margin-top:12px; font-size:17px}
+  .connect ul{margin:6px 0 0; padding-left:22px}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
+  .hint{font-size:14px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a class="home" href="workshop.html">← Sensing 2026 hub</a>
+  <div style="margin-top:6px"><span class="tag">Anchor 1 · core · the trade-off triangle</span></div>
+  <h1>You can't have it all</h1>
+  <p class="sub">Sensitivity, dynamic range and bandwidth pull against each other. A sensor is a
+  <i>choice of corner</i>, not a wish-list — and the three always sum to one fixed budget.</p>
+  <nav class="beat-nav">
+    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
+    <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
+  </nav>
+</header>
+
+<section id="try">
+  <h2><span class="beat">Try this</span> Drag the budget around the triangle</h2>
+  <p class="q"><b>The question:</b> why can't one detector be exquisitely <b>sensitive</b>, cover a huge
+  <b>dynamic range</b>, <i>and</i> respond at high <b>bandwidth</b> all at once? Drag the handle
+  <b>P</b> and watch the three weights — they always add to 100%. Push toward one corner and the other
+  two collapse: that is the proof you can't max all three.</p>
+
+  <div class="presets" id="presets">
+    <span class="hint" style="font-weight:700;color:var(--ink)">Jump to:</span>
+    <button class="preset" data-bs="0.34,0.33,0.33">Balanced</button>
+    <button class="preset" data-bs="0.80,0.13,0.07">Sensitivity corner</button>
+    <button class="preset" data-bs="0.10,0.80,0.10">Range corner</button>
+    <button class="preset" data-bs="0.10,0.10,0.80">Bandwidth corner</button>
+    <button class="preset" data-bs="target">▶ The exercise target (10 nT @ 1 kHz)</button>
+  </div>
+
+  <div class="stage">
+    <figure>
+      <svg class="widget" id="tri" viewBox="0 0 520 480" role="img"
+           aria-label="Equilateral trade-off triangle with a draggable handle P">
+        <!-- target zone (drawn first, under everything) -->
+        <polygon id="targetZone" points="" fill="#fee2e2" stroke="#dc2626"
+                 stroke-width="2" stroke-dasharray="6 5" opacity="0.55"></polygon>
+        <text id="targetLbl" x="0" y="0" font-size="13" font-weight="700" fill="#991b1b"
+              text-anchor="middle">target: high bandwidth</text>
+        <!-- the triangle -->
+        <polygon id="triEdge" points="" fill="#fbfdff" stroke="#15212e" stroke-width="2.5"></polygon>
+        <!-- weight guide lines from P to each corner -->
+        <g id="guides" stroke-width="2" stroke-linecap="round" opacity="0.85"></g>
+        <!-- fixed sensor dots -->
+        <g id="sensors"></g>
+        <!-- corner labels -->
+        <g id="cornerLabels" font-weight="800" font-size="16"></g>
+        <!-- draggable handle P -->
+        <g id="handle">
+          <circle id="pdot" r="13" fill="#15212e" stroke="#fff" stroke-width="3"></circle>
+          <text id="plabel" font-size="13" font-weight="800" fill="#fff" text-anchor="middle"
+                dominant-baseline="central">P</text>
+        </g>
+      </svg>
+      <figcaption>Drag <b>P</b> (mouse or touch). Corner = pure focus; centre = an even split. Dots are
+      real sensors placed at their characteristic corner.</figcaption>
+    </figure>
+
+    <div>
+      <div class="bars" aria-hidden="false">
+        <div class="bar"><span class="nm" style="color:var(--S)">Sensitivity</span>
+          <span class="track"><span class="fill" id="fS" style="background:var(--S);width:33%"></span></span>
+          <span class="pc" id="pS">33%</span></div>
+        <div class="bar"><span class="nm" style="color:var(--D)">Dynamic range</span>
+          <span class="track"><span class="fill" id="fD" style="background:var(--D);width:33%"></span></span>
+          <span class="pc" id="pD">33%</span></div>
+        <div class="bar"><span class="nm" style="color:var(--B)">Bandwidth</span>
+          <span class="track"><span class="fill" id="fB" style="background:var(--B);width:33%"></span></span>
+          <span class="pc" id="pB">34%</span></div>
+        <div class="note sum">Σ = <span id="sumv">100</span>%  — fixed. You spend, you don't create.</div>
+      </div>
+      <div class="readout" id="liveline" style="font-size:16px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="notice">
+  <h2><span class="beat">Notice this</span> The three always sum to 100%</h2>
+  <p class="readout" id="readout">…</p>
+
+  <h3>The triangle, in real numbers — three sensors, three corners</h3>
+  <p class="tri">• <b>Sensitivity</b> — the smallest change you can resolve.&nbsp;&nbsp;
+  • <b>Dynamic range</b> — smallest to largest you can read without saturating.&nbsp;&nbsp;
+  • <b>Bandwidth</b> — how fast a change you can follow.</p>
+  <table>
+    <thead><tr><th>Sensor</th><th>Sensitivity (smallest resolvable)</th><th>Dynamic range</th><th>Bandwidth</th><th>Corner it sits in</th></tr></thead>
+    <tbody>
+      <tr><td class="s">Human eye (dark-adapted rod)</td><td>≈ a single photon</td><td>~10⁶ (with adaptation)</td><td>~10–60 Hz (flicker fusion)</td><td>sensitive &amp; wide, but <b>slow</b></td></tr>
+      <tr><td class="s">Smartphone MEMS accelerometer</td><td>~10⁻³ m/s² (0.1–100 Hz)</td><td>0 – 80 m/s² (≈ ±8 g)</td><td>&lt; 100 Hz</td><td>wide &amp; fast, modest <b>sensitivity</b></td></tr>
+      <tr><td class="s">Trapped-ion optical clock</td><td>~1 part in 10¹⁸ (frequency)</td><td>narrow — one transition ± a few MHz</td><td>~1 reading per hour</td><td>ultimate sensitivity, <b>narrow &amp; slow</b></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Order-of-magnitude, from the 2025 <i>Sensing I</i> notes. Notice: nothing sits in all
+  three corners at once — the clock buys 10¹⁸ sensitivity by giving up range and speed. That is exactly
+  what the budget bars show when you drag P into a corner.</p>
+
+  <h3>Four magnetometers — evidence for the exercise</h3>
+  <table>
+    <thead><tr><th>Magnetometer</th><th>Sensitivity (noise floor)</th><th>Bandwidth</th><th>Catch</th></tr></thead>
+    <tbody>
+      <tr><td class="s">Fluxgate</td><td>~10 pT/√Hz</td><td>DC – few kHz</td><td>bulky coil; robust, room-T</td></tr>
+      <tr><td class="s">SQUID</td><td>~1–10 fT/√Hz</td><td>DC – kHz+</td><td>needs cryogenics</td></tr>
+      <tr><td class="s">SERF atomic (OPM)</td><td>~1–10 fT/√Hz</td><td>~DC – few hundred Hz</td><td>bandwidth fades toward 1 kHz</td></tr>
+      <tr><td class="s">NV-diamond</td><td>~pT – nT/√Hz</td><td>to MHz+</td><td>modest sensitivity; room-T, µm-scale</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Order-of-magnitude. Note: 10 nT is a <i>large</i> field — every row resolves it easily,
+  so sensitivity is <b>not</b> the binding constraint here. <b>Bandwidth is.</b> Drag P into the red
+  target zone (or hit the preset) to see which rows survive 1 kHz.</p>
+</section>
+
+<section id="explain">
+  <h2><span class="beat">Explain this</span> A fixed budget you can only re-allocate</h2>
+  <p>Wherever P sits, the three weights sum to one. Slide P toward the <span class="pill B">Bandwidth</span>
+  corner and watch <span class="pill S">Sensitivity</span> and <span class="pill D">Dynamic range</span>
+  drain away in lock-step. <b>Why is the total conserved — why can't a clever design just buy back the
+  corners it spent?</b></p>
+  <details>
+    <summary>Reveal a one-paragraph answer</summary>
+    <p>The three corners draw on the <b>same physical pool</b>: a finite count of quanta (photons, atoms,
+    spins) read out in a finite time. Spend that pool on resolving a <i>tiny</i> change and you have used
+    up the headroom for a <i>large</i> one (range) and the speed of repeated reads (bandwidth). You can
+    move the allocation — that is engineering — but you cannot create more total without changing the
+    hardware (more atoms, longer integration, lower temperature), which moves the <i>whole</i> triangle,
+    not P inside it. Real sensors are points pinned to a corner because their physics already chose the
+    split for them.</p>
+  </details>
+  <details>
+    <summary>Show the math — barycentric coordinates &amp; the conserved budget</summary>
+    <p>Put the three corners at vertices <b>v<sub>S</sub>, v<sub>D</sub>, v<sub>B</sub></b>. Any point P
+    inside the triangle has a unique <b>barycentric coordinate</b>
+    P = w<sub>S</sub>v<sub>S</sub> + w<sub>D</sub>v<sub>D</sub> + w<sub>B</sub>v<sub>B</sub> with
+    <b>w<sub>S</sub> + w<sub>D</sub> + w<sub>B</sub> = 1</b> and every w ≥ 0. Each weight is the
+    <i>relative area</i> of the sub-triangle opposite that corner (divide P-to-edge distance by the
+    triangle's height). At a vertex one weight is 1 and the others are 0 — the visual proof you cannot
+    max all three. The constraint Σw = 1 is the conserved quantity: the readout's percentages are just
+    100·w.</p>
+    <p><b>Same shape elsewhere on the hub:</b></p>
+    <ul>
+      <li><b>Squeezing (anchor 5):</b> the quantum uncertainty <i>area</i> Δx·Δp is conserved — squeeze
+        one quadrature and the conjugate one must widen. Same conservation law, a different pair of
+        corners.</li>
+      <li><b>The Allan / GHZ "bathtubs" (anchors 2 &amp; 4):</b> averaging buys sensitivity as 1/√N only
+        until drift takes over; entanglement buys 1/N only until decoherence does — a resource that
+        <b>stops paying past a point</b>. Here, weight you pour into one corner stops paying because it
+        is drained straight out of the others.</li>
+    </ul>
+  </details>
+</section>
+
+<section id="connect" class="connect">
+  <h2><span class="beat">Now connect it</span> Pick a corner, defend it</h2>
+  <p>You need to <b>detect a 10 nT magnetic field at 1 kHz</b>. Drag P into the red <span class="pill tgt">target
+  zone</span> near the bandwidth corner — see how much sensitivity and range you spend to get there. Then
+  read the table above, pick <b>two</b> candidates, and decide between them.</p>
+  <p>Fill the judgement (Claim · Evidence · Assumption · Limitation · Decision):</p>
+  <table class="b1">
+    <tr><td>Claim</td><td>(which technology, in one line)</td></tr>
+    <tr><td>Evidence</td><td>where each sits on sensitivity / range / <b>bandwidth</b> for the 10 nT @ 1 kHz target</td></tr>
+    <tr><td>Assumption</td><td>what about the task you're taking for granted (field strength stable? single-shot? environment?)</td></tr>
+    <tr><td>Limitation</td><td>which corner your choice gives up — and whether that matters here</td></tr>
+    <tr><td>Decision</td><td>your pick, and what would change it</td></tr>
+  </table>
+  <p style="margin-top:12px"><b>What good looks like:</b></p>
+  <ul>
+    <li>Names the <b>1 kHz bandwidth</b> as the binding constraint — not sensitivity (10 nT is a large
+      field, so every row has ample sensitivity). The pick is decided by which rows actually <i>clear</i>
+      1 kHz and at what practical cost (room-T vs cryogenics, size, integration).</li>
+    <li>Uses the triangle as evidence — not "sensor X is better" but "X trades range for the bandwidth
+      I need".</li>
+    <li>States one thing that would flip the decision (e.g. if the signal were DC, the slow sensitive
+      option wins).</li>
+  </ul>
+  <p style="margin-top:12px"><b>Logbook (one entry):</b> Tried · Stuck (where/how long) · Hub resource
+  used · <i>Changed my mind because…</i> · Still unclear.</p>
+
+  <h3 style="margin-top:18px">Where this goes next</h3>
+  <ul>
+    <li><b>What sets the sensitivity corner?</b> Noise — how low you can push it, and when averaging
+      stops helping, is <a href="allan-psd-explorer.html">anchor 2 (noise &amp; Allan)</a>.</li>
+    <li><b>The ultimate sensitivity corner</b> is the standard quantum limit; beating it without breaking
+      the budget is what <a href="squeezing-sql.html">squeezing (anchor 5)</a> and the
+      <a href="quantum-ladder.html">quantum ladder (anchor 4)</a> are about.</li>
+  </ul>
+  <div class="check">
+    <b>Exercise check.</b> Drag P to the target zone. In one sentence: which magnetometer would you
+    actually build for 10 nT @ 1 kHz, which corner did you spend to get there, and what single change to
+    the task would make the opposite corner win?
+  </div>
+</section>
+
+<footer>
+  Single-file, offline, no tracking. Order-of-magnitude values from the 2025 <i>Sensing I</i> notes
+  (University of Freiburg). Barycentric-budget framing after the standard sensitivity / dynamic-range /
+  bandwidth trade-off; magnetometer figures: fluxgate / SQUID / SERF-OPM / NV-diamond noise-floor and
+  bandwidth ranges as commonly tabulated.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+//================================ geometry ==================================================
+// Equilateral triangle in the 520x480 viewBox. Vertices: S (top), D (bottom-left), B (bottom-right).
+const VB = {w:520, h:480};
+const PAD = 64;                                   // margin so labels/dots fit
+const side = VB.w - 2*PAD;                        // base length
+const h    = side*Math.sqrt(3)/2;                 // height
+const topY = PAD + 4;
+const V = {
+  S: {x: VB.w/2,            y: topY},             // SENSITIVITY  (top)
+  D: {x: VB.w/2 - side/2,   y: topY + h},         // DYNAMIC RANGE (bottom-left)
+  B: {x: VB.w/2 + side/2,   y: topY + h}          // BANDWIDTH    (bottom-right)
+};
+
+// Barycentric (wS,wD,wB) -> pixel point
+function bary2xy(wS,wD,wB){
+  return { x: wS*V.S.x + wD*V.D.x + wB*V.B.x,
+           y: wS*V.S.y + wD*V.D.y + wB*V.B.y };
+}
+// Pixel point -> barycentric, then clamp strictly inside the triangle.
+function xy2bary(px,py){
+  const d = (V.D.y-V.B.y)*(V.S.x-V.B.x) + (V.B.x-V.D.x)*(V.S.y-V.B.y);
+  let wS = ((V.D.y-V.B.y)*(px-V.B.x) + (V.B.x-V.D.x)*(py-V.B.y)) / d;
+  let wD = ((V.B.y-V.S.y)*(px-V.B.x) + (V.S.x-V.B.x)*(py-V.B.y)) / d;
+  let wB = 1 - wS - wD;
+  return {wS,wD,wB};
+}
+// Keep P strictly inside: floor each weight, renormalise.
+const EPS = 0.012;
+function clampBary(b){
+  let wS=Math.max(EPS,b.wS), wD=Math.max(EPS,b.wD), wB=Math.max(EPS,b.wB);
+  const s=wS+wD+wB; return {wS:wS/s, wD:wD/s, wB:wB/s};
+}
+
+//================================ fixed sensors =============================================
+// barycentric [wS, wD, wB]; placed at characteristic corners (order-of-magnitude story spots).
+const SENSORS = [
+  {name:'Human eye',        b:[0.55,0.37,0.08], note:'high S, high D, slow'},
+  {name:'MEMS accel.',      b:[0.22,0.40,0.38], note:'balanced, faster'},
+  {name:'Ion clock',        b:[0.90,0.05,0.05], note:'extreme S, narrow & slow'},
+  {name:'Fluxgate',         b:[0.30,0.34,0.36], note:'robust, DC–kHz'},
+  {name:'SQUID',            b:[0.55,0.18,0.27], note:'fT/√Hz, cryo, to kHz+'},
+  {name:'SERF-OPM',         b:[0.62,0.22,0.16], note:'fT/√Hz, low bandwidth'},
+  {name:'NV-diamond',       b:[0.26,0.20,0.54], note:'modest S, to MHz'}
+];
+
+//================================ target zone (bandwidth corner) ============================
+// "10 nT @ 1 kHz needs high bandwidth": a sub-triangle hugging the B vertex.
+const TGT = { wBmin:0.55 };                       // P counts as "in zone" when wB >= this
+const targetCorners = [ [0.55,0.00,0.45],[0.00,0.55,0.45],[0.00,0.00,1.00] ]
+  .map(b=>clampBary({wS:b[0],wD:b[1],wB:b[2]}));   // a band near the B vertex
+function pointInTarget(b){ return b.wB >= TGT.wBmin; }
+
+//================================ build static SVG ==========================================
+const NS='http://www.w3.org/2000/svg';
+const el = id => document.getElementById(id);
+
+el('triEdge').setAttribute('points', `${V.S.x},${V.S.y} ${V.D.x},${V.D.y} ${V.B.x},${V.B.y}`);
+
+// target polygon
+(function(){
+  const pts = targetCorners.map(b=>{const p=bary2xy(b.wS,b.wD,b.wB); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;}).join(' ');
+  el('targetZone').setAttribute('points', pts);
+  const c = bary2xy(0.18,0.18,0.64);             // label inside the band
+  el('targetLbl').setAttribute('x', c.x.toFixed(1));
+  el('targetLbl').setAttribute('y', (c.y+4).toFixed(1));
+})();
+
+// corner labels
+(function(){
+  const g=el('cornerLabels');
+  function lbl(x,y,txt,color,anchor,dy){
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x); t.setAttribute('y',y+dy); t.setAttribute('fill',color);
+    t.setAttribute('text-anchor',anchor); t.textContent=txt; g.appendChild(t);
+  }
+  const c = getComputedStyle(document.documentElement);
+  lbl(V.S.x, V.S.y-12, 'SENSITIVITY',   c.getPropertyValue('--S').trim(), 'middle', 0);
+  lbl(V.D.x-6, V.D.y+24, 'DYNAMIC RANGE',c.getPropertyValue('--D').trim(), 'start',  0);
+  lbl(V.B.x+6, V.B.y+24, 'BANDWIDTH',    c.getPropertyValue('--B').trim(), 'end',    0);
+})();
+
+// sensor dots
+(function(){
+  const g=el('sensors'); const c=getComputedStyle(document.documentElement);
+  for(const s of SENSORS){
+    const p=bary2xy(s.b[0],s.b[1],s.b[2]);
+    s._x=p.x; s._y=p.y;                           // cache for nearest-sensor search
+    const dot=document.createElementNS(NS,'circle');
+    dot.setAttribute('cx',p.x.toFixed(1)); dot.setAttribute('cy',p.y.toFixed(1));
+    dot.setAttribute('r','6'); dot.setAttribute('fill','#fff');
+    dot.setAttribute('stroke','#15212e'); dot.setAttribute('stroke-width','2.5');
+    g.appendChild(dot);
+    const t=document.createElementNS(NS,'text');
+    // nudge labels so they don't collide with edges
+    const ax = p.x < VB.w/2 ? 'end' : 'start';
+    const ox = p.x < VB.w/2 ? -9 : 9;
+    t.setAttribute('x',(p.x+ox).toFixed(1)); t.setAttribute('y',(p.y+4).toFixed(1));
+    t.setAttribute('font-size','12.5'); t.setAttribute('font-weight','700');
+    t.setAttribute('fill','#2c3a47'); t.setAttribute('text-anchor',ax);
+    t.textContent=s.name; g.appendChild(t);
+  }
+})();
+
+//================================ live state + render =======================================
+const svg=el('tri'), guides=el('guides'), handle=el('handle'),
+      pdot=el('pdot'), plabel=el('plabel');
+let P = clampBary({wS:0.34,wD:0.33,wB:0.33});     // start near centre
+
+function nearestSensor(px,py){
+  let best=null, bd=Infinity;
+  for(const s of SENSORS){ const d=(s._x-px)**2+(s._y-py)**2; if(d<bd){bd=d;best=s;} }
+  return {s:best, dist:Math.sqrt(bd)};
+}
+
+function render(){
+  const pt=bary2xy(P.wS,P.wD,P.wB);
+  handle.setAttribute('transform',`translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)})`);
+  plabel.setAttribute('x','0'); plabel.setAttribute('y','0');
+
+  // guide lines coloured by corner, width ~ weight
+  const c=getComputedStyle(document.documentElement);
+  const segs=[ [V.S, c.getPropertyValue('--S').trim(), P.wS],
+               [V.D, c.getPropertyValue('--D').trim(), P.wD],
+               [V.B, c.getPropertyValue('--B').trim(), P.wB] ];
+  guides.innerHTML='';
+  for(const [vx,col,w] of segs){
+    const ln=document.createElementNS(NS,'line');
+    ln.setAttribute('x1',pt.x.toFixed(1)); ln.setAttribute('y1',pt.y.toFixed(1));
+    ln.setAttribute('x2',vx.x.toFixed(1)); ln.setAttribute('y2',vx.y.toFixed(1));
+    ln.setAttribute('stroke',col); ln.setAttribute('stroke-width',(1+5*w).toFixed(2));
+    ln.setAttribute('opacity','0.8'); guides.appendChild(ln);
+  }
+
+  // percentages (round so they sum to exactly 100)
+  let pS=Math.round(P.wS*100), pD=Math.round(P.wD*100);
+  let pB=100-pS-pD; if(pB<0){pD+=pB; pB=0;}
+  el('fS').style.width=pS+'%'; el('pS').textContent=pS+'%';
+  el('fD').style.width=pD+'%'; el('pD').textContent=pD+'%';
+  el('fB').style.width=pB+'%'; el('pB').textContent=pB+'%';
+  el('sumv').textContent=(pS+pD+pB);
+
+  // nearest sensor + lines
+  const near=nearestSensor(pt.x,pt.y);
+  const inZone=pointInTarget(P);
+  el('liveline').innerHTML =
+    `Nearest real sensor: <b>${near.s.name}</b> <span class="hint">(${near.s.note})</span>. `+
+    (inZone ? '<b style="color:#991b1b">In the 1 kHz target zone.</b>' :
+              'Drag toward the red zone for the exercise.');
+
+  // big readout in Notice this
+  const dom = (pS>=pD&&pS>=pB)?'S':(pD>=pB?'D':'B');
+  const domName={S:'Sensitivity',D:'Dynamic range',B:'Bandwidth'}[dom];
+  const domPill={S:'S',D:'D',B:'B'}[dom];
+  let r = `Right now P spends <span class="pill S">${pS}% sensitivity</span> · `+
+          `<span class="pill D">${pD}% range</span> · <span class="pill B">${pB}% bandwidth</span>. `+
+          `<b class="sum">They sum to 100% — gain one corner only by spending the others.</b> `+
+          `The dominant corner is <span class="pill ${domPill}">${domName}</span>, and the nearest real `+
+          `sensor is <b>${near.s.name}</b>.`;
+  if(inZone){
+    r += ` <br><br><b style="color:#991b1b">Target hit — 10 nT @ 1 kHz means you've spent your budget on bandwidth.</b> `+
+         `You traded away sensitivity and dynamic range to get here. Since 10 nT is a <i>large</i> field, `+
+         `sensitivity is not the binding constraint — bandwidth is. Now read the four magnetometer rows `+
+         `above: which actually clear 1 kHz, and at what practical cost? Deciding that is the exercise.`;
+  }
+  el('readout').innerHTML=r;
+}
+
+//================================ dragging (mouse + touch) ==================================
+function clientToSvg(clientX,clientY){
+  const r=svg.getBoundingClientRect();
+  return { x:(clientX-r.left)/r.width*VB.w, y:(clientY-r.top)/r.height*VB.h };
+}
+function moveTo(clientX,clientY){
+  const s=clientToSvg(clientX,clientY);
+  P=clampBary(xy2bary(s.x,s.y));
+  render();
+}
+let dragging=false;
+function startDrag(e){ dragging=true; svg.classList.add('dragging');
+  const t=e.touches?e.touches[0]:e; moveTo(t.clientX,t.clientY); e.preventDefault(); }
+function onMove(e){ if(!dragging)return; const t=e.touches?e.touches[0]:e;
+  moveTo(t.clientX,t.clientY); e.preventDefault(); }
+function endDrag(){ dragging=false; svg.classList.remove('dragging'); }
+
+svg.addEventListener('mousedown', startDrag);
+window.addEventListener('mousemove', onMove);
+window.addEventListener('mouseup', endDrag);
+svg.addEventListener('touchstart', startDrag, {passive:false});
+svg.addEventListener('touchmove', onMove, {passive:false});
+window.addEventListener('touchend', endDrag);
+
+//================================ presets ===================================================
+el('presets').addEventListener('click', e=>{
+  const b=e.target.closest('.preset'); if(!b)return;
+  [...el('presets').querySelectorAll('.preset')].forEach(x=>x.classList.toggle('active',x===b));
+  if(b.dataset.bs==='target'){
+    P=clampBary({wS:0.16,wD:0.16,wB:0.68});       // inside the target zone
+  } else {
+    const [s,d,w]=b.dataset.bs.split(',').map(Number);
+    P=clampBary({wS:s,wD:d,wB:w});
+  }
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

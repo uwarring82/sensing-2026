@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transduction — photons ↔ phonons · Sensing 2026</title>
+<!-- Sensing 2026 · Anchor 6 (transduction; photons ↔ phonons). STATIC web unit (curated content,
+     ungated). Bridge/satellite anchor — never planned as a flagship interactive. -->
+<style>
+  :root{--ink:#15212e;--muted:#5b6b7b;--line:#d4dde6;--bg:#f7fafc;--card:#fff;--accent:#0f766e;--ph:#7c3aed;--pn:#d97706}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:18px}
+  .tag{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--accent);padding:3px 9px;border-radius:4px}
+  h1{font-size:30px;margin:10px 0 4px}.sub{color:var(--muted);font-size:17px;margin:0}
+  a.home{font-size:14px;font-weight:700;color:var(--accent);text-decoration:none}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  h2{font-size:21px;margin:0 0 10px}
+  table{border-collapse:collapse;width:100%;font-size:15px}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#eef5f4;font-size:14px} th.ph{color:var(--ph)} th.pn{color:var(--pn)}
+  td.r{font-weight:700;width:24%;background:#fafdfc}
+  .chain{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;background:#f1f5f9;border-radius:8px;padding:12px 14px;line-height:1.9}
+  .check{background:#f0fdfa;border-left:4px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;font-size:17px}
+  ul{margin:8px 0 0;padding-left:22px}li{margin:5px 0}
+  .note{font-size:14px;color:var(--muted)}
+  footer{color:var(--muted);font-size:13px;margin-top:24px;border-top:1px solid var(--line);padding-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="home" href="workshop.html">← Sensing 2026 hub</a>
+  <div><span class="tag">Anchor 6 · bridge · transduction</span></div>
+  <h1>How a force becomes a number</h1>
+  <p class="sub">Every sensor is a <b>transduction chain</b> — one physical quantity converted to the
+  next until it reaches something you can read. Every rung of the quantum ladder needs one.</p>
+</header>
+
+<section>
+  <h2>The question</h2>
+  <p>A trapped ion senses a tiny force; a gravitational wave sloshes a 4 km arm. Neither is read
+  directly — each is <b>transduced</b> through a chain of couplings. Quantum technologies live or die
+  on two carriers: <b>photons</b> (light) and <b>phonons</b> (mechanical motion). Knowing how to move a
+  signal between them <i>is</i> the engineering of quantum sensing.</p>
+</section>
+
+<section>
+  <h2>Photons vs phonons</h2>
+  <table>
+    <thead><tr><th>Property</th><th class="ph">Photons (EM field)</th><th class="pn">Phonons (trapped-ion motion)</th></tr></thead>
+    <tbody>
+      <tr><td class="r">Quantised mode</td><td>electromagnetic wave</td><td>mechanical vibration</td></tr>
+      <tr><td class="r">Non-commuting observables</td><td>E- and B-field quadratures</td><td>position x and momentum p</td></tr>
+      <tr><td class="r">Energy / frequency</td><td>~150–1500 THz</td><td>0.1–10 MHz</td></tr>
+      <tr><td class="r">Characteristic length</td><td>0.2–2 µm (wavelength)</td><td>1–100 nm (ground-state extent)</td></tr>
+      <tr><td class="r">Manipulate with</td><td>beam splitters, phase shifters, non-linear crystals</td><td>laser, microwave &amp; electric fields (resonant forces)</td></tr>
+      <tr><td class="r">Vacuum (residual thermal)</td><td>T ≈ 300 K is cold enough</td><td>active cooling below 1 mK (sideband cooling)</td></tr>
+      <tr><td class="r">Displaced state</td><td>frequency- &amp; intensity-stable laser</td><td>"tickle": resonant electric force at the trap frequency</td></tr>
+      <tr><td class="r">Fock state</td><td>single-photon source (parametric down-conversion)</td><td>conditional motion–spin coupling (sidebands)</td></tr>
+      <tr><td class="r">Squeezed state</td><td>OPA / OPO in a non-linear crystal</td><td>parametric drive at twice the trap frequency</td></tr>
+      <tr><td class="r">Detection</td><td>balanced homo-/heterodyne</td><td>motion → spin transfer, then fluorescence</td></tr>
+    </tbody>
+  </table>
+  <p class="note">From the 2025 <i>Sensing II</i> notes. The same toolbox (displace · Fock · squeeze ·
+  read) appears for both carriers — only the hardware differs.</p>
+</section>
+
+<section>
+  <h2>Exercise — diagnose the broken chain</h2>
+  <p>A trapped-ion force sensor is supposed to turn a tiny push into a number. Here is a colleague's
+  proposed chain — but <b>one link is missing or wrong</b>, so the readout will be flat:</p>
+  <p class="chain">tiny force&nbsp; → &nbsp;displaces the ion's motion (phonons)&nbsp; → &nbsp;<b>???</b>&nbsp; → &nbsp;ion fluoresces / stays dark (photons)&nbsp; → &nbsp;camera count</p>
+  <p>Using the table, decide the judgement (Claim · Evidence · Assumption · Limitation · Decision):</p>
+  <ul>
+    <li><b>Claim:</b> what is the missing/wrong link?</li>
+    <li><b>Evidence:</b> which row of the table tells you the motion (phonon) state must be converted before light can report it?</li>
+    <li><b>Assumption / Limitation:</b> what does the chain silently assume about reading motion directly?</li>
+    <li><b>Decision:</b> insert the correct link, and say what physically performs it.</li>
+  </ul>
+  <div class="check" style="margin-top:12px"><b>What good looks like:</b> identifies that <b>phonons aren't
+  read optically on their own</b> — you need a <b>motion → spin transfer</b> (a red/blue sideband pulse mapping
+  the motional state onto the ion's internal spin) <i>before</i> spin-dependent fluorescence can turn it into
+  photons. Names the detection row as the evidence.</div>
+  <p style="margin-top:12px"><b>Logbook (one entry):</b> Tried · Stuck · Hub resource used ·
+  <i>Changed my mind because…</i> · Still unclear.</p>
+</section>
+
+<section>
+  <h2>Now connect it</h2>
+  <ul>
+    <li><b>LIGO is a transduction chain:</b> space-time strain → mirror motion (phonons) → light phase
+      (photons) → photocurrent. The <a href="squeezing-sql.html">squeezing (anchor 5)</a> is injected as
+      photons; the signal starts as motion.</li>
+    <li><b>Every rung needs a chain:</b> the <a href="quantum-ladder.html">quantum ladder (anchor 4)</a>
+      assumes you can prepare, entangle, and <i>read out</i> the probe — each step is a transduction.</li>
+  </ul>
+</section>
+
+<footer>
+  Static page (curated content, ungated) — a bridge anchor, never a flagship interactive.
+  Sensing 2026 · University of Freiburg.
+</footer>
+</div>
+</body>
+</html>
