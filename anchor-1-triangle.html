@@ -90,7 +90,9 @@
   <div style="margin-top:6px"><span class="tag">Anchor 1 · core · the trade-off triangle</span></div>
   <h1>You can't have it all</h1>
   <p class="sub">Sensitivity, dynamic range and bandwidth pull against each other. A sensor is a
-  <i>choice of corner</i>, not a wish-list — and the three always sum to one fixed budget.</p>
+  <i>choice of corner</i>, not a wish-list — and in this toy model the three weights sum to one fixed
+  <i>design budget</i>. (Real hardware moves the whole triangle, not just the point inside it — see
+  <a href="#explain">Explain</a>.)</p>
   <nav class="beat-nav">
     <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
     <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
@@ -152,7 +154,7 @@
         <div class="bar"><span class="nm" style="color:var(--B)">Bandwidth</span>
           <span class="track"><span class="fill" id="fB" style="background:var(--B);width:33%"></span></span>
           <span class="pc" id="pB">34%</span></div>
-        <div class="note sum">Σ = <span id="sumv">100</span>%  — fixed. You spend, you don't create.</div>
+        <div class="note sum">Σ = <span id="sumv">100</span>%  — a fixed <i>toy</i> budget. You re-allocate; only the hardware sets the total.</div>
       </div>
       <div class="readout" id="liveline" style="font-size:16px"></div>
     </div>
@@ -256,7 +258,7 @@
     <li>States one thing that would flip the decision (e.g. if the signal were DC, the slow sensitive
       option wins).</li>
   </ul>
-  <p style="margin-top:12px"><b>Logbook (one entry):</b> Tried · Stuck (where/how long) · Hub resource
+  <p style="margin-top:12px"><b><a href="logbook.html">Logbook</a> (one entry):</b> Tried · Stuck (where/how long) · Hub resource
   used · <i>Changed my mind because…</i> · Still unclear.</p>
 
   <h3 style="margin-top:18px">Where this goes next</h3>

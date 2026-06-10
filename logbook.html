@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The logbook — Sensing 2026</title>
+<!--
+  Sensing 2026 · the consolidated logbook (student-facing). Single offline file, no external requests.
+  Pulls the five-field logbook prompt — scattered across the anchor pages — into one printable surface:
+  Tried · Stuck · Hub resource used · Changed my mind because… · Still unclear. One entry per spaced
+  session. Includes a worked example (what a good entry looks like) and a print/copy template. Hub palette.
+-->
+<style>
+  :root{ --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#fff; --accent:#0f766e; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:960px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  a{color:var(--accent)}
+  h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  h2{font-size:22px; margin:0 0 12px}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  .lede{color:var(--muted); font-size:16px; margin:2px 0 14px}
+  /* the five fields */
+  .fields{list-style:none; margin:0; padding:0; counter-reset:f}
+  .fields li{position:relative; padding:10px 0 10px 44px; border-bottom:1px dashed var(--line)}
+  .fields li:last-child{border-bottom:0}
+  .fields li::before{counter-increment:f; content:counter(f); position:absolute; left:0; top:9px;
+    width:28px; height:28px; border-radius:999px; background:var(--accent); color:#fff;
+    font-weight:800; font-size:15px; display:flex; align-items:center; justify-content:center}
+  .fields .nm{font-weight:800}
+  .fields .pr{color:var(--muted); font-size:15px; display:block; margin-top:1px}
+  /* template card */
+  .tmpl{border:2px solid var(--accent); border-radius:12px; padding:0; overflow:hidden; margin:8px 0}
+  .tmpl .head{background:#ecfdf5; padding:8px 14px; font-weight:800; font-size:15px; color:#0b5a53;
+    border-bottom:1px solid #b8e6dd; display:flex; justify-content:space-between; align-items:center}
+  .tmpl .row{display:grid; grid-template-columns:200px 1fr; border-top:1px solid var(--line)}
+  .tmpl .row:first-of-type{border-top:0}
+  .tmpl .k{padding:11px 14px; font-weight:700; background:#fafdfc; border-right:1px solid var(--line)}
+  .tmpl .k small{display:block; font-weight:400; color:var(--muted); font-size:13px; margin-top:2px}
+  .tmpl .v{padding:11px 14px; min-height:48px; color:var(--muted)}
+  @media(max-width:560px){ .tmpl .row{grid-template-columns:1fr} .tmpl .k{border-right:0; border-bottom:1px solid var(--line)} }
+  /* worked example */
+  .ex .v{color:var(--ink)}
+  .ex .head{background:#fffbeb; color:#92400e; border-bottom-color:#fcd34d}
+  .ex.tmpl{border-color:#f59e0b}
+  /* buttons */
+  .btns{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 0}
+  button{font:inherit; font-size:15px; font-weight:700; cursor:pointer; border:1.5px solid var(--accent);
+    background:#fff; color:var(--accent); border-radius:8px; padding:8px 14px}
+  button:hover{background:var(--accent); color:#fff}
+  .ok{color:#16a34a; font-weight:700; font-size:14px; margin-left:6px}
+  /* spaced-week mini table */
+  table{border-collapse:collapse; width:100%; font-size:15.5px; margin:6px 0}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#eef5f4; font-size:14px}
+  .back{font-size:14px; font-weight:700}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
+  /* PRINT: hide chrome, show three blank template cards on clean paper */
+  @media print{
+    body{background:#fff; font-size:12pt}
+    .noprint{display:none !important}
+    section{box-shadow:none; border:0; padding:0; margin:0 0 14px}
+    .tmpl{break-inside:avoid; page-break-inside:avoid}
+    .wrap{max-width:none; padding:0}
+    a{color:#000; text-decoration:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top noprint">
+  <a class="back" href="workshop.html" style="text-decoration:none">← Sensing 2026 hub</a>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · the logbook</span></div>
+  <h1>The logbook</h1>
+  <p class="sub">One short entry per spaced session — not a report, a <i>thinking trace</i>. The tutorial
+  is built around these, so write them as you go, not the night before.</p>
+</header>
+
+<section class="noprint">
+  <h2>Five fields, ninety seconds</h2>
+  <p class="lede">Each interactive ends by asking for one logbook entry. They all use the same five
+  prompts. The one that matters most is the fourth — it is where the critical thinking shows.</p>
+  <ul class="fields">
+    <li><span class="nm">Tried</span>
+      <span class="pr">what you actually did — which interactive, which setting, which exercise.</span></li>
+    <li><span class="nm">Stuck</span>
+      <span class="pr">where you got stuck, and roughly how long before it moved (or didn't).</span></li>
+    <li><span class="nm">Hub resource used</span>
+      <span class="pr">which anchor, reference card, or “go broader” source you reached for.</span></li>
+    <li><span class="nm">Changed my mind because…</span>
+      <span class="pr">the one belief this session overturned. If nothing changed, say why you started right.</span></li>
+    <li><span class="nm">Still unclear</span>
+      <span class="pr">the question you are carrying into the tutorial.</span></li>
+  </ul>
+</section>
+
+<section class="noprint">
+  <h2>What a good entry looks like</h2>
+  <p class="lede">A strong entry names a <b>specific</b> wrong turn and the evidence that corrected it —
+  not “I learned about magnetometers.” Example, from Anchor&nbsp;1 (the
+  <a href="anchor-1-triangle.html">trade-off triangle</a>):</p>
+  <div class="tmpl ex">
+    <div class="head"><span>Session 1 · Anchor 1 — choose a magnetometer for 10 nT @ 1 kHz</span></div>
+    <div class="row"><div class="k">Tried</div>
+      <div class="v">Dragged P into the 1 kHz target zone; read the four magnetometer rows against it.</div></div>
+    <div class="row"><div class="k">Stuck</div>
+      <div class="v">~10 min — I assumed I needed the <i>most sensitive</i> sensor (SQUID), but the
+        target-zone readout kept insisting sensitivity wasn't the binding constraint.</div></div>
+    <div class="row"><div class="k">Hub resource used</div>
+      <div class="v">Anchor 1 <a href="reference.html#a1">reference card</a> — the boundary line “more
+        sensitivity is not strictly better” — and the magnetometer table.</div></div>
+    <div class="row"><div class="k">Changed my mind because…</div>
+      <div class="v">10 nT is a <i>large</i> field; every row resolves it, so <b>bandwidth</b>, not
+        sensitivity, decides. I'd been optimising the wrong corner.</div></div>
+    <div class="row"><div class="k">Still unclear</div>
+      <div class="v">Whether NV-diamond's room-T, µm-scale advantage outweighs its modest sensitivity for
+        a real 1 kHz job, or whether SERF-OPM's fading bandwidth rules it out first.</div></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="noprint">Your template — print it or copy it</h2>
+  <p class="lede noprint">Three blank cards, one per spaced session.
+    <span class="btns" style="display:inline-flex; vertical-align:middle">
+      <button id="print">🖶 Print these cards</button>
+      <button id="copy">⧉ Copy as plain text</button><span class="ok" id="copied" style="display:none">copied ✓</span>
+    </span>
+  </p>
+  <div id="blanks"></div>
+</section>
+
+<section class="noprint">
+  <h2>The rhythm — three sittings, not one</h2>
+  <p class="lede">Spread the three entries across the week (the <a href="workshop.html">workshop</a> tracks
+  your ticks). Each 30-min session is ~2 anchors and one entry; the tutorial discusses all three.</p>
+  <table>
+    <thead><tr><th>Session</th><th>Anchors</th><th>One entry about…</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · early week</b></td><td>1 triangle · 2 noise/Allan</td><td>the design task + the noise-trace task</td></tr>
+      <tr><td><b>2 · mid week</b></td><td>3 SQL · 4 ladder</td><td>coin-flip / photon-counting + pick-the-rung</td></tr>
+      <tr><td><b>3 · late week</b></td><td>5 back-action · 6 transduction</td><td>squeezing-band task + a broken transduction chain</td></tr>
+      <tr><td><b>Tutorial</b></td><td>—</td><td>bring all three entries — we discuss them (90 min)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="noprint">
+  Sensing 2026 · the logbook · University of Freiburg. Single offline file, no tracking — nothing you
+  type here is stored or sent; print or copy your cards and keep them yourself.
+  <br>Text &amp; figures © 2026 U. Warring · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC&nbsp;BY&nbsp;4.0</a> · v2026.06.3.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const SESSIONS=[
+  'Session 1 · early week — Anchors 1 & 2',
+  'Session 2 · mid week — Anchors 3 & 4',
+  'Session 3 · late week — Anchors 5 & 6',
+];
+const FIELDS=[
+  ['Tried','what you did'],
+  ['Stuck','where + how long'],
+  ['Hub resource used','anchor / card / source'],
+  ['Changed my mind because…','the one wrong turn corrected'],
+  ['Still unclear','for the tutorial'],
+];
+const blanks=document.getElementById('blanks');
+for(const s of SESSIONS){
+  const card=document.createElement('div'); card.className='tmpl';
+  let html='<div class="head"><span>'+s+'</span></div>';
+  for(const [k,hint] of FIELDS){
+    html+='<div class="row"><div class="k">'+k+'<small>'+hint+'</small></div><div class="v">&nbsp;</div></div>';
+  }
+  card.innerHTML=html; blanks.appendChild(card);
+}
+
+document.getElementById('print').addEventListener('click',()=>window.print());
+document.getElementById('copy').addEventListener('click',async()=>{
+  const lines=[];
+  for(const s of SESSIONS){
+    lines.push(s);
+    for(const [k] of FIELDS) lines.push('  '+k+': ');
+    lines.push('');
+  }
+  const text=lines.join('\n');
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta);
+    ta.select(); try{document.execCommand('copy');}catch(_){} ta.remove(); }
+  const ok=document.getElementById('copied'); ok.style.display='inline';
+  setTimeout(()=>ok.style.display='none',1800);
+});
+</script>
+</body>
+</html>
