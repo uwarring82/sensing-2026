@@ -93,10 +93,10 @@
   <div class="plots">
     <figure>
       <canvas id="phase" width="510" height="430"></canvas>
-      <figcaption>① <b>Phase space</b> (X, P). Dashed circle = <span style="color:#64748b">SQL (vacuum)</span>;
-        ellipse = the squeezed state; the bar is the noise along your measurement axis — the ellipse's
-        <i>shadow</i> on that axis (grey projection lines), not its radius. Inside the circle
-        <span class="pill good">beats SQL</span>, outside is <span class="pill bad">worse</span>.</figcaption>
+      <figcaption>① <b>Phase space</b> (X, P). Dashed circle = <span style="color:#64748b">SQL (vacuum)</span>.
+        The squeezed-state ellipse tilts by θ against the fixed horizontal <span style="color:#0f766e">detection
+        axis</span>; the bar is its <i>shadow</i> on that axis (grey drop-lines), not its radius — inside the
+        circle <span class="pill good">beats SQL</span>, outside is <span class="pill bad">worse</span>.</figcaption>
     </figure>
     <figure>
       <canvas id="ang" width="510" height="430"></canvas>
@@ -205,38 +205,34 @@ function drawPhase(S, thDeg){
     ctx.beginPath(); ctx.moveTo(cx-R*sc,cy+g*sc);ctx.lineTo(cx+R*sc,cy+g*sc);ctx.stroke(); }
   ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(cx-R*sc,cy);ctx.lineTo(cx+R*sc,cy); ctx.moveTo(cx,cy-R*sc);ctx.lineTo(cx,cy+R*sc); ctx.stroke();
   ctx.fillStyle='#64748b'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
-  ctx.fillText('X (squeezed)', cx+R*sc-86, cy-6); ctx.fillText('P', cx+6, cy-R*sc+14);
+  ctx.fillText('P', cx+6, cy-R*sc+14);
   // clip to plot box
   ctx.save(); ctx.beginPath(); ctx.rect(cx-R*sc,cy-R*sc,2*R*sc,2*R*sc); ctx.clip();
   // SQL vacuum circle
   ctx.strokeStyle='#64748b'; ctx.setLineDash([5,5]); ctx.lineWidth=2;
   ctx.beginPath(); ctx.arc(cx,cy,sc,0,7); ctx.stroke(); ctx.setLineDash([]);
-  // squeezed ellipse (1σ)
+  // squeezed ellipse (1σ), ROTATED by θ: the squeeze axis is misaligned from the fixed horizontal
+  // detection axis by θ — i.e. phase jitter wobbles the state against a fixed detector.
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(-th);
   ctx.strokeStyle='#2563eb'; ctx.fillStyle='rgba(37,99,235,.10)'; ctx.lineWidth=2.4;
-  ctx.beginPath(); ctx.ellipse(cx,cy, sigX*sc, sigP*sc, 0, 0, 7); ctx.fill(); ctx.stroke();
-  // measurement axis (through origin at angle θ; P is up so screen y is negative)
-  const ux=Math.cos(th), uy=-Math.sin(th);
-  ctx.strokeStyle='#0f766e'; ctx.setLineDash([4,4]); ctx.lineWidth=1.6;
-  ctx.beginPath(); ctx.moveTo(cx-ux*R*sc, cy-uy*R*sc); ctx.lineTo(cx+ux*R*sc, cy+uy*R*sc); ctx.stroke(); ctx.setLineDash([]);
-  // noise bar = ±σθ along the axis — σθ is the ellipse's SHADOW (projection) onto this axis,
-  // NOT its radial intercept: the bar end is the foot of the perpendicular from the ellipse's
-  // tangent point, so it equals √V(θ) and stays consistent with the right-hand graph.
+  ctx.beginPath(); ctx.ellipse(0,0, sigX*sc, sigP*sc, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  // fixed detection axis = the horizontal X quadrature the homodyne reads out
+  ctx.strokeStyle='#0f766e'; ctx.setLineDash([6,4]); ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(cx-R*sc, cy); ctx.lineTo(cx+R*sc, cy); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#0f766e'; ctx.font='600 12px sans-serif'; ctx.textAlign='right';
+  ctx.fillText('X · detection axis', cx+R*sc-4, cy-7);
+  // measured noise σθ = the ellipse's SHADOW on the detection axis = √V(θ) (matches the right graph),
+  // NOT its radial intercept. Drop straight down from the ellipse's extreme point to the bar end.
   const sigTh=Math.sqrt(Vrel(S,thDeg));
-  const tstar=Math.atan2(sigP*Math.sin(th), sigX*Math.cos(th));   // ellipse param where normal ∥ axis
-  const ex=sigX*Math.cos(tstar), ey=sigP*Math.sin(tstar);         // its (X,P) point on the 1σ ellipse
-  // projection lines tying each bar end to the ellipse (perpendicular to the measurement axis)
+  const dY=Math.sin(th)*Math.cos(th)*(sigP*sigP-sigX*sigX)/sigTh;   // vertical offset of that extreme point
   ctx.strokeStyle='#94a3b8'; ctx.setLineDash([3,3]); ctx.lineWidth=1.2;
-  for(const s of [1,-1]){
-    ctx.beginPath();
-    ctx.moveTo(cx + s*ex*sc, cy - s*ey*sc);                       // tangent point on the ellipse
-    ctx.lineTo(cx + s*ux*sigTh*sc, cy + s*uy*sigTh*sc);           // its shadow = the bar end
-    ctx.stroke();
-  }
+  for(const s of [1,-1]){ ctx.beginPath(); ctx.moveTo(cx+s*sigTh*sc, cy+s*dY*sc); ctx.lineTo(cx+s*sigTh*sc, cy); ctx.stroke(); }
   ctx.setLineDash([]); ctx.fillStyle='#94a3b8';
-  for(const s of [1,-1]){ ctx.beginPath(); ctx.arc(cx + s*ex*sc, cy - s*ey*sc, 2.4, 0, 7); ctx.fill(); }
-  // the bar itself (the measured noise σθ), coloured by verdict vs the SQL
-  ctx.strokeStyle = vColor(S,thDeg); ctx.lineWidth=6; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(cx-ux*sigTh*sc, cy-uy*sigTh*sc); ctx.lineTo(cx+ux*sigTh*sc, cy+uy*sigTh*sc); ctx.stroke(); ctx.lineCap='butt';
+  for(const s of [1,-1]){ ctx.beginPath(); ctx.arc(cx+s*sigTh*sc, cy+s*dY*sc, 2.4, 0, 7); ctx.fill(); }
+  // the noise bar (horizontal), coloured by verdict vs the SQL
+  ctx.strokeStyle=vColor(S,thDeg); ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(cx-sigTh*sc, cy); ctx.lineTo(cx+sigTh*sc, cy); ctx.stroke(); ctx.lineCap='butt';
   ctx.restore();
   ctx.fillStyle='#15212e'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
   ctx.fillText('θ = '+thDeg+'°', cx-R*sc+6, cy+R*sc-8);
