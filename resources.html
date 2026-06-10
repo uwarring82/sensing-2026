@@ -107,13 +107,14 @@
   <h2><span class="beat">Try this</span> Open the hook, then pick your depth</h2>
   <p class="lead"><b>The question:</b> the interactives gave you the intuition — but how deep should you
   actually go, and <i>which</i> source repays the time? This page answers that for each of the six
-  anchors with a three-tier ladder: <b>MUST</b> (the one 5–20 min source to do now), <b>SHOULD</b> (the
-  rigorous counterpoint), <b>CAN</b> (the open-ended rabbit hole).</p>
+  anchors with a three-tier ladder: <b>MUST</b> (the one source to start now — ~5–20 min, or, for the two
+  theory-heavy anchors 4 &amp; 5, a foundational paper read for its key result, not every proof),
+  <b>SHOULD</b> (the rigorous counterpoint), <b>CAN</b> (the open-ended rabbit hole).</p>
   <p>Start with the single best accessible hook for the whole hub — a viral claim turned into a real
   physics lesson:</p>
   <div class="res">
     <span class="pill video">Video</span> <span class="pill must">Must · hook</span>
-    <a class="title" href="https://www.youtube.com/watch?v=SVTPv4sI_Jc&amp;t=952s" target="_blank" rel="noopener noreferrer">Veritasium — "Can a quantum sensor detect your heartbeat from 60&nbsp;km away?"</a>
+    <a class="title" href="https://www.youtube.com/watch?v=SVTPv4sI_Jc&amp;t=952s" target="_blank" rel="noopener noreferrer">Veritasium — "Can a quantum sensor detect your heartbeat from 50&nbsp;km away?"</a>
     <span class="clip">▶ 15:52–18:30</span>
     <p class="why">YouTube lists it under the clickbait title <i>"The CIA's new tech doesn't make sense"</i>
     (22 min). It turns the viral <b>"Ghost Murmur"</b> claim into a concrete sensitivity-limit lesson:
@@ -152,7 +153,10 @@
     <summary>Show the math — the one inequality every anchor circles</summary>
     <p>The thread is a single scaling statement. For <b>N</b> independent probes (atoms, photons,
     averages) the phase/field uncertainty falls as the <b>standard quantum limit</b>
-    Δφ ∝ N<sup>−1/2</sup> — the same −½ slope as a white-noise Allan/PSD floor (Anchors&nbsp;2–3).
+    Δφ ∝ N<sup>−1/2</sup> — the same −½ slope as the <b>Allan-deviation</b> floor of a flat-spectrum (white)
+    signal (σ ∝ τ<sup>−1/2</sup>; that signal's own <b>PSD</b> is flat, slope&nbsp;0 — exactly the white row of
+    Anchor&nbsp;2's table). The shared exponent is no coincidence: both are central-limit averaging — 1/√ of the
+    number of independent samples, whether that count is N probes or τ-worth of readings.
     Squeezing lowers the <i>prefactor</i> (ξ/√N, ξ&lt;1; Caves&nbsp;1981, Anchor&nbsp;5), and an ideal
     entangled GHZ/NOON state reaches the <b>Heisenberg limit</b> Δφ ∝ N<sup>−1</sup>
     (Giovannetti–Lloyd–Maccone&nbsp;2011, Anchor&nbsp;4) — but realistic decoherence claws that gain
@@ -172,7 +176,7 @@
     <h3><span class="pill must">Must</span> do this now</h3>
     <div class="res">
       <span class="pill video">Video</span>
-      <a class="title" href="https://www.youtube.com/watch?v=SVTPv4sI_Jc&amp;t=952s" target="_blank" rel="noopener noreferrer">Veritasium — "Can a quantum sensor detect your heartbeat from 60&nbsp;km away?"</a>
+      <a class="title" href="https://www.youtube.com/watch?v=SVTPv4sI_Jc&amp;t=952s" target="_blank" rel="noopener noreferrer">Veritasium — "Can a quantum sensor detect your heartbeat from 50&nbsp;km away?"</a>
       <span class="clip">▶ 15:52–18:30</span>
       <p class="why"><b>Why this:</b> turns the viral CIA "Ghost Murmur" claim into a concrete
       sensitivity-limit lesson (1/r³ falloff, ~18 orders of magnitude short, background noise) — the
@@ -292,6 +296,7 @@
       <a class="title" href="https://doi.org/10.1103/PhysRevLett.79.3865" target="_blank" rel="noopener noreferrer">Huelga <i>et al.</i> — "Improvement of Frequency Standards with Quantum Entanglement," PRL 79, 3865 (1997)</a>
       <p class="why"><b>Why this:</b> the foundational result that entanglement helps frequency standards
       — and that decoherence claws back the gain, the first rung-vs-noise tension on the ladder.
+      <i>A foundational paper, not a 5-min read</i> — take the abstract and the entanglement-vs-decoherence result (~15 min).
       <span class="ext">(Open access: <a href="https://arxiv.org/abs/quant-ph/9707014" target="_blank" rel="noopener noreferrer">arXiv:quant-ph/9707014</a>.)</span></p>
     </div>
   </div>
@@ -332,7 +337,7 @@
       <a class="title" href="https://doi.org/10.1103/PhysRevD.23.1693" target="_blank" rel="noopener noreferrer">Caves — "Quantum-mechanical noise in an interferometer," Phys. Rev. D 23, 1693 (1981)</a>
       <p class="why"><b>Why this:</b> the origin of squeezed-light metrology — it names the two quantum
       noises (photon-counting vs. radiation-pressure back-action) and shows squeezing trades one for the
-      other.</p>
+      other. <i>A foundational paper, not a 5-min read</i> — take the abstract and the two-noise argument (~15 min).</p>
     </div>
   </div>
 
@@ -409,8 +414,8 @@
   <p>Trace the chain across the interactives, MUST source in hand each time:</p>
   <ul>
     <li><b>Anchor 1 → 2 → 3:</b> the Veritasium 1/r³ argument bottoms out at a <i>noise floor</i>
-      (<a href="allan-psd-explorer.html">Allan / PSD explorer</a>), whose −½ slope is the
-      <i>standard quantum limit</i> (<a href="squeezing-sql.html">squeezing &amp; SQL</a>).</li>
+      (<a href="allan-psd-explorer.html">Allan / PSD explorer</a>), whose −½ <b>Allan</b> slope (σ ∝ τ<sup>−1/2</sup>)
+      is the <i>standard quantum limit</i> (<a href="squeezing-sql.html">squeezing &amp; SQL</a>).</li>
     <li><b>Anchor 4 → 5:</b> the ladder (<a href="quantum-ladder.html">quantum-ladder.html</a>) bends
       that −½ slope toward −1, while back-action / squeezing
       (<a href="squeezing-sql.html">squeezing-sql.html</a>) buys it back below the SQL when entanglement
