@@ -169,6 +169,9 @@
 const Vrel = (S,thDeg)=>{ const th=thDeg*Math.PI/180;
   return Math.pow(10,-S/10)*Math.cos(th)**2 + Math.pow(10,S/10)*Math.sin(th)**2; };
 const dB = v => 10*Math.log10(v);
+// shared verdict colour vs the SQL, used by BOTH panels so they always agree:
+// green = beats shot noise, red = worse, slate = exactly at the SQL (e.g. vacuum).
+const vColor = (S,thDeg)=>{ const d=dB(Vrel(S,thDeg)); return d<-0.05?'#16a34a':d>0.05?'#dc2626':'#64748b'; };
 const crossover = S => {                         // θ (deg) where noise returns to the SQL (0 dB)
   // e^-2r cos² + e^2r sin² = 1  ->  tan²θ = (1 - 10^-S/10)/(10^S/10 - 1)
   if(S<=0) return 90;
@@ -215,8 +218,8 @@ function drawPhase(S, thDeg){
   ctx.strokeStyle='#0f766e'; ctx.setLineDash([4,4]); ctx.lineWidth=1.6;
   ctx.beginPath(); ctx.moveTo(cx-ux*R*sc, cy-uy*R*sc); ctx.lineTo(cx+ux*R*sc, cy+uy*R*sc); ctx.stroke(); ctx.setLineDash([]);
   // noise bar = ±σθ along the axis
-  const sigTh=Math.sqrt(Vrel(S,thDeg)); const beats = sigTh<1;
-  ctx.strokeStyle = beats? '#16a34a' : '#dc2626'; ctx.lineWidth=6; ctx.lineCap='round';
+  const sigTh=Math.sqrt(Vrel(S,thDeg));
+  ctx.strokeStyle = vColor(S,thDeg); ctx.lineWidth=6; ctx.lineCap='round';
   ctx.beginPath(); ctx.moveTo(cx-ux*sigTh*sc, cy-uy*sigTh*sc); ctx.lineTo(cx+ux*sigTh*sc, cy+uy*sigTh*sc); ctx.stroke(); ctx.lineCap='butt';
   ctx.restore();
   ctx.fillStyle='#15212e'; ctx.font='600 14px sans-serif'; ctx.textAlign='left';
@@ -255,7 +258,8 @@ function drawAngle(S, thDeg){
   const yv=Math.max(ymin,Math.min(ymax,dB(Vrel(S,thDeg))));
   ctx.strokeStyle='#0f766e'; ctx.setLineDash([4,4]); ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(X(thDeg),padT); ctx.lineTo(X(thDeg),padT+h); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle='#0f766e'; ctx.beginPath(); ctx.arc(X(thDeg),Y(yv),5,0,7); ctx.fill();
+  ctx.fillStyle=vColor(S,thDeg); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(X(thDeg),Y(yv),5,0,7); ctx.fill(); ctx.stroke();
   // axis label
   ctx.fillStyle='#5b6b7b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
   ctx.fillText('measurement angle θ  →', padL+w/2, H-8);
