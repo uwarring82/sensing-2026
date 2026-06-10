@@ -38,12 +38,15 @@
   .index a{text-decoration:none; font-weight:700} .index a:hover{text-decoration:underline}
   .index .t{font:700 10px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase;
     color:#fff; border-radius:2px; padding:2px 5px; margin-left:6px; vertical-align:1px}
-  .t.core{background:#6b6256} .t.micro{background:#7c5e3c} .t.bridge{background:#9a6a3a}
+  .t.core{background:#6b6256} .t.micro{background:#7c5e3c} .t.bridge{background:#9a6a3a} .t.plat{background:#1f4e6b}
   /* cards */
   .card{background:var(--card); border:1px solid var(--rule); border-left:5px solid var(--accent);
     border-radius:0 6px 6px 0; padding:20px 24px; margin:20px 0; box-shadow:2px 2px 0 rgba(120,100,70,.10)}
   .card h3{font-size:24px; margin:0 0 2px} .card .anchno{color:var(--accent); font-size:15px;
     font-family:ui-monospace,monospace; letter-spacing:.08em}
+  .card.platform{border-left-color:#1f4e6b} .card.platform .anchno{color:#1f4e6b}
+  .plat-head{font-size:22px; margin:34px 0 0; border-bottom:2px solid #1f4e6b; padding-bottom:6px; color:#1f4e6b}
+  .plat-lede{color:var(--soft); font-size:15px; margin:6px 0 0}
   .back{font-size:14px} .back a{font-weight:700}
   .lab{font:700 12px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.16em; text-transform:uppercase;
     color:var(--tag); margin:18px 0 6px; padding-bottom:3px; border-bottom:1px dotted var(--rule)}
@@ -88,6 +91,8 @@
     <li><a href="#a5">5 · Back-action · squeezing</a><span class="t core">core</span></li>
     <li><a href="#a6">6 · Transduction</a><span class="t bridge">bridge</span></li>
   </ol>
+  <p style="margin:12px 0 0;font-size:15px"><b style="color:#1f4e6b">Platforms:</b>
+    <a href="#p-nv">NV centre → spin-½</a> &nbsp;·&nbsp; <a href="#p-gw">GW detector → harmonic oscillator</a></p>
 </nav>
 
 <!-- ============ ANCHOR 1 ============ -->
@@ -305,6 +310,70 @@
     </tbody>
   </table>
   <p class="figcap">Condensed from the 2025 <i>Sensing&nbsp;II</i> photons-vs-phonons table.</p>
+</section>
+
+<!-- ===================== PLATFORMS ===================== -->
+<h2 class="plat-head">Platforms — the same two abstractions, in real hardware</h2>
+<p class="plat-lede">This interlude leans on two platforms the Quantum Hardware course meets only in
+passing. The point of each primer: neither is exotic — both are <i>just</i> the building blocks you
+already know, a <b>spin-½</b> and a <b>harmonic oscillator</b>, dressed in hardware.</p>
+
+<!-- ============ PLATFORM: NV ============ -->
+<section class="card platform" id="p-nv">
+  <div class="anchno">Platform · reduces to a spin-½</div>
+  <h3>NV centre in diamond</h3>
+  <p class="back">shows up in: <a href="#a2">noise &amp; coherence</a> · <a href="#a4">the ladder</a> · <a href="#a6">transduction</a></p>
+
+  <div class="lab">What it is</div>
+  <p>A point defect in diamond — a nitrogen atom beside a missing carbon (a vacancy) — trapping unpaired
+  electrons. Its ground state is an electronic spin <b>triplet</b> (S = 1) with a 2.87 GHz zero-field
+  splitting; it is optically initialised and read out, and it works at room temperature.</p>
+
+  <div class="lab">Why it's "just" a spin-½</div>
+  <p>Apply a magnetic field to Zeeman-split the m<sub>s</sub> = ±1 sublevels, isolate one transition
+  (e.g. {0 ↔ −1}) and drive it with microwaves: you now have a clean <b>two-level system</b> — the same
+  spin-½ behind Ramsey, coherence and the SQL (<a href="#a2">anchors 2</a>–<a href="#a4">4</a>). Reading it
+  out by spin-dependent fluorescence (ODMR) is exactly the optical <a href="#a6">transduction of anchor 6</a>.</p>
+
+  <div class="lab">What the idealisation hides</div>
+  <p class="bound"><b>It is really spin-1, not spin-½</b> — the third level and the host nuclear-spin bath are precisely what limit (and what you can exploit for) coherence.</p>
+
+  <div class="lab">Introducing reviews</div>
+  <ul class="refs">
+    <li>Doherty <i>et al.</i>, <i>The nitrogen-vacancy colour centre in diamond</i>, Phys. Rep. 528, 1 (2013) — <a href="https://arxiv.org/abs/1302.3288" target="_blank" rel="noopener noreferrer">arXiv:1302.3288</a> (open; the comprehensive reference).</li>
+    <li>Schirhagl <i>et al.</i>, <i>NV Centers in Diamond: Nanoscale Sensors for Physics and Biology</i>, <a href="https://doi.org/10.1146/annurev-physchem-040513-103659" target="_blank" rel="noopener noreferrer">Annu. Rev. Phys. Chem. 65, 83 (2014)</a> — the accessible first read.</li>
+    <li>Barry <i>et al.</i>, <i>Sensitivity optimization for NV-diamond magnetometry</i>, <a href="https://arxiv.org/abs/1903.08176" target="_blank" rel="noopener noreferrer">Rev. Mod. Phys. 92, 015004 (2020)</a> — open; the sensing deep dive.</li>
+  </ul>
+</section>
+
+<!-- ============ PLATFORM: GW ============ -->
+<section class="card platform" id="p-gw">
+  <div class="anchno">Platform · reduces to a harmonic oscillator</div>
+  <h3>Gravitational-wave detector hardware</h3>
+  <p class="back">shows up in: <a href="#a3">the SQL</a> · <a href="#a5">back-action &amp; squeezing</a></p>
+
+  <div class="lab">What it is</div>
+  <p>A kilometre-scale Michelson laser interferometer (LIGO, Virgo, GEO600) — enhanced with Fabry-Pérot arm
+  cavities and recycling — that senses the differential <b>strain</b> of space-time below 1 part in
+  10<sup>21</sup> as a passing wave stretches one arm and squeezes the other.</p>
+
+  <div class="lab">Why it's "just" a harmonic oscillator</div>
+  <p>The quantum-limited measurement reads the <b>quadratures of the light field</b>, and a single mode of
+  light <i>is</i> a quantum harmonic oscillator. Shot noise, radiation-pressure <b>back-action</b>, the
+  <b>standard quantum limit</b>, and squeezed-vacuum injection are all the same quadrature / phase-space
+  physics as the <a href="#a5">squeezing</a> widget (<a href="#a3">anchors 3</a> &amp; <a href="#a5">5</a>).
+  The suspended mirrors are mechanical oscillators too — so the detector couples two harmonic oscillators
+  (optomechanics).</p>
+
+  <div class="lab">What the idealisation hides</div>
+  <p class="bound"><b>"One oscillator" is a simplification</b> — the real quantum-noise budget is multimode and frequency-dependent, which is why LIGO needs <i>frequency-dependent</i> squeezing.</p>
+
+  <div class="lab">Introducing reviews</div>
+  <ul class="refs">
+    <li>Aasi <i>et al.</i> (LIGO Scientific Collaboration), <i>Advanced LIGO</i>, <a href="https://doi.org/10.1088/0264-9381/32/7/074001" target="_blank" rel="noopener noreferrer">Class. Quantum Grav. 32, 074001 (2015)</a> — open access; the detector hardware.</li>
+    <li>Danilishin &amp; Khalili, <i>Quantum Measurement Theory in Gravitational-Wave Detectors</i>, <a href="https://doi.org/10.12942/lrr-2012-5" target="_blank" rel="noopener noreferrer">Living Rev. Relativity 15, 5 (2012)</a> — open access; the shot-noise / back-action / SQL framing.</li>
+    <li>Schnabel, <i>Squeezed states of light in laser interferometers</i>, <a href="https://arxiv.org/abs/1611.03986" target="_blank" rel="noopener noreferrer">Phys. Rep. 684, 1 (2017)</a> — the quadrature / squeezing pedagogy.</li>
+  </ul>
 </section>
 
 <footer>
