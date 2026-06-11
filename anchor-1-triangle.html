@@ -32,10 +32,6 @@
   a.home{font-size:14px; font-weight:700; color:var(--accent); text-decoration:none}
   h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
   .sub{color:var(--muted); font-size:17px; margin:0}
-  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
-  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
-    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
-  .beat-nav a:hover{background:var(--accent); color:#fff}
   section{background:var(--card); border:1px solid var(--line); border-radius:12px;
     padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
   h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
@@ -56,12 +52,11 @@
   button:hover{background:var(--ink); color:#fff}
   button.preset{border-color:var(--line)}
   button.preset.active{background:var(--accent); color:#fff; border-color:var(--accent)}
-  .stage{display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start}
-  @media(max-width:760px){ .stage{grid-template-columns:1fr} }
+  .tri2col>figure{margin:0 0 14px}        /* triangle on top (full width), weight bars below */
   figure{margin:0}
-  svg.widget{width:100%; height:auto; display:block; background:#fff;
+  svg.trisvg{width:100%; max-width:640px; height:auto; display:block; background:#fff;
     border:1px solid var(--line); border-radius:8px; touch-action:none; cursor:grab}
-  svg.widget.dragging{cursor:grabbing}
+  svg.trisvg.dragging{cursor:grabbing}
   figcaption{font-size:14px; color:var(--muted); margin-top:6px}
   .bars{margin:0 0 12px}
   .bar{display:flex; align-items:center; gap:10px; margin:7px 0}
@@ -80,6 +75,35 @@
   .connect ul{margin:6px 0 0; padding-left:22px}
   footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
   .hint{font-size:14px; color:var(--muted)}
+  /* ---- pinned widget + stepped beats (side-by-side) ---- */
+  .stage{display:block}
+  .stage>section{margin:0 0 18px}
+  @media(min-width:1080px){
+    .stage{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr); gap:24px; align-items:start}
+    .stage>section{margin:0}
+    .widget{position:sticky; top:16px}
+  }
+  .coach table{font-size:12.5px}
+  .coach table th,.coach table td{padding:6px 8px}
+  .nf{font-weight:400; color:var(--muted)}   /* full name after the graph abbreviation */
+  .wtitle{font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 12px; display:block}
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px}
+  .step{font:inherit; font-size:13.5px; font-weight:800; cursor:pointer; color:var(--muted); background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:5px 12px}
+  .step:hover{border-color:var(--accent); color:var(--accent)}
+  .step[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .step.visited:not([aria-selected="true"]){color:var(--accent); border-color:#9ad2cb}
+  .panels{min-height:200px}
+  .beatpanel{padding:14px 2px 0}
+  .beatpanel h2{margin-top:0}
+  .beatpanel:focus{outline:none}
+  body.stepper-on .beatpanel{display:none}
+  body.stepper-on .beatpanel.is-active{display:block}
+  .stepnav{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; border-top:1px solid var(--line); padding-top:14px}
+  .stepnav button{border-color:var(--accent); color:var(--accent); background:#fff}
+  .stepnav button:hover:not(:disabled){background:var(--accent); color:#fff}
+  .stepnav button:disabled{opacity:.4; cursor:default; border-color:var(--line); color:var(--muted)}
+  .stepcount{font-size:14px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+  @media print{ body.stepper-on .beatpanel{display:block !important} .stepper,.stepnav{display:none} }
 </style>
 </head>
 <body>
@@ -93,18 +117,12 @@
   <i>choice of corner</i>, not a wish-list — and in this toy model the three weights sum to one fixed
   <i>design budget</i>. (Real hardware moves the whole triangle, not just the point inside it — see
   <a href="#explain">Explain</a>.)</p>
-  <nav class="beat-nav">
-    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
-    <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
-  </nav>
 </header>
 
-<section id="try">
-  <h2><span class="beat">Try this</span> Drag the budget around the triangle</h2>
-  <p class="q"><b>The question:</b> why can't one detector be exquisitely <b>sensitive</b>, cover a huge
-  <b>dynamic range</b>, <i>and</i> respond at high <b>bandwidth</b> all at once? Drag the handle
-  <b>P</b> and watch the three weights — they always add to 100%. Push toward one corner and the other
-  two collapse: that is the proof you can't max all three.</p>
+<div class="stage">
+
+<section class="widget" aria-label="Interactive: drag the budget around the trade-off triangle">
+  <span class="wtitle">The instrument — drag the budget P around the triangle</span>
 
   <div class="presets" id="presets">
     <span class="hint" style="font-weight:700;color:var(--ink)">Jump to:</span>
@@ -115,9 +133,9 @@
     <button class="preset" data-bs="target">▶ The exercise target (10 nT @ 1 kHz)</button>
   </div>
 
-  <div class="stage">
+  <div class="tri2col">
     <figure>
-      <svg class="widget" id="tri" viewBox="0 0 520 480" role="img"
+      <svg class="trisvg" id="tri" viewBox="0 0 520 480" role="img"
            aria-label="Equilateral trade-off triangle with a draggable handle P">
         <!-- target zone (drawn first, under everything) -->
         <polygon id="targetZone" points="" fill="#fee2e2" stroke="#dc2626"
@@ -139,8 +157,9 @@
                 dominant-baseline="central">P</text>
         </g>
       </svg>
-      <figcaption>Drag <b>P</b> (mouse or touch). Corner = pure focus; centre = an even split. Dots are
-      real sensors placed at their characteristic corner.</figcaption>
+      <figcaption>Drag <b>P</b> (mouse or touch). Corner = pure focus; centre = an even split.
+      <b>Coloured dots</b> = the seven magnetometers in the table below (colour = best corner);
+      <span style="color:#9aa7b4">grey dots</span> = other sensor types, for scale.</figcaption>
     </figure>
 
     <div>
@@ -159,44 +178,36 @@
       <div class="readout" id="liveline" style="font-size:16px"></div>
     </div>
   </div>
-</section>
+</section><!-- /widget -->
 
-<section id="notice">
+<section class="coach" aria-label="Guided steps — Try, Notice, Explain, Connect">
+  <div class="stepper" role="tablist" aria-label="Lesson steps">
+    <button class="step" role="tab" id="tab-try"     aria-controls="try"     aria-selected="true">1 · Try</button>
+    <button class="step" role="tab" id="tab-notice"  aria-controls="notice"  aria-selected="false" tabindex="-1">2 · Notice</button>
+    <button class="step" role="tab" id="tab-explain" aria-controls="explain" aria-selected="false" tabindex="-1">3 · Explain</button>
+    <button class="step" role="tab" id="tab-connect" aria-controls="connect" aria-selected="false" tabindex="-1">4 · Connect</button>
+  </div>
+
+  <div class="panels">
+
+  <div class="beatpanel is-active" id="try" role="tabpanel" aria-labelledby="tab-try" tabindex="-1">
+    <h2><span class="beat">Try this</span> Drag the budget around the triangle</h2>
+    <p class="q"><b>The question:</b> why can't one detector be exquisitely <b>sensitive</b>, cover a huge
+    <b>dynamic range</b>, <i>and</i> respond at high <b>bandwidth</b> all at once? Drag the handle
+    <b>P</b> above and watch the three weights — they always add to 100%. Push toward one corner and the
+    other two collapse: that is the proof you can't max all three.</p>
+    <p class="hint">Got a feel for it? Step to <b>2 · Notice</b> →</p>
+  </div>
+
+  <div class="beatpanel" id="notice" role="tabpanel" aria-labelledby="tab-notice" tabindex="-1">
   <h2><span class="beat">Notice this</span> The three always sum to 100%</h2>
   <p class="readout" id="readout">…</p>
+  <p class="note">The thing to notice: every weight you pour into one corner is drained straight out of
+  the other two. The full <b>seven-magnetometer comparison</b> — the evidence for the exercise — is in
+  the table <b>below the triangle</b>.</p>
+  </div><!-- /#notice -->
 
-  <h3>The triangle, in real numbers — three sensors, three corners</h3>
-  <p class="tri">• <b>Sensitivity</b> — the smallest change you can resolve.&nbsp;&nbsp;
-  • <b>Dynamic range</b> — smallest to largest you can read without saturating.&nbsp;&nbsp;
-  • <b>Bandwidth</b> — how fast a change you can follow.</p>
-  <table>
-    <thead><tr><th>Sensor</th><th>Sensitivity (smallest resolvable)</th><th>Dynamic range</th><th>Bandwidth</th><th>Corner it sits in</th></tr></thead>
-    <tbody>
-      <tr><td class="s">Human eye (dark-adapted rod)</td><td>≈ a single photon</td><td>~10⁶ (with adaptation)</td><td>~10–60 Hz (flicker fusion)</td><td>sensitive &amp; wide, but <b>slow</b></td></tr>
-      <tr><td class="s">Smartphone MEMS accelerometer</td><td>~10⁻³ m/s² (0.1–100 Hz)</td><td>0 – 80 m/s² (≈ ±8 g)</td><td>&lt; 100 Hz</td><td>wide &amp; fast, modest <b>sensitivity</b></td></tr>
-      <tr><td class="s">Trapped-ion optical clock</td><td>~1 part in 10¹⁸ (frequency)</td><td>narrow — one transition ± a few MHz</td><td>~1 reading per hour</td><td>ultimate sensitivity, <b>narrow &amp; slow</b></td></tr>
-    </tbody>
-  </table>
-  <p class="note">Order-of-magnitude, from the 2025 <i>Sensing I</i> notes. Notice: nothing sits in all
-  three corners at once — the clock buys 10¹⁸ sensitivity by giving up range and speed. That is exactly
-  what the budget bars show when you drag P into a corner.</p>
-
-  <h3>Four magnetometers — evidence for the exercise</h3>
-  <table>
-    <thead><tr><th>Magnetometer</th><th>Sensitivity (noise floor)</th><th>Bandwidth</th><th>Catch</th></tr></thead>
-    <tbody>
-      <tr><td class="s">Fluxgate</td><td>~10 pT/√Hz</td><td>DC – few kHz</td><td>bulky coil; robust, room-T</td></tr>
-      <tr><td class="s">SQUID</td><td>~1–10 fT/√Hz</td><td>DC – kHz+</td><td>needs cryogenics</td></tr>
-      <tr><td class="s">SERF atomic (OPM)</td><td>~1–10 fT/√Hz</td><td>~DC – few hundred Hz</td><td>bandwidth fades toward 1 kHz</td></tr>
-      <tr><td class="s">NV-diamond</td><td>~pT – nT/√Hz</td><td>to MHz+</td><td>modest sensitivity; room-T, µm-scale</td></tr>
-    </tbody>
-  </table>
-  <p class="note">Order-of-magnitude. Note: 10 nT is a <i>large</i> field — every row resolves it easily,
-  so sensitivity is <b>not</b> the binding constraint here. <b>Bandwidth is.</b> Drag P into the red
-  target zone (or hit the preset) to see which rows survive 1 kHz.</p>
-</section>
-
-<section id="explain">
+  <div class="beatpanel" id="explain" role="tabpanel" aria-labelledby="tab-explain" tabindex="-1">
   <h2><span class="beat">Explain this</span> A fixed budget you can only re-allocate</h2>
   <p>Wherever P sits, the three weights sum to one. Slide P toward the <span class="pill B">Bandwidth</span>
   corner and watch <span class="pill S">Sensitivity</span> and <span class="pill D">Dynamic range</span>
@@ -233,13 +244,14 @@
         is drained straight out of the others.</li>
     </ul>
   </details>
-</section>
+  </div><!-- /#explain -->
 
-<section id="connect" class="connect">
+  <div class="beatpanel connect" id="connect" role="tabpanel" aria-labelledby="tab-connect" tabindex="-1">
   <h2><span class="beat">Now connect it</span> Pick a corner, defend it</h2>
   <p>You need to <b>detect a 10 nT magnetic field at 1 kHz</b>. Drag P into the red <span class="pill tgt">target
   zone</span> near the bandwidth corner — see how much sensitivity and range you spend to get there. Then
-  read the table above, pick <b>two</b> candidates, and decide between them.</p>
+  read the <b>seven-magnetometer table below the triangle</b>, pick <b>two</b> candidates, and decide
+  between them.</p>
   <p>Fill the judgement (Claim · Evidence · Assumption · Limitation · Decision):</p>
   <table class="b1">
     <tr><td>Claim</td><td>(which technology, in one line)</td></tr>
@@ -251,8 +263,9 @@
   <p style="margin-top:12px"><b>What good looks like:</b></p>
   <ul>
     <li>Names the <b>1 kHz bandwidth</b> as the binding constraint — not sensitivity (10 nT is a large
-      field, so every row has ample sensitivity). The pick is decided by which rows actually <i>clear</i>
-      1 kHz and at what practical cost (room-T vs cryogenics, size, integration).</li>
+      field, so every row <i>except the Hall probe</i> has ample sensitivity). The pick is decided by
+      which rows actually <i>clear</i> 1 kHz and at what practical cost (room-T vs cryogenics, size,
+      integration) — which is why SERF/OPM drops out and NV-diamond stands out.</li>
     <li>Uses the triangle as evidence — not "sensor X is better" but "X trades range for the bandwidth
       I need".</li>
     <li>States one thing that would flip the decision (e.g. if the signal were DC, the slow sensitive
@@ -265,8 +278,9 @@
   <ul>
     <li><b>What sets the sensitivity corner?</b> Noise — how low you can push it, and when averaging
       stops helping, is <a href="allan-psd-explorer.html">anchor 2 (noise &amp; Allan)</a>.</li>
-    <li><b>The ultimate sensitivity corner</b> is the standard quantum limit; beating it without breaking
-      the budget is what <a href="squeezing-sql.html">squeezing (anchor 5)</a> and the
+    <li><b>The ultimate sensitivity corner</b> is the <a href="anchor-3-sql.html">standard quantum limit
+      (anchor 3)</a>; beating it without breaking the budget is what <a href="squeezing-sql.html">squeezing
+      (anchor 5)</a> and the
       <a href="quantum-ladder.html">quantum ladder (anchor 4)</a> are about.</li>
   </ul>
   <div class="check">
@@ -274,6 +288,79 @@
     actually build for 10 nT @ 1 kHz, which corner did you spend to get there, and what single change to
     the task would make the opposite corner win?
   </div>
+  </div><!-- /#connect -->
+
+  </div><!-- /.panels -->
+
+  <div class="stepnav">
+    <button id="prevBeat" disabled>← Back</button>
+    <span class="stepcount" id="stepCount">Step 1 of 4</span>
+    <button id="nextBeat">Next →</button>
+  </div>
+</section><!-- /.coach -->
+
+</div><!-- /.stage -->
+
+<section aria-label="The evidence — seven magnetometers">
+  <h2 style="font-size:19px">Seven magnetometers — the evidence for the exercise</h2>
+  <p class="tri" style="margin-top:0">The dots highlighted in the triangle above are these seven (greyed
+  dots are non-magnetometers, for scale). • <b>Sensitivity</b> — smallest field you can resolve (noise
+  floor). • <b>Dynamic range</b> — smallest to largest before it saturates. • <b>Bandwidth</b> — how fast
+  a change you can follow.</p>
+  <table>
+    <thead><tr><th>Technology</th><th>Sensitivity (noise floor)</th><th>Dynamic range</th><th>Bandwidth</th><th>Best corner</th></tr></thead>
+    <tbody>
+      <tr><td class="s"><span style="color:#d97706">●</span> Hall<span class="nf"> probe</span></td><td>~0.1–1 µT/√Hz</td><td>mT – tens of T</td><td>DC – MHz</td><td><span class="pill D">range</span></td></tr>
+      <tr><td class="s"><span style="color:#7c3aed">●</span> MR<span class="nf"> · magnetoresistive (AMR/GMR/TMR)</span></td><td>~0.1–10 nT/√Hz</td><td>nT – mT</td><td>DC – MHz</td><td><span class="pill B">bandwidth</span></td></tr>
+      <tr><td class="s"><span style="color:#7c3aed">●</span> Coil<span class="nf"> · search / induction coil</span></td><td>~fT–pT/√Hz (rises at low f)</td><td>wide</td><td>AC only, ~Hz – MHz</td><td><span class="pill B">bandwidth</span></td></tr>
+      <tr><td class="s"><span style="color:#d97706">●</span> FGM<span class="nf"> · fluxgate</span></td><td>~5–10 pT/√Hz</td><td>±~100 µT (Earth field)</td><td>DC – ~1 kHz</td><td><span class="pill D">range</span></td></tr>
+      <tr><td class="s"><span style="color:#7c3aed">●</span> NV<span class="nf"> · NV-diamond</span></td><td>~1 pT – nT/√Hz</td><td>µT – T (vector)</td><td>DC – MHz+</td><td><span class="pill B">bandwidth</span></td></tr>
+      <tr><td class="s"><span style="color:#2563eb">●</span> SQUID</td><td>~1–10 fT/√Hz</td><td>wide (flux-locked loop)</td><td>DC – kHz+</td><td><span class="pill S">sensitivity</span></td></tr>
+      <tr><td class="s"><span style="color:#2563eb">●</span> OPM<span class="nf"> · SERF / optically-pumped</span></td><td>~1–15 fT/√Hz</td><td>small (near-zero field)</td><td>DC – ~100–200 Hz</td><td><span class="pill S">sensitivity</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Order-of-magnitude, after Bennett <i>et al.</i>,
+  <a href="https://doi.org/10.3390/s21165568" target="_blank" rel="noopener noreferrer">Sensors 21, 5568 (2021)</a>
+  (open: <a href="https://arxiv.org/abs/2106.15843" target="_blank" rel="noopener noreferrer">arXiv:2106.15843</a>);
+  the conventional sensors after Lenz &amp; Edelstein,
+  <a href="https://doi.org/10.1109/JSEN.2006.874493" target="_blank" rel="noopener noreferrer">IEEE Sens. J. 6, 631 (2006)</a>.
+  Abbreviations &amp; how each one works: the <a href="#ref">reference list below</a>.</p>
+  <p class="note"><b>For 10 nT @ 1 kHz:</b> 10 nT is a <i>large</i> field, so sensitivity is <b>not</b> the
+  binding constraint — only the <b>Hall probe</b> (µT floor) is too coarse to see it. <b>1 kHz bandwidth
+  is</b>: it rules out <b>SERF/OPM</b> (fades by ~200 Hz) and strains the fluxgate. Which room-temperature
+  rows actually clear 1 kHz with field to spare? Deciding that is the <b>Connect</b> step (4).</p>
+</section>
+
+<section id="ref" aria-label="Reference — abbreviations and operating principles">
+  <h2 style="font-size:19px">Reference — how each magnetometer works <span style="font-weight:400;color:var(--muted);font-size:15px">(lookup only, not part of the exercise)</span></h2>
+  <h3>Operating principle — one line each</h3>
+  <ul>
+    <li><b>Hall</b> (Hall probe) — a field deflects the current in a conductor, giving a transverse (Hall) voltage. Cheap, robust, integrated — but coarse.</li>
+    <li><b>MR</b> (magnetoresistive — AMR / GMR / TMR) — a thin-film resistance changes with field (anisotropic / giant / tunnelling magnetoresistance). Tiny, low-power, fast.</li>
+    <li><b>Coil</b> (search / induction coil) — a changing field induces a coil voltage (Faraday, V ∝ dB/dt). AC only — blind to DC — but very sensitive at high frequency.</li>
+    <li><b>FGM</b> (fluxgate) — a driven ferromagnetic core saturates asymmetrically in an external field; its even harmonics read the field. The room-temperature DC workhorse.</li>
+    <li><b>NV</b> (NV-diamond) — a nitrogen-vacancy spin in diamond, optically read out (ODMR); the Zeeman shift gives a vector field at room temperature, at µm scale.</li>
+    <li><b>SQUID</b> — a superconducting loop with Josephson junctions counts flux quanta. The most sensitive of all — but needs cryogenics.</li>
+    <li><b>OPM</b> (SERF) — optically-pumped atomic vapour; in the spin-exchange-relaxation-free regime near zero field, alkali spins reach femtotesla sensitivity in a narrow, slow, low-field window.</li>
+  </ul>
+  <h3>Abbreviations</h3>
+  <p class="note">The seven graph/table labels: <b>Hall</b> Hall probe · <b>MR</b> magnetoresistive
+  (AMR / GMR / TMR = anisotropic / giant / tunnelling) · <b>Coil</b> search / induction coil ·
+  <b>FGM</b> fluxgate magnetometer · <b>NV</b> nitrogen-vacancy (centre in diamond) ·
+  <b>SQUID</b> superconducting quantum interference device · <b>OPM</b> optically-pumped magnetometer.
+  Also: <b>SERF</b> spin-exchange-relaxation-free · <b>ODMR</b> optically-detected magnetic resonance ·
+  <b>/√Hz</b> per-root-hertz (amplitude noise density) · <b>T</b> tesla (1&nbsp;T = 10⁹&nbsp;nT).</p>
+  <h3>The same triangle beyond magnetometers</h3>
+  <p class="note">It governs sensors at every scale — the clock buys 10¹⁸ sensitivity by surrendering range and speed:</p>
+  <table>
+    <thead><tr><th>Sensor</th><th>Sensitivity</th><th>Dynamic range</th><th>Bandwidth</th><th>Corner</th></tr></thead>
+    <tbody>
+      <tr><td class="s">Human eye (dark-adapted rod)</td><td>≈ a single photon</td><td>~10⁶ (with adaptation)</td><td>~10–60 Hz</td><td>sensitive &amp; wide, but <b>slow</b></td></tr>
+      <tr><td class="s">Smartphone MEMS accelerometer</td><td>~10⁻³ m/s²</td><td>0 – 80 m/s² (≈ ±8 g)</td><td>&lt; 100 Hz</td><td>wide &amp; fast, modest <b>sensitivity</b></td></tr>
+      <tr><td class="s">Trapped-ion optical clock</td><td>~1 part in 10¹⁸</td><td>one transition ± few MHz</td><td>~1 reading / hour</td><td>ultimate sensitivity, <b>narrow &amp; slow</b></td></tr>
+    </tbody>
+  </table>
+  <p class="note">From the 2025 <i>Sensing&nbsp;I</i> notes.</p>
 </section>
 
 <footer>
@@ -323,13 +410,18 @@ function clampBary(b){
 //================================ fixed sensors =============================================
 // barycentric [wS, wD, wB]; placed at characteristic corners (order-of-magnitude story spots).
 const SENSORS = [
-  {name:'Human eye',        b:[0.55,0.37,0.08], note:'high S, high D, slow'},
-  {name:'MEMS accel.',      b:[0.22,0.40,0.38], note:'balanced, faster'},
-  {name:'Ion clock',        b:[0.90,0.05,0.05], note:'extreme S, narrow & slow'},
-  {name:'Fluxgate',         b:[0.30,0.34,0.36], note:'robust, DC–kHz'},
-  {name:'SQUID',            b:[0.55,0.18,0.27], note:'fT/√Hz, cryo, to kHz+'},
-  {name:'SERF-OPM',         b:[0.62,0.22,0.16], note:'fT/√Hz, low bandwidth'},
-  {name:'NV-diamond',       b:[0.26,0.20,0.54], note:'modest S, to MHz'}
+  // other sensor types — greyed, for scale only
+  {name:'eye',   b:[0.55,0.37,0.08], note:'≈1 photon, slow',        mag:false},
+  {name:'MEMS',  b:[0.22,0.40,0.38], note:'balanced, faster',        mag:false},
+  {name:'clock', b:[0.90,0.05,0.05], note:'10¹⁸, narrow & slow',     mag:false},
+  // the seven magnetometers — highlighted; dot colour = its "best corner" in the table
+  {name:'Hall',  b:[0.05,0.65,0.30], note:'µT floor, huge range',    mag:true, corner:'D'},
+  {name:'MR',    b:[0.16,0.30,0.54], note:'nT, fast & tiny',         mag:true, corner:'B'},
+  {name:'Coil',  b:[0.40,0.16,0.44], note:'AC only, hi-f sensitive', mag:true, corner:'B'},
+  {name:'FGM',   b:[0.33,0.41,0.26], note:'pT, DC–1 kHz, robust',    mag:true, corner:'D'},
+  {name:'NV',    b:[0.29,0.18,0.53], note:'pT–nT, DC–MHz, room-T',   mag:true, corner:'B'},
+  {name:'SQUID', b:[0.58,0.18,0.24], note:'fT, cryo, to kHz+',       mag:true, corner:'S'},
+  {name:'OPM',   b:[0.66,0.20,0.14], note:'fT, narrow & slow',       mag:true, corner:'S'}
 ];
 
 //================================ target zone (bandwidth corner) ============================
@@ -368,24 +460,29 @@ el('triEdge').setAttribute('points', `${V.S.x},${V.S.y} ${V.D.x},${V.D.y} ${V.B.
   lbl(V.B.x+6, V.B.y+24, 'BANDWIDTH',    c.getPropertyValue('--B').trim(), 'end',    0);
 })();
 
-// sensor dots
+// sensor dots — magnetometers highlighted (coloured by best corner), other sensor types greyed
 (function(){
-  const g=el('sensors'); const c=getComputedStyle(document.documentElement);
+  const g=el('sensors'); const cs=getComputedStyle(document.documentElement);
+  const cornerCol={ S:cs.getPropertyValue('--S').trim(), D:cs.getPropertyValue('--D').trim(),
+                    B:cs.getPropertyValue('--B').trim() };
   for(const s of SENSORS){
     const p=bary2xy(s.b[0],s.b[1],s.b[2]);
     s._x=p.x; s._y=p.y;                           // cache for nearest-sensor search
+    const col = s.mag ? cornerCol[s.corner] : '#cbd5e1';
     const dot=document.createElementNS(NS,'circle');
     dot.setAttribute('cx',p.x.toFixed(1)); dot.setAttribute('cy',p.y.toFixed(1));
-    dot.setAttribute('r','6'); dot.setAttribute('fill','#fff');
-    dot.setAttribute('stroke','#15212e'); dot.setAttribute('stroke-width','2.5');
+    dot.setAttribute('r', s.mag?'6.5':'4');
+    dot.setAttribute('fill', s.mag?col:'#e2e8f0');
+    dot.setAttribute('stroke', s.mag?'#fff':'#b8c2cc');
+    dot.setAttribute('stroke-width', s.mag?'2':'1.5');
     g.appendChild(dot);
     const t=document.createElementNS(NS,'text');
     // nudge labels so they don't collide with edges
     const ax = p.x < VB.w/2 ? 'end' : 'start';
     const ox = p.x < VB.w/2 ? -9 : 9;
     t.setAttribute('x',(p.x+ox).toFixed(1)); t.setAttribute('y',(p.y+4).toFixed(1));
-    t.setAttribute('font-size','12.5'); t.setAttribute('font-weight','700');
-    t.setAttribute('fill','#2c3a47'); t.setAttribute('text-anchor',ax);
+    t.setAttribute('font-size', s.mag?'12.5':'10.5'); t.setAttribute('font-weight', s.mag?'800':'600');
+    t.setAttribute('fill', s.mag?'#15212e':'#9aa7b4'); t.setAttribute('text-anchor',ax);
     t.textContent=s.name; g.appendChild(t);
   }
 })();
@@ -428,13 +525,10 @@ function render(){
   el('fB').style.width=pB+'%'; el('pB').textContent=pB+'%';
   el('sumv').textContent=(pS+pD+pB);
 
-  // nearest sensor + lines
+  // nearest sensor (the triangle is a qualitative trade-off map — no position ↔ exact-spec claims)
   const near=nearestSensor(pt.x,pt.y);
-  const inZone=pointInTarget(P);
   el('liveline').innerHTML =
-    `Nearest real sensor: <b>${near.s.name}</b> <span class="hint">(${near.s.note})</span>. `+
-    (inZone ? '<b style="color:#991b1b">In the 1 kHz target zone.</b>' :
-              'Drag toward the red zone for the exercise.');
+    `Nearest real sensor: <b>${near.s.name}</b> <span class="hint">(${near.s.note})</span>.`;
 
   // big readout in Notice this
   const dom = (pS>=pD&&pS>=pB)?'S':(pD>=pB?'D':'B');
@@ -445,12 +539,6 @@ function render(){
           `<b class="sum">They sum to 100% — gain one corner only by spending the others.</b> `+
           `The dominant corner is <span class="pill ${domPill}">${domName}</span>, and the nearest real `+
           `sensor is <b>${near.s.name}</b>.`;
-  if(inZone){
-    r += ` <br><br><b style="color:#991b1b">Target hit — 10 nT @ 1 kHz means you've spent your budget on bandwidth.</b> `+
-         `You traded away sensitivity and dynamic range to get here. Since 10 nT is a <i>large</i> field, `+
-         `sensitivity is not the binding constraint — bandwidth is. Now read the four magnetometer rows `+
-         `above: which actually clear 1 kHz, and at what practical cost? Deciding that is the exercise.`;
-  }
   el('readout').innerHTML=r;
 }
 
@@ -492,6 +580,44 @@ el('presets').addEventListener('click', e=>{
 });
 
 render();
+</script>
+
+<script>
+"use strict";
+// ---- stepped beats: show one panel at a time (progressive enhancement: JS off ⇒ all visible) ----
+(function(){
+  const beats=['try','notice','explain','connect'];
+  const panels=beats.map(id=>document.getElementById(id));
+  const tabs=beats.map(id=>document.getElementById('tab-'+id));
+  const prev=document.getElementById('prevBeat'), next=document.getElementById('nextBeat'),
+        count=document.getElementById('stepCount');
+  if(panels.some(p=>!p) || tabs.some(t=>!t) || !prev || !next) return;
+  let i=0, booted=false;
+  function show(n, focus){
+    i=Math.max(0, Math.min(beats.length-1, n));
+    panels.forEach((p,k)=>p.classList.toggle('is-active', k===i));
+    tabs.forEach((t,k)=>{ const on=k===i; t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex=on?0:-1; t.classList.toggle('visited', k<=i); });
+    prev.disabled = i===0; next.disabled = i===beats.length-1;
+    count.textContent='Step '+(i+1)+' of '+beats.length;
+    if(booted){ try{ history.replaceState(null,'','#'+beats[i]); }catch(e){} }   // not on boot (avoids a load-time jump to the #try fragment)
+    if(focus) panels[i].focus();
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click', ()=>show(k));
+    t.addEventListener('keydown', e=>{ const last=beats.length-1;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=i>=last?0:i+1; tabs[n].focus(); show(n); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const n=i<=0?last:i-1; tabs[n].focus(); show(n); }
+      else if(e.key==='Home'){ e.preventDefault(); tabs[0].focus(); show(0); }
+      else if(e.key==='End'){ e.preventDefault(); tabs[last].focus(); show(last); } });
+  });
+  prev.addEventListener('click', ()=>show(i-1, true));
+  next.addEventListener('click', ()=>show(i+1, true));
+  window.addEventListener('hashchange', ()=>{ const at=beats.indexOf((location.hash||'').replace('#','')); if(at>=0) show(at,true); });
+  document.body.classList.add('stepper-on');
+  const h=(location.hash||'').replace('#',''); const at=beats.indexOf(h);
+  show(at>=0?at:0); booted=true;
+})();
 </script>
 </body>
 </html>

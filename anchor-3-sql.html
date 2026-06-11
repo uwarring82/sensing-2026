@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The standard quantum limit — where 1/√N comes from · Sensing 2026</title>
+<!--
+  Sensing 2026 · Anchor 3 (micro-core): the standard quantum limit (SQL) = the 1/√N shot-noise floor.
+  Distinct learning goal from anchor 5: WHERE the floor comes from — independent counting statistics,
+  i.e. quantum PROJECTION NOISE. Single offline file, hand-rolled canvas. Four-beat Try·Notice·Explain·Connect.
+  Demo: a coin with bias p (fair p=½ … loaded p=0/1). The estimate's standard error = √(p(1−p)/N).
+  Analogy: p = |⟨1|ψ⟩|² (overlap with a measurement eigenstate). Eigenstate = loaded coin (projection
+  noise √(p(1−p)) = 0); equal superposition = fair coin (max projection noise = the SQL). Sampling is the
+  TRUE binomial (skewed near p=0/1); the Gaussian overlay shows only where the central limit is valid.
+  It is the vacuum's own uncertainty (anchor 5).
+-->
+<style>
+  :root{ --ink:#15212e; --muted:#5b6b7b; --line:#d4dde6; --bg:#f7fafc; --card:#fff; --accent:#0f766e;
+    --sql:#475569; --bar:#334155; --g:#dc2626; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:18px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1280px; margin:0 auto; padding:24px 20px 64px}
+  header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
+  .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
+  a{color:var(--accent)}
+  h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
+  .sub{color:var(--muted); font-size:17px; margin:0}
+  h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px}
+  h2 .beat{font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--accent)}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
+  .presets{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 10px; align-items:center}
+  button{font:inherit; font-size:14.5px; font-weight:700; cursor:pointer; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink); border-radius:8px; padding:7px 12px}
+  button:hover{background:var(--ink); color:#fff}
+  button.preset.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .ctl{margin:0 0 14px} .ctl label{display:block; font-weight:700; font-size:15px; margin-bottom:4px}
+  .ctl .val{font-weight:400; color:var(--muted)}
+  input[type=range]{width:100%; accent-color:var(--accent); height:26px}
+  .plots{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .plots .full{grid-column:1/-1}
+  @media(max-width:680px){ .plots{grid-template-columns:1fr} .plots .full{grid-column:auto} }
+  figure{margin:0} canvas{width:100%; height:auto; display:block; background:#fff; border:1px solid var(--line); border-radius:8px}
+  figcaption{font-size:13.5px; color:var(--muted); margin-top:6px}
+  .readout{font-size:18px; line-height:1.55} .readout b{color:var(--ink)}
+  .pill{display:inline-block; padding:1px 8px; border-radius:6px; font-weight:700; font-size:15px}
+  .pill.sql{background:#e2e8f0; color:#334155} .pill.eig{background:#dcfce7; color:#14532d} .pill.sup{background:#fee2e2; color:#991b1b}
+  details{margin-top:10px} summary{cursor:pointer; font-weight:700; color:var(--accent)}
+  .connect ul{margin:6px 0 0; padding-left:22px} .connect li{margin:6px 0}
+  .check{background:#f0fdfa; border-left:4px solid var(--accent); padding:12px 16px; border-radius:0 8px 8px 0; margin-top:12px; font-size:17px}
+  .hint{font-size:14px; color:var(--muted)}
+  footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
+  /* ---- pinned widget + stepped beats ---- */
+  .stage{display:block}
+  .stage>section{margin:0 0 18px}
+  @media(min-width:1080px){
+    .stage{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(330px,.85fr); gap:24px; align-items:start}
+    .stage>section{margin:0}
+    .widget{position:sticky; top:16px}
+  }
+  .widget .wtitle{font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 12px; display:block}
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px}
+  .step{font:inherit; font-size:13.5px; font-weight:800; cursor:pointer; color:var(--muted); background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:5px 12px}
+  .step:hover{border-color:var(--accent); color:var(--accent)}
+  .step[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .step.visited:not([aria-selected="true"]){color:var(--accent); border-color:#9ad2cb}
+  .panels{min-height:230px}
+  .beatpanel{padding:14px 2px 0}
+  .beatpanel h2{margin-top:0}
+  .beatpanel:focus{outline:none}
+  body.stepper-on .beatpanel{display:none}
+  body.stepper-on .beatpanel.is-active{display:block}
+  .stepnav{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; border-top:1px solid var(--line); padding-top:14px}
+  .stepnav button{border-color:var(--accent); color:var(--accent); background:#fff}
+  .stepnav button:hover:not(:disabled){background:var(--accent); color:#fff}
+  .stepnav button:disabled{opacity:.4; cursor:default; border-color:var(--line); color:var(--muted)}
+  .stepcount{font-size:14px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+  @media print{ body.stepper-on .beatpanel{display:block !important} .stepper,.stepnav{display:none} .widget{position:static} .stage{display:block} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a href="workshop.html" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none">← Sensing 2026 hub</a>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · Anchor 3 · The standard quantum limit</span></div>
+  <h1>Why precision crawls: the 1/√N wall</h1>
+  <p class="sub">Count N independent outcomes — coin flips, or a qubit measured in a basis. The precision
+  floor (the <b>standard quantum limit</b>) falls only as 1/√N, and it is largest for a <b>fair coin</b>:
+  an equal superposition.</p>
+</header>
+
+<div class="stage">
+
+<!-- ============ PINNED WIDGET ============ -->
+<section class="widget" aria-label="Interactive: counting statistics, projection noise and the 1/√N floor">
+  <span class="wtitle">The instrument — choose a state, count N measurements</span>
+
+  <div class="presets" id="statePresets">
+    <span class="hint" style="font-weight:700;color:var(--ink)">State:</span>
+    <button class="preset" data-p="0">Eigenstate |0⟩</button>
+    <button class="preset active" data-p="0.5">Equal superposition |+⟩ · fair</button>
+    <button class="preset" data-p="1">Eigenstate |1⟩</button>
+    <button class="preset" data-p="0.85">Tilted (biased)</button>
+  </div>
+  <div class="ctl">
+    <label>Outcome probability <span class="val" id="v-p"></span></label>
+    <input type="range" id="p" min="0" max="1" step="0.01" value="0.5">
+    <p class="hint">p = P(outcome 1) = |⟨1|ψ⟩|² — the state's overlap with a measurement eigenstate. ½ = an
+    equal superposition (a fair coin); 0 or 1 = an eigenstate (a loaded coin).</p>
+  </div>
+
+  <div class="presets" id="presets">
+    <span class="hint" style="font-weight:700;color:var(--ink)">Samples N:</span>
+    <button class="preset" data-n="1">10</button>
+    <button class="preset active" data-n="2">100</button>
+    <button class="preset" data-n="4">10⁴</button>
+    <button class="preset" data-n="6">10⁶</button>
+    <button id="resample" title="Draw a fresh set of experiments">↻ New draw</button>
+  </div>
+  <div class="ctl">
+    <label>Independent samples <span class="val" id="v-n"></span></label>
+    <input type="range" id="N" min="1" max="6" step="0.04" value="2">
+    <p class="hint">N flips / qubit measurements per experiment — log scale, 10 → 10⁶</p>
+  </div>
+
+  <div class="plots">
+    <figure>
+      <canvas id="hist" width="520" height="360"></canvas>
+      <figcaption>① <b>400 repeats</b> of "estimate p from N measurements". The spread of p̂ about its true
+        value, with the central-limit <span style="color:#dc2626">Gaussian</span> drawn <i>only where it's
+        valid</i>. Near an eigenstate the distribution turns skewed (non-Gaussian).</figcaption>
+    </figure>
+    <figure>
+      <canvas id="parab" width="520" height="360"></canvas>
+      <figcaption>② <b>Projection noise vs state.</b> √(p(1−p)) — zero at the
+        <span class="pill eig">eigenstates</span> (p=0,1; σ=0), maximal at the
+        <span class="pill sup">equal superposition</span> (p=½; the fair coin).</figcaption>
+    </figure>
+    <figure class="full">
+      <canvas id="law" width="1040" height="354"></canvas>
+      <figcaption>③ <b>Standard error vs N</b> (log–log) — always <b>slope −½</b> (the
+        <span class="pill sql">SQL</span>); the <i>height</i> is the projection noise √(p(1−p)). Same 1/√N
+        wall as the Allan white-noise floor (anchor 2). Faint line = the fair-coin maximum.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ STEPPED BEATS ============ -->
+<section class="coach" aria-label="Guided steps — Try, Notice, Explain, Connect">
+  <div class="stepper" role="tablist" aria-label="Lesson steps">
+    <button class="step" role="tab" id="tab-try"     aria-controls="try"     aria-selected="true">1 · Try</button>
+    <button class="step" role="tab" id="tab-notice"  aria-controls="notice"  aria-selected="false" tabindex="-1">2 · Notice</button>
+    <button class="step" role="tab" id="tab-explain" aria-controls="explain" aria-selected="false" tabindex="-1">3 · Explain</button>
+    <button class="step" role="tab" id="tab-connect" aria-controls="connect" aria-selected="false" tabindex="-1">4 · Connect</button>
+  </div>
+
+  <div class="panels">
+
+  <div class="beatpanel is-active" id="try" role="tabpanel" aria-labelledby="tab-try" tabindex="-1">
+    <h2><span class="beat">Try this</span> Not all coins are equally noisy</h2>
+    <p style="margin:0 0 10px"><b>The question:</b> measure a coin's bias p by flipping it N times. A
+    <b>fair</b> coin (p=½) jitters the most; a <b>loaded</b> coin (p→0 or 1) barely fluctuates — and a
+    two-headed coin not at all. Slide the <b>state</b> from an eigenstate to the equal superposition, then
+    crank <b>N</b>, and watch plots ② and ③.</p>
+    <p class="hint">Got a feel for it? Step to <b>2 · Notice</b> →</p>
+  </div>
+
+  <div class="beatpanel" id="notice" role="tabpanel" aria-labelledby="tab-notice" tabindex="-1">
+    <h2><span class="beat">Notice this</span> Two knobs, one wall</h2>
+    <p class="readout" id="readout">…</p>
+  </div>
+
+  <div class="beatpanel" id="explain" role="tabpanel" aria-labelledby="tab-explain" tabindex="-1">
+  <h2><span class="beat">Explain this</span></h2>
+  <p>Two things changed the noise: <b>how many</b> samples (N → the −½ slope) and <b>which state</b> you
+  measured (p → the height). <b>Why is a fair coin the noisiest — and what does that have to do with
+  superposition?</b></p>
+  <details>
+    <summary>Reveal a one-paragraph answer</summary>
+    <p>Each flip has variance p(1−p), <b>largest at p=½</b> and zero at p=0 or 1. Now read it as a qubit
+    measured in the {|0⟩,|1⟩} basis. If the qubit is already an <b>eigenstate</b> of what you measure
+    (|0⟩ or |1⟩), the projection noise √(p(1−p)) <b>vanishes</b> — the observable already has a definite
+    value in this state, so repeating just remeasures the same thing (a <b>two-headed coin</b>) and adds no
+    information. A <b>superposition</b> collapses to a
+    random outcome with probability p = |⟨1|ψ⟩|² — a coin whose bias <i>is</i> the state's overlap with an
+    eigenstate. The <b>equal superposition</b> |+⟩ is the <b>fair coin</b>: maximally random, maximal
+    <b>projection noise</b>. The standard quantum limit, 1/√N, is exactly this projection noise piled up
+    over N independent measurements — and it bites hardest where you actually sense, in superposition.</p>
+  </details>
+  <details>
+    <summary>Show the math</summary>
+    <p>Bernoulli per trial: Var = p(1−p) (max ¼ at p=½). The estimate p̂ = count/N has standard error
+    <b>σ = √(p(1−p)/N)</b>; the <i>shape</i> is the prefactor √(p(1−p)) (plot ②), the <i>scaling</i> is
+    N<sup>−1/2</sup> (plot ③). For N qubits the count is Binomial(N,p) with the same Var = Np(1−p) —
+    "<b>quantum projection noise</b>" (Itano <i>et&nbsp;al.</i>,
+    <a href="https://doi.org/10.1103/PhysRevA.47.3554" target="_blank" rel="noopener noreferrer">Phys. Rev. A 47, 3554 (1993)</a>).
+    A Ramsey phase is read at the equal-superposition point, where sensitivity <i>and</i> projection noise
+    are both maximal, giving Δφ<sub>SQL</sub> ∝ N<sup>−1/2</sup>. <b>Boundary:</b> the 1/√N scaling is
+    classical counting — <i>not</i> uniquely quantum; only the "fairness" (the overlap) is. Beating it
+    needs correlations — squeezing, entanglement (anchors 4 &amp; 5).</p>
+  </details>
+  </div><!-- /#explain -->
+
+  <div class="beatpanel connect" id="connect" role="tabpanel" aria-labelledby="tab-connect" tabindex="-1">
+  <h2><span class="beat">Now connect it</span></h2>
+  <ul>
+    <li><b>The SQL is projection noise.</b> 1/√N is the shot noise of N independent <i>superposition</i>
+      measurements. An <span class="pill eig">eigenstate</span> has none — but it teaches you nothing new;
+      the wall bites precisely where sensing happens, in <span class="pill sup">superposition</span>.</li>
+    <li><b>Same wall, three rooms.</b> This −½ slope is the <a href="allan-psd-explorer.html">white-noise
+      Allan floor (anchor 2)</a> and the <a href="quantum-ladder.html">SQL line on the ladder (anchor 4)</a>.</li>
+    <li><b>The one way under it.</b> A vacuum state's uncertainty <i>is</i> this floor (the dashed circle in
+      the <a href="squeezing-sql.html">squeezing widget, anchor 5</a>); <b>squeezing</b> and
+      <b>entanglement</b> beat it by <i>correlating</i> the qubits' projection noise.</li>
+  </ul>
+  <p style="margin-top:14px"><b>What good looks like:</b></p>
+  <ul>
+    <li>Reads the <b>−½ slope</b> (plot ③) and the cost rule: <b>4× the samples to halve the error</b>.</li>
+    <li>Ties bias to state: <b>eigenstate = loaded coin = no projection noise</b> (σ = 0);
+      <b>equal superposition = fair coin = maximum</b> (the SQL). p = |⟨1|ψ⟩|².</li>
+    <li>Names the bargain — the most <i>sensitive</i> point (equal superposition, Ramsey) is also the
+      noisiest, and that projection noise <i>is</i> the SQL; correlations are the only way below it.</li>
+  </ul>
+  <p style="margin-top:12px"><b><a href="logbook.html">Logbook</a> (one entry):</b> Tried · Stuck (where/how long) · Hub resource
+  used · <i>Changed my mind because…</i> · Still unclear.</p>
+  <div class="check">
+    <b>Exercise check.</b> Which state gives <i>zero</i> shot noise — and why is it useless for sensing?
+    Then say in one line why an atomic clock deliberately operates at the <i>noisiest</i> point, the equal
+    superposition (and read plot ③ for how many more samples buy 10× better precision).
+  </div>
+  </div><!-- /#connect -->
+
+  </div><!-- /.panels -->
+
+  <div class="stepnav">
+    <button id="prevBeat" disabled>← Back</button>
+    <span class="stepcount" id="stepCount">Step 1 of 4</span>
+    <button id="nextBeat">Next →</button>
+  </div>
+</section><!-- /.coach -->
+
+</div><!-- /.stage -->
+
+<footer>
+  Single-file, offline, no tracking. The SQL / shot-noise floor: σ ∝ √(p(1−p)/N) from independent
+  counting (Bernoulli / Poisson) — quantum projection noise (Itano <i>et al.</i>, PRA 47, 3554, 1993).
+  p = |⟨1|ψ⟩|² is the overlap with a measurement eigenstate. How squeezing beats it is on the
+  <a href="squeezing-sql.html">anchor-5 page</a>; same −½ slope as the
+  <a href="allan-psd-explorer.html">Allan white-noise floor (anchor 2)</a>.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+//=================== tiny numerics ===================
+let gSpare=null;
+function gauss(){ if(gSpare!==null){const s=gSpare;gSpare=null;return s;}
+  let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random();
+  const r=Math.sqrt(-2*Math.log(u)), t=2*Math.PI*v; gSpare=r*Math.sin(t); return r*Math.cos(t); }
+const clamp01=x=> x<0?0:x>1?1:x;
+const projNoise = p => Math.sqrt(p*(1-p));        // per-measurement projection noise √(p(1−p))
+const sigmaOf = (N,p) => projNoise(p)/Math.sqrt(N);
+
+//=================== canvas helpers ===================
+function setupCanvas(cv, LW, LH){
+  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,LW,LH);
+  return {ctx,W:LW,H:LH};
+}
+function cdims(cv, aspect){ const w0=Math.round(cv.getBoundingClientRect().width);
+  const w=(w0&&w0>60)?w0:500; return {w, h:Math.round(w*aspect)}; }
+function sup(n){ const m={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(n).split('').map(c=>m[c]||c).join(''); }
+function pow10lbl(e){ return '10'+sup(e); }
+
+//=================== panel ① — histogram of the estimate ===================
+let lastEstimates=null;
+function poisson(lam){ if(lam<=0) return 0; const L=Math.exp(-lam); let k=0,prod=1;
+  do{ k++; prod*=Math.random(); }while(prod>L); return k-1; }
+function binomial(N,p){                                     // a TRUE Binomial(N,p) count — skewed near p=0/1
+  if(p<=0) return 0; if(p>=1) return N;
+  if(N<=2000){ let k=0; for(let i=0;i<N;i++) if(Math.random()<p) k++; return k; }    // exact (small N)
+  const mu=N*p, mu1=N*(1-p);
+  if(mu<25) return poisson(mu);                            // Poisson tail near p=0
+  if(mu1<25) return N-poisson(mu1);                        // …and near p=1
+  return Math.max(0,Math.min(N, Math.round(mu+gauss()*Math.sqrt(mu*(1-p))))); // Gaussian only in the bulk
+}
+function sampleEstimates(N,p){ const M=400, out=new Float64Array(M);
+  for(let i=0;i<M;i++) out[i]=binomial(N,p)/N; return out; }
+
+function drawHist(cv, vals, p, sig, N){
+  const {w:LW,h:LH}=cdims(cv,360/520); const {ctx,W,H}=setupCanvas(cv,LW,LH);
+  const padL=20,padR=12,padT=30,padB=34, w=W-padL-padR, h=H-padT-padB;
+  const lo=0,hi=1, bins=41, bw=(hi-lo)/bins, cnt=new Array(bins).fill(0);
+  for(const v of vals){ let b=Math.floor((v-lo)/bw); if(b>=bins)b=bins-1; if(b>=0)cnt[b]++; }
+  const n=vals.length, dens=cnt.map(c=>c/(n*bw));
+  const gaussOK = (N*p>=10 && N*(1-p)>=10);                // central limit only valid away from the edges
+  const g=x=> sig>0 ? Math.exp(-(x-p)*(x-p)/(2*sig*sig))/(sig*Math.sqrt(2*Math.PI)) : 0;
+  let ymax=0; for(const d of dens) if(d>ymax) ymax=d; if(gaussOK) ymax=Math.max(ymax,g(p)); ymax*=1.12;
+  const X=v=> padL+(v-lo)/(hi-lo)*w, Y=d=> padT+(1-d/ymax)*h;
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.strokeRect(padL,padT,w,h);
+  ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(X(p),padT); ctx.lineTo(X(p),padT+h); ctx.stroke();
+  ctx.save(); ctx.beginPath(); ctx.rect(padL,padT,w,h); ctx.clip();
+  ctx.fillStyle='rgba(51,65,85,.5)';
+  for(let b=0;b<bins;b++){ if(dens[b]<=0)continue; const x0=X(lo+b*bw),x1=X(lo+(b+1)*bw),y=Y(dens[b]);
+    ctx.fillRect(x0+0.5,y,Math.max(1,x1-x0-1),padT+h-y); }
+  if(gaussOK){ ctx.strokeStyle='#dc2626'; ctx.lineWidth=2.2; ctx.beginPath();   // matched Gaussian, only where valid
+    for(let px=0;px<=w;px+=2){ const xv=lo+(px/w)*(hi-lo),Xp=padL+px,Yp=Y(g(xv)); px?ctx.lineTo(Xp,Yp):ctx.moveTo(Xp,Yp); }
+    ctx.stroke(); }
+  ctx.restore();
+  if(!gaussOK){ ctx.fillStyle='#991b1b'; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(projNoise(p)<=0 ? 'no projection noise (σ = 0)' : 'skewed (non-Gaussian) near the eigenstate',
+      padL+w/2, padT+18); }
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  for(const t of [0,0.25,0.5,0.75,1]) ctx.fillText(t.toString(), X(t), padT+h+16);
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('① The estimate p̂ (400 repeats)', padL, 20);
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('estimate p̂  (dashed = true p) →', padL+w/2, H-10);
+}
+
+//=================== panel ③ — projection noise vs state ===================
+function drawParab(cv, p){
+  const {w:LW,h:LH}=cdims(cv,360/520); const {ctx,W,H}=setupCanvas(cv,LW,LH);
+  const padL=46,padR=14,padT=30,padB=42, w=W-padL-padR, h=H-padT-padB;
+  const ymax=0.5*1.14, X=x=> padL+x*w, Y=v=> padT+(1-v/ymax)*h;
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.strokeRect(padL,padT,w,h);
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  for(const t of [0,0.5,1]) ctx.fillText(t.toString(), X(t), padT+h+16);
+  ctx.save(); ctx.beginPath(); ctx.rect(padL,padT,w,h); ctx.clip();
+  ctx.strokeStyle='#0f766e'; ctx.lineWidth=2.6; ctx.beginPath();
+  for(let px=0;px<=w;px+=1){ const x=px/w, X0=padL+px, Y0=Y(projNoise(x)); px?ctx.lineTo(X0,Y0):ctx.moveTo(X0,Y0); }
+  ctx.stroke();
+  ctx.strokeStyle='#0f766e'; ctx.setLineDash([5,4]); ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(X(p),padT); ctx.lineTo(X(p),padT+h); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#dc2626'; ctx.beginPath(); ctx.arc(X(p),Y(projNoise(p)),5.5,0,7); ctx.fill();
+  ctx.restore();
+  ctx.font='11.5px sans-serif'; ctx.fillStyle='#14532d';
+  ctx.textAlign='left';  ctx.fillText('|0⟩ eigenstate', X(0)+3, Y(0)-7);
+  ctx.textAlign='right'; ctx.fillText('|1⟩ eigenstate', X(1)-3, Y(0)-7);
+  ctx.textAlign='center'; ctx.fillStyle='#991b1b'; ctx.fillText('|+⟩ superposition (fair)', X(0.5), Y(0.5)-9);
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('② Projection noise vs state', padL, 20);
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('outcome probability  p  →', padL+w/2, H-10);
+  ctx.save(); ctx.translate(15,padT+h/2); ctx.rotate(-Math.PI/2); ctx.fillStyle='#5b6b7b'; ctx.font='600 12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('noise √(p(1−p))', 0, 0); ctx.restore();
+}
+
+//=================== panel ② — the 1/√N law ===================
+function drawLaw(cv, N, p){
+  const {w:LW,h:LH}=cdims(cv,354/1040); const {ctx,W,H}=setupCanvas(cv,LW,LH);
+  const padL=58,padR=16,padT=30,padB=42, w=W-padL-padR, h=H-padT-padB;
+  const xmn=10,xmx=1e6, ymn=1e-4,ymx=1;
+  const lxmn=Math.log10(xmn),lxmx=Math.log10(xmx),lymn=Math.log10(ymn),lymx=Math.log10(ymx);
+  const X=v=> padL+(Math.log10(v)-lxmn)/(lxmx-lxmn)*w;
+  const Y=v=> padT+(1-(Math.log10(v)-lymn)/(lymx-lymn))*h;
+  ctx.strokeStyle='#eef2f6'; ctx.lineWidth=1; ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif';
+  for(let e=1;e<=6;e++){ const x=X(Math.pow(10,e)); ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,padT+h); ctx.stroke();
+    ctx.textAlign='center'; ctx.fillText(pow10lbl(e), x, padT+h+16); }
+  for(let e=-4;e<=0;e++){ const y=Y(Math.pow(10,e)); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+w,y); ctx.stroke();
+    ctx.textAlign='right'; ctx.fillText(e===0?'1':pow10lbl(e), padL-6, y+4); }
+  ctx.strokeStyle='#e2e8f0'; ctx.strokeRect(padL,padT,w,h);
+  ctx.save(); ctx.beginPath(); ctx.rect(padL,padT,w,h); ctx.clip();
+  function line(prefactor, col, wdt, alpha){ if(prefactor<=1e-9) return;
+    ctx.globalAlpha=alpha; ctx.strokeStyle=col; ctx.lineWidth=wdt; ctx.beginPath();
+    for(let lx=lxmn; lx<=lxmx+1e-9; lx+=0.05){ const Nx=Math.pow(10,lx), x=X(Nx), y=Y(prefactor/Math.sqrt(Nx));
+      (lx>lxmn)?ctx.lineTo(x,y):ctx.moveTo(x,y); } ctx.stroke(); ctx.globalAlpha=1; }
+  line(0.5, '#94a3b8', 1.5, 0.6);                 // fair-coin maximum (faint reference)
+  const s0=projNoise(p);
+  line(s0, '#475569', 3, 1);                      // current state's wall
+  if(s0>1e-9){ const mx=X(N), my=Y(s0/Math.sqrt(N));
+    ctx.strokeStyle='#0f766e'; ctx.setLineDash([5,4]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(mx,padT); ctx.lineTo(mx,padT+h); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#0f766e'; ctx.beginPath(); ctx.arc(mx,my,5.5,0,7); ctx.fill(); }
+  ctx.restore();
+  if(s0<=1e-9){ ctx.fillStyle='#14532d'; ctx.font='600 14px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('eigenstate → no projection noise (σ = 0)', padL+w/2, padT+h/2); }
+  else { ctx.fillStyle='#334155'; ctx.font='600 13px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('slope −½  =  the SQL', X(2e3), Y(0.5/Math.sqrt(2e3))-10); }
+  ctx.fillStyle='#94a3b8'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('fair-coin max', X(1.2e1), Y(0.5/Math.sqrt(1.2e1))-6);
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('③ Standard error vs N — the 1/√N wall', padL, 20);
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('samples  N  →', padL+w/2, H-10);
+  ctx.save(); ctx.translate(15,padT+h/2); ctx.rotate(-Math.PI/2); ctx.fillStyle='#5b6b7b'; ctx.font='600 13px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('standard error  σ', 0, 0); ctx.restore();
+}
+
+//=================== wiring ===================
+const els={ N:document.getElementById('N'), vN:document.getElementById('v-n'),
+  p:document.getElementById('p'), vP:document.getElementById('v-p'),
+  hist:document.getElementById('hist'), parab:document.getElementById('parab'), law:document.getElementById('law'),
+  readout:document.getElementById('readout'), presets:document.getElementById('presets'),
+  statePresets:document.getElementById('statePresets'), resample:document.getElementById('resample') };
+
+function curN(){ return Math.round(Math.pow(10, +els.N.value)); }
+function curP(){ return +els.p.value; }
+
+function render(resample){
+  const N=curN(), p=curP(), sig=sigmaOf(N,p), s0=projNoise(p);
+  els.vN.textContent='(N = '+N.toLocaleString()+')';
+  els.vP.textContent='(p = '+p.toFixed(2)+')';
+  if(resample || !lastEstimates) lastEstimates=sampleEstimates(N,p);
+  drawHist(els.hist, lastEstimates, p, sig, N);
+  drawParab(els.parab, p);
+  drawLaw(els.law, N, p);
+  // readout
+  let state, lead;
+  const eig = (p<=0 || p>=1);
+  if(eig){
+    state = p>=1 ? '|1⟩' : '|0⟩';
+    lead = `<b>Eigenstate ${state}.</b> The projection noise √(p(1−p)) is <b>zero</b> in this basis, so the `+
+      `outcome doesn't fluctuate — there is nothing to average down, and nothing to <i>sense</i>. (Measure a `+
+      `<i>different</i> basis and it would fluctuate.) Tilt back toward the equal superposition to switch the noise on.`;
+  } else {
+    const sup = Math.abs(p-0.5)<0.02 ? 'the <b>equal superposition |+⟩</b> (a fair coin)'
+              : 'a <b>tilted superposition</b> (a biased coin)';
+    lead = `State: ${sup}, p = <b>${p.toFixed(2)}</b>. Per-shot projection noise √(p(1−p)) = <b>${s0.toFixed(3)}</b> `+
+      `${Math.abs(p-0.5)<0.02?'<i>(the maximum)</i>':'<i>(below the fair-coin max 0.5)</i>'}. Over <b>N = ${N.toLocaleString()}</b> `+
+      `the standard error is √(p(1−p)/N) = <b>${sig.toExponential(2)}</b> — halve it ⇒ <b>4× the data</b>.`;
+  }
+  els.readout.innerHTML = lead +
+    `<br><span style="font-size:15px;color:#5b6b7b">That 1/√N crawl is the <span class="pill sql">standard `+
+    `quantum limit</span> — it bites only in <span class="pill sup">superposition</span>, never on an `+
+    `<span class="pill eig">eigenstate</span>. It is the vacuum's own uncertainty, the floor `+
+    `<a href="squeezing-sql.html">squeezing (anchor 5)</a> dips below.</span>`;
+}
+
+function clearPreset(box){ [...box.querySelectorAll('.preset')].forEach(b=>b.classList.remove('active')); }
+els.N.addEventListener('input',()=>{ clearPreset(els.presets); render(true); });
+els.p.addEventListener('input',()=>{ clearPreset(els.statePresets); render(true); });
+els.resample.addEventListener('click',()=>render(true));
+els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(!b||!b.dataset.n)return;
+  els.N.value=b.dataset.n; clearPreset(els.presets); b.classList.add('active'); render(true); });
+els.statePresets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(!b)return;
+  els.p.value=b.dataset.p; clearPreset(els.statePresets); b.classList.add('active'); render(true); });
+window.addEventListener('resize',()=>render(false));
+window.addEventListener('load',()=>render(false));
+render(true);
+</script>
+
+<script>
+"use strict";
+// ---- stepped beats: show one panel at a time (progressive enhancement: JS off ⇒ all visible) ----
+(function(){
+  const beats=['try','notice','explain','connect'];
+  const panels=beats.map(id=>document.getElementById(id));
+  const tabs=beats.map(id=>document.getElementById('tab-'+id));
+  const prev=document.getElementById('prevBeat'), next=document.getElementById('nextBeat'),
+        count=document.getElementById('stepCount');
+  if(panels.some(p=>!p) || tabs.some(t=>!t) || !prev || !next) return;
+  let i=0, booted=false;
+  function show(n, focus){
+    i=Math.max(0, Math.min(beats.length-1, n));
+    panels.forEach((p,k)=>p.classList.toggle('is-active', k===i));
+    tabs.forEach((t,k)=>{ const on=k===i; t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex=on?0:-1; t.classList.toggle('visited', k<=i); });
+    prev.disabled = i===0; next.disabled = i===beats.length-1;
+    count.textContent='Step '+(i+1)+' of '+beats.length;
+    if(booted){ try{ history.replaceState(null,'','#'+beats[i]); }catch(e){} }
+    if(focus) panels[i].focus();
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click', ()=>show(k));
+    t.addEventListener('keydown', e=>{ const last=beats.length-1;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=i>=last?0:i+1; tabs[n].focus(); show(n); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const n=i<=0?last:i-1; tabs[n].focus(); show(n); }
+      else if(e.key==='Home'){ e.preventDefault(); tabs[0].focus(); show(0); }
+      else if(e.key==='End'){ e.preventDefault(); tabs[last].focus(); show(last); } });
+  });
+  prev.addEventListener('click', ()=>show(i-1, true));
+  next.addEventListener('click', ()=>show(i+1, true));
+  window.addEventListener('hashchange', ()=>{ const at=beats.indexOf((location.hash||'').replace('#','')); if(at>=0) show(at,true); });
+  document.body.classList.add('stepper-on');
+  const h=(location.hash||'').replace('#',''); const at=beats.indexOf(h);
+  show(at>=0?at:0); booted=true;
+})();
+</script>
+</body>
+</html>

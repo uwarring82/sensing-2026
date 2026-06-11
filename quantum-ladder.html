@@ -25,10 +25,6 @@
     text-transform:uppercase; color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
   h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
   .sub{color:var(--muted); font-size:17px; margin:0}
-  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
-  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
-    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
-  .beat-nav a:hover{background:var(--accent); color:#fff}
   section{background:var(--card); border:1px solid var(--line); border-radius:12px;
     padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
   h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px}
@@ -64,6 +60,32 @@
   .check{background:#f0fdfa; border-left:4px solid var(--accent); padding:12px 16px; border-radius:0 8px 8px 0; margin-top:12px; font-size:17px}
   footer{color:var(--muted); font-size:13px; margin-top:26px; border-top:1px solid var(--line); padding-top:12px}
   .hint{font-size:14px; color:var(--muted)}
+  /* ---- pinned widget + stepped beats ---- */
+  .stage{display:block}
+  .stage>section{margin:0 0 18px}
+  @media(min-width:1080px){
+    .stage{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(330px,.85fr); gap:24px; align-items:start}
+    .stage>section{margin:0}
+    .widget{position:sticky; top:16px}
+  }
+  .widget .wtitle{font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 12px; display:block}
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px}
+  .step{font:inherit; font-size:13.5px; font-weight:800; cursor:pointer; color:var(--muted); background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:5px 12px}
+  .step:hover{border-color:var(--accent); color:var(--accent)}
+  .step[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .step.visited:not([aria-selected="true"]){color:var(--accent); border-color:#9ad2cb}
+  .panels{min-height:230px}
+  .beatpanel{padding:14px 2px 0}
+  .beatpanel h2{margin-top:0}
+  .beatpanel:focus{outline:none}
+  body.stepper-on .beatpanel{display:none}
+  body.stepper-on .beatpanel.is-active{display:block}
+  .stepnav{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; border-top:1px solid var(--line); padding-top:14px}
+  .stepnav button{border-color:var(--accent); color:var(--accent); background:#fff}
+  .stepnav button:hover:not(:disabled){background:var(--accent); color:#fff}
+  .stepnav button:disabled{opacity:.4; cursor:default; border-color:var(--line); color:var(--muted)}
+  .stepcount{font-size:14px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+  @media print{ body.stepper-on .beatpanel{display:block !important} .stepper,.stepnav{display:none} .widget{position:static} .stage{display:block} }
 </style>
 </head>
 <body>
@@ -75,17 +97,12 @@
   <h1>More entanglement — always better?</h1>
   <p class="sub">Phase uncertainty Δφ vs number of atoms N. Climb the ladder; then turn on noise and
   watch which resource actually <i>wins</i>.</p>
-  <nav class="beat-nav">
-    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
-    <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
-  </nav>
 </header>
 
-<section id="try">
-  <h2><span class="beat">Try this</span> Climb the rungs, then add decoherence</h2>
-  <p style="margin:0 0 12px"><b>The question:</b> the Heisenberg limit (1/N) beats the standard
-  quantum limit (1/√N) — so should you always reach for the most entangled state? Set the noise and
-  see.</p>
+<div class="stage">
+
+<section class="widget" aria-label="Interactive: climb the quantum ladder under decoherence">
+  <span class="wtitle">The instrument — climb the rungs, then add decoherence</span>
 
   <div class="presets" id="presets">
     <span class="hint" style="font-weight:700;color:var(--ink)">Decoherence:</span>
@@ -117,14 +134,32 @@
       <span class="pill sq">squeezed ξ/√N</span> <span class="pill ghz">GHZ ideal 1/N</span>
       <span class="pill bad">GHZ realistic</span> — click a rung to highlight; ◆ marks the GHZ sweet spot.</figcaption>
   </figure>
-</section>
+</section><!-- /.widget -->
 
-<section id="notice">
-  <h2><span class="beat">Notice this</span> Which resource actually wins?</h2>
-  <p class="readout" id="readout">…</p>
-</section>
+<section class="coach" aria-label="Guided steps — Try, Notice, Explain, Connect">
+  <div class="stepper" role="tablist" aria-label="Lesson steps">
+    <button class="step" role="tab" id="tab-try"     aria-controls="try"     aria-selected="true">1 · Try</button>
+    <button class="step" role="tab" id="tab-notice"  aria-controls="notice"  aria-selected="false" tabindex="-1">2 · Notice</button>
+    <button class="step" role="tab" id="tab-explain" aria-controls="explain" aria-selected="false" tabindex="-1">3 · Explain</button>
+    <button class="step" role="tab" id="tab-connect" aria-controls="connect" aria-selected="false" tabindex="-1">4 · Connect</button>
+  </div>
 
-<section id="explain">
+  <div class="panels">
+
+  <div class="beatpanel is-active" id="try" role="tabpanel" aria-labelledby="tab-try" tabindex="-1">
+    <h2><span class="beat">Try this</span> Climb the rungs, then add decoherence</h2>
+    <p style="margin:0 0 10px"><b>The question:</b> the Heisenberg limit (1/N) beats the standard
+    quantum limit (1/√N) — so should you always reach for the most entangled state? Set the decoherence,
+    pick your N, and read each strategy off the dashed line.</p>
+    <p class="hint">Got a feel for it? Step to <b>2 · Notice</b> →</p>
+  </div>
+
+  <div class="beatpanel" id="notice" role="tabpanel" aria-labelledby="tab-notice" tabindex="-1">
+    <h2><span class="beat">Notice this</span> Which resource actually wins?</h2>
+    <p class="readout" id="readout">…</p>
+  </div>
+
+  <div class="beatpanel" id="explain" role="tabpanel" aria-labelledby="tab-explain" tabindex="-1">
   <h2><span class="beat">Explain this</span></h2>
   <p>At zero noise the GHZ line (1/N) is best at every N. Turn up decoherence and it grows a
   <b>bathtub</b> — a sweet spot, then it climbs. <b>Why does piling more atoms into one entangled
@@ -150,24 +185,38 @@
     reverts toward 1/√N (Huelga <i>et al.</i> 1997; Demkowicz-Dobrzański <i>et al.</i> 2012). +QEC
     pushes N* up by protecting coherence.</p>
   </details>
-</section>
+  </div><!-- /#explain -->
 
-<section id="connect" class="connect">
+  <div class="beatpanel connect" id="connect" role="tabpanel" aria-labelledby="tab-connect" tabindex="-1">
   <h2><span class="beat">Now connect it</span></h2>
   <ul>
-    <li><b>Back to anchor 2:</b> the blue <span class="pill sql">SQL 1/√N</span> line is the very same
-      −½ slope you met as the white-noise floor in the Allan explorer. The ladder is about
+    <li><b>Back to anchors 2 &amp; 3:</b> the blue <span class="pill sql">SQL 1/√N</span> line is the
+      <a href="anchor-3-sql.html">standard quantum limit (anchor 3)</a> — the very same −½ slope you met as
+      the white-noise floor in the Allan explorer (anchor 2). The ladder is about
       <i>bending that line</i>; decoherence is the “drift” that limits how far you can bend it — and
       the GHZ bathtub is the Allan bathtub's twin (a resource that <i>stops helping</i> past a sweet spot).</li>
-    <li><b>Forward to anchor 5 (back-action) &amp; QEC:</b> protecting the entangled probe — back-action
-      evasion, error correction — is how you keep the 1/N gain in a noisy world (level 4).</li>
+    <li><b>Forward to anchor 5 (back-action) &amp; QEC:</b> what keeps the 1/N Heisenberg gain in a noisy
+      world is <b>error correction</b> (level 4). <a href="squeezing-sql.html">Back-action evasion /
+      squeezing (anchor 5)</a> is a different lever — it tames measurement disturbance and lowers the SQL
+      <i>prefactor</i> (ξ/√N), rather than protecting Heisenberg scaling against decoherence.</li>
   </ul>
   <div class="check">
     <b>Exercise check.</b> At <i>Realistic</i> noise, set N to 100. Read off Δφ for the SQL line and for
     the realistic GHZ line, and say in one sentence which strategy you would actually build — and why
     "reach for the Heisenberg limit" is the wrong instinct here.
   </div>
-</section>
+  </div><!-- /#connect -->
+
+  </div><!-- /.panels -->
+
+  <div class="stepnav">
+    <button id="prevBeat" disabled>← Back</button>
+    <span class="stepcount" id="stepCount">Step 1 of 4</span>
+    <button id="nextBeat">Next →</button>
+  </div>
+</section><!-- /.coach -->
+
+</div><!-- /.stage -->
 
 <footer>
   Single-file, offline, no tracking. Schematic model — asymptotic slopes are faithful; see the
@@ -201,7 +250,7 @@ const RUNGS=[
    paper:'Demkowicz-Dobrzański+'},
 ];
 const NMIN=1, NMAX=2000;
-const LW=1040, LH=440;   // logical drawing size (matches canvas attribute width/height)
+const PLOT_ASPECT=440/1040;   // canvas drawn at its measured CSS width (fonts stay 1:1); aspect fixed
 let highlight=null;  // rung key or null
 
 //============================ canvas log-log plot ===========================================
@@ -216,16 +265,15 @@ function draw(){
     xs.push(N); C.sql.push(ySQL(N)); C.sq.push(ySq(N,s)); C.ghzi.push(yGHZi(N)); C.ghzr.push(yGHZr(N,Ns)); }
 
   const cv=els.plot;
+  const LW=Math.max(320,Math.round(cv.getBoundingClientRect().width)), LH=Math.round(LW*PLOT_ASPECT);
   const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
   cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
   const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
   const W=LW,H=LH;
   ctx.clearRect(0,0,W,H);
   const padL=70,padR=18,padT=22,padB=46, w=W-padL-padR, h=H-padT-padB;
-  let ymin=Infinity,ymax=-Infinity;
-  for(const key in C) for(const v of C[key]){ if(v<ymin)ymin=v; if(v>ymax)ymax=v; }
   const lxmn=Math.log10(NMIN),lxmx=Math.log10(NMAX);
-  const lymn=Math.log10(ymin)-0.1, lymx=Math.log10(ymax)+0.1;
+  const lymn=Math.log10(1e-4), lymx=Math.log10(1e3);   // fixed Δφ frame: more noise visibly lifts the realistic curve
   const X=N=> padL+(Math.log10(N)-lxmn)/(lxmx-lxmn)*w;
   const Y=v=> padT+(1-(Math.log10(v)-lymn)/(lymx-lymn))*h;
 
@@ -336,8 +384,47 @@ els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); 
   [...els.presets.querySelectorAll('.preset')].forEach(x=>x.classList.toggle('active', x===b));
   render(); });
 window.addEventListener('resize', draw);
+window.addEventListener('load', draw);     // re-measure once layout/fonts settle
 
 renderRungs(); render();
+</script>
+
+<script>
+"use strict";
+// ---- stepped beats: show one panel at a time (progressive enhancement: JS off ⇒ all visible) ----
+(function(){
+  const beats=['try','notice','explain','connect'];
+  const panels=beats.map(id=>document.getElementById(id));
+  const tabs=beats.map(id=>document.getElementById('tab-'+id));
+  const prev=document.getElementById('prevBeat'), next=document.getElementById('nextBeat'),
+        count=document.getElementById('stepCount');
+  if(panels.some(p=>!p) || tabs.some(t=>!t) || !prev || !next) return;
+  let i=0, booted=false;
+  function show(n, focus){
+    i=Math.max(0, Math.min(beats.length-1, n));
+    panels.forEach((p,k)=>p.classList.toggle('is-active', k===i));
+    tabs.forEach((t,k)=>{ const on=k===i; t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex=on?0:-1; t.classList.toggle('visited', k<=i); });
+    prev.disabled = i===0; next.disabled = i===beats.length-1;
+    count.textContent='Step '+(i+1)+' of '+beats.length;
+    if(booted){ try{ history.replaceState(null,'','#'+beats[i]); }catch(e){} }
+    if(focus) panels[i].focus();
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click', ()=>show(k));
+    t.addEventListener('keydown', e=>{ const last=beats.length-1;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=i>=last?0:i+1; tabs[n].focus(); show(n); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const n=i<=0?last:i-1; tabs[n].focus(); show(n); }
+      else if(e.key==='Home'){ e.preventDefault(); tabs[0].focus(); show(0); }
+      else if(e.key==='End'){ e.preventDefault(); tabs[last].focus(); show(last); } });
+  });
+  prev.addEventListener('click', ()=>show(i-1, true));
+  next.addEventListener('click', ()=>show(i+1, true));
+  window.addEventListener('hashchange', ()=>{ const at=beats.indexOf((location.hash||'').replace('#','')); if(at>=0) show(at,true); });
+  document.body.classList.add('stepper-on');
+  const h=(location.hash||'').replace('#',''); const at=beats.indexOf(h);
+  show(at>=0?at:0); booted=true;
+})();
 </script>
 </body>
 </html>

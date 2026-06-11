@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Squeezing &amp; the standard quantum limit · Sensing 2026</title>
+<title>Back-action &amp; squeezing · Sensing 2026</title>
 <!--
-  Sensing 2026 · Pillar-2 hub · Anchors 3 (SQL / shot noise) & 5 (back-action / squeezing).
-  Slice-3 flagship. Single offline file, hand-rolled canvas. Four-beat: Try·Notice·Explain·Connect.
-  The vacuum disk = the SQL (= the 1/√N wall of anchors 2 & 4). Squeezing redistributes noise:
+  Sensing 2026 · Pillar-2 hub · Anchor 5 (back-action / squeezing). The SQL / anchor 3 now lives on
+  anchor-3-sql.html; the vacuum disk here grounds it. Slice-3 flagship. Single offline file, hand-rolled
+  canvas. Four-beat: Try·Notice·Explain·Connect.
+  The vacuum disk = the SQL (= the 1/√N wall of anchors 2–4). Squeezing redistributes noise:
   buy precision in one quadrature, pay in the conjugate (area ΔXΔP = ½ conserved). Verified physics.
 -->
 <style>
@@ -21,9 +22,6 @@
   .tag{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
     color:#fff;background:var(--accent);padding:3px 9px;border-radius:4px}
   h1{font-size:30px;margin:10px 0 4px;line-height:1.15}.sub{color:var(--muted);font-size:17px;margin:0}
-  .beat-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-  .beat-nav a{font-size:14px;font-weight:700;text-decoration:none;color:var(--accent);
-    border:1.5px solid var(--accent);border-radius:999px;padding:4px 12px}.beat-nav a:hover{background:var(--accent);color:#fff}
   section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:18px 0;
     box-shadow:0 1px 2px rgba(20,40,60,.04)}
   h2{font-size:22px;margin:0 0 12px;display:flex;align-items:baseline;gap:10px}
@@ -47,6 +45,34 @@
   .check{background:#f0fdfa;border-left:4px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-top:12px;font-size:17px}
   footer{color:var(--muted);font-size:13px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
   .hint{font-size:14px;color:var(--muted)}
+  /* ---- pinned widget + stepped beats ---- */
+  .stage{display:block}
+  .stage>section{margin:0 0 18px}
+  @media(min-width:1080px){
+    .stage{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(330px,.85fr); gap:24px; align-items:start}
+    .stage>section{margin:0}
+    .widget{position:sticky; top:16px}
+  }
+  .widget .wtitle{font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 12px; display:block}
+  .widget .plots{grid-template-columns:1fr 1fr}
+  @media(max-width:680px){ .widget .plots{grid-template-columns:1fr} }
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px}
+  .step{font:inherit; font-size:13.5px; font-weight:800; cursor:pointer; color:var(--muted); background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:5px 12px}
+  .step:hover{border-color:var(--accent); color:var(--accent)}
+  .step[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .step.visited:not([aria-selected="true"]){color:var(--accent); border-color:#9ad2cb}
+  .panels{min-height:230px}
+  .beatpanel{padding:14px 2px 0}
+  .beatpanel h2{margin-top:0}
+  .beatpanel:focus{outline:none}
+  body.stepper-on .beatpanel{display:none}
+  body.stepper-on .beatpanel.is-active{display:block}
+  .stepnav{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; border-top:1px solid var(--line); padding-top:14px}
+  .stepnav button{border-color:var(--accent); color:var(--accent); background:#fff}
+  .stepnav button:hover:not(:disabled){background:var(--accent); color:#fff}
+  .stepnav button:disabled{opacity:.4; cursor:default; border-color:var(--line); color:var(--muted)}
+  .stepcount{font-size:14px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+  @media print{ body.stepper-on .beatpanel{display:block !important} .stepper,.stepnav{display:none} .widget{position:static} .stage{display:block} }
 </style>
 </head>
 <body>
@@ -54,20 +80,16 @@
 
 <header class="top">
   <a href="workshop.html" style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none">← Sensing 2026 hub</a>
-  <div style="margin-top:6px"><span class="tag">Sensing 2026 · Anchors 3 &amp; 5 · Squeezing &amp; the SQL</span></div>
+  <div style="margin-top:6px"><span class="tag">Sensing 2026 · Anchor 5 · Back-action &amp; squeezing</span></div>
   <h1>Beat shot noise — for free?</h1>
   <p class="sub">The vacuum's uncertainty disk <i>is</i> the standard quantum limit. Squeeze one
   quadrature below it — and watch the price you pay in the other.</p>
-  <nav class="beat-nav">
-    <a href="#try">1 · Try this</a><a href="#notice">2 · Notice this</a>
-    <a href="#explain">3 · Explain this</a><a href="#connect">4 · Now connect it</a>
-  </nav>
 </header>
 
-<section id="try">
-  <h2><span class="beat">Try this</span> Squeeze the state, then misalign the measurement</h2>
-  <p style="margin:0 0 12px"><b>The question:</b> if squeezing pushes the noise below the shot-noise
-  limit, why not just squeeze as hard as possible? Crank it — then nudge the measurement angle.</p>
+<div class="stage">
+
+<section class="widget" aria-label="Interactive: squeeze the state and rotate the measurement">
+  <span class="wtitle">The instrument — squeeze, then misalign the measurement</span>
 
   <div class="presets" id="presets">
     <span class="hint" style="font-weight:700;color:var(--ink)">Squeezing:</span>
@@ -104,14 +126,32 @@
         0 = worse. The more you squeeze, the <i>narrower</i> the winning window.</figcaption>
     </figure>
   </div>
-</section>
+</section><!-- /.widget -->
 
-<section id="notice">
-  <h2><span class="beat">Notice this</span> What did squeezing actually buy?</h2>
-  <p class="readout" id="readout">…</p>
-</section>
+<section class="coach" aria-label="Guided steps — Try, Notice, Explain, Connect">
+  <div class="stepper" role="tablist" aria-label="Lesson steps">
+    <button class="step" role="tab" id="tab-try"     aria-controls="try"     aria-selected="true">1 · Try</button>
+    <button class="step" role="tab" id="tab-notice"  aria-controls="notice"  aria-selected="false" tabindex="-1">2 · Notice</button>
+    <button class="step" role="tab" id="tab-explain" aria-controls="explain" aria-selected="false" tabindex="-1">3 · Explain</button>
+    <button class="step" role="tab" id="tab-connect" aria-controls="connect" aria-selected="false" tabindex="-1">4 · Connect</button>
+  </div>
 
-<section id="explain">
+  <div class="panels">
+
+  <div class="beatpanel is-active" id="try" role="tabpanel" aria-labelledby="tab-try" tabindex="-1">
+    <h2><span class="beat">Try this</span> Squeeze the state, then misalign the measurement</h2>
+    <p style="margin:0 0 10px"><b>The question:</b> if squeezing pushes the noise below the shot-noise
+    limit, why not just squeeze as hard as possible? Crank the squeezing, then nudge the measurement
+    angle θ and watch plot ②.</p>
+    <p class="hint">Got a feel for it? Step to <b>2 · Notice</b> →</p>
+  </div>
+
+  <div class="beatpanel" id="notice" role="tabpanel" aria-labelledby="tab-notice" tabindex="-1">
+    <h2><span class="beat">Notice this</span> What did squeezing actually buy?</h2>
+    <p class="readout" id="readout">…</p>
+  </div>
+
+  <div class="beatpanel" id="explain" role="tabpanel" aria-labelledby="tab-explain" tabindex="-1">
   <h2><span class="beat">Explain this</span></h2>
   <p>At θ = 0 more squeezing always looks better. Rotate the angle a few degrees with 20 dB on, and
   the noise shoots <i>above</i> the SQL. <b>Why does harder squeezing make the measurement more
@@ -124,7 +164,8 @@
     direction holds <i>enormous</i> anti-squeezed noise (1/ξ² in variance), so a small angle error — a
     little phase jitter — leaks that fat variance in and you lose. The harder you squeeze, the fatter the
     other quadrature, the less misalignment you can tolerate. There is an <b>optimal finite squeezing</b>
-    set by how well you control the phase — which is why LIGO runs ~6 dB, not 20.</p>
+    set by how well you control the phase (and, in a real interferometer, by optical loss, which mixes
+    vacuum back in regardless of angle) — which is why LIGO runs ~6 dB, not 20.</p>
   </details>
   <details>
     <summary>Show the math</summary>
@@ -137,13 +178,15 @@
     (S = 0) is the vacuum disk, and it is the <b>same 1/√N shot-noise floor</b> you met as the white-noise
     wall (anchor 2) and the SQL line (anchor 4).</p>
   </details>
-</section>
+  </div><!-- /#explain -->
 
-<section id="connect" class="connect">
+  <div class="beatpanel connect" id="connect" role="tabpanel" aria-labelledby="tab-connect" tabindex="-1">
   <h2><span class="beat">Now connect it</span></h2>
   <ul>
-    <li><b>This disk is the wall.</b> The dashed vacuum circle is the standard quantum limit — the very
-      same 1/√N you met as the Allan white-noise floor (anchor 2) and the SQL line on the ladder (anchor 4).</li>
+    <li><b>This disk is the wall.</b> The dashed vacuum circle is the <a href="anchor-3-sql.html">standard
+      quantum limit (anchor 3)</a> — the very same 1/√N you met as the Allan white-noise floor (anchor 2)
+      and the SQL line on the ladder (anchor 4). Anchor 3 shows <i>where</i> that 1/√N comes from; this
+      page shows the one way <i>under</i> it.</li>
     <li><b>This is the ladder's “2S” rung.</b> Measuring the squeezed quadrature gives ξ/√N, ξ < 1 — that
       is exactly how squeezing bends the SQL line down on the quantum ladder (anchor 4).</li>
     <li><b>Back-action (anchor 5).</b> You bought X-precision by inflating P — you can't beat both. Measuring
@@ -167,7 +210,18 @@
     <b>Exercise check.</b> Set <i>20 dB (greedy)</i> and slide θ to 10°. Read the noise-vs-SQL number, and
     compare it to <i>6 dB</i> at the same angle. Say in one line why “squeeze harder” is the wrong instinct.
   </div>
-</section>
+  </div><!-- /#connect -->
+
+  </div><!-- /.panels -->
+
+  <div class="stepnav">
+    <button id="prevBeat" disabled>← Back</button>
+    <span class="stepcount" id="stepCount">Step 1 of 4</span>
+    <button id="nextBeat">Next →</button>
+  </div>
+</section><!-- /.coach -->
+
+</div><!-- /.stage -->
 
 <footer>
   Single-file, offline, no tracking. Sources: Caves, PRD 23, 1693 (1981); LIGO frequency-dependent
@@ -198,12 +252,15 @@ const els={ sq:document.getElementById('sq'), th:document.getElementById('th'),
   phase:document.getElementById('phase'), ang:document.getElementById('ang'),
   readout:document.getElementById('readout'), presets:document.getElementById('presets') };
 
-// logical drawing size for both canvases (matches their attribute width/height)
-const LW=510, LH=430;
+// canvas drawing size is measured per-draw (logical px == CSS px) so fonts/labels stay correctly
+// sized at any column width; aspect kept at 510:430.
+const ASPECT=430/510;
+function cdims(cv){ const w=Math.max(240,Math.round(cv.getBoundingClientRect().width)); return {LW:w, LH:Math.round(w*ASPECT)}; }
 
 //=================== phase-space panel ===================
 function drawPhase(S, thDeg){
   const cv=els.phase;
+  const {LW,LH}=cdims(cv);
   const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
   cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
   const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
@@ -254,6 +311,7 @@ function drawPhase(S, thDeg){
 //=================== angle panel ===================
 function drawAngle(S, thDeg){
   const cv=els.ang;
+  const {LW,LH}=cdims(cv);
   const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
   cv.width=Math.round(LW*dpr); cv.height=Math.round(LH*dpr);
   const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
@@ -318,7 +376,46 @@ els.th.addEventListener('input', render);
 els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(!b)return;
   els.sq.value=b.dataset.s; [...els.presets.querySelectorAll('.preset')].forEach(x=>x.classList.toggle('active',x===b)); render(); });
 window.addEventListener('resize', render);
+window.addEventListener('load', render);     // re-measure once layout/fonts settle
 render();
+</script>
+
+<script>
+"use strict";
+// ---- stepped beats: show one panel at a time (progressive enhancement: JS off ⇒ all visible) ----
+(function(){
+  const beats=['try','notice','explain','connect'];
+  const panels=beats.map(id=>document.getElementById(id));
+  const tabs=beats.map(id=>document.getElementById('tab-'+id));
+  const prev=document.getElementById('prevBeat'), next=document.getElementById('nextBeat'),
+        count=document.getElementById('stepCount');
+  if(panels.some(p=>!p) || tabs.some(t=>!t) || !prev || !next) return;
+  let i=0, booted=false;
+  function show(n, focus){
+    i=Math.max(0, Math.min(beats.length-1, n));
+    panels.forEach((p,k)=>p.classList.toggle('is-active', k===i));
+    tabs.forEach((t,k)=>{ const on=k===i; t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex=on?0:-1; t.classList.toggle('visited', k<=i); });
+    prev.disabled = i===0; next.disabled = i===beats.length-1;
+    count.textContent='Step '+(i+1)+' of '+beats.length;
+    if(booted){ try{ history.replaceState(null,'','#'+beats[i]); }catch(e){} }
+    if(focus) panels[i].focus();
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click', ()=>show(k));
+    t.addEventListener('keydown', e=>{ const last=beats.length-1;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=i>=last?0:i+1; tabs[n].focus(); show(n); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const n=i<=0?last:i-1; tabs[n].focus(); show(n); }
+      else if(e.key==='Home'){ e.preventDefault(); tabs[0].focus(); show(0); }
+      else if(e.key==='End'){ e.preventDefault(); tabs[last].focus(); show(last); } });
+  });
+  prev.addEventListener('click', ()=>show(i-1, true));
+  next.addEventListener('click', ()=>show(i+1, true));
+  window.addEventListener('hashchange', ()=>{ const at=beats.indexOf((location.hash||'').replace('#','')); if(at>=0) show(at,true); });
+  document.body.classList.add('stepper-on');
+  const h=(location.hash||'').replace('#',''); const at=beats.indexOf(h);
+  show(at>=0?at:0); booted=true;
+})();
 </script>
 </body>
 </html>

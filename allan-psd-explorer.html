@@ -22,16 +22,12 @@
     margin:0; background:var(--bg); color:var(--ink);
     font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 64px}
+  .wrap{max-width:1280px; margin:0 auto; padding:24px 20px 64px}
   header.top{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:20px}
   .tag{display:inline-block; font-size:13px; font-weight:700; letter-spacing:.06em;
     text-transform:uppercase; color:#fff; background:var(--accent); padding:3px 9px; border-radius:4px}
   h1{font-size:30px; margin:10px 0 4px; line-height:1.15}
   .sub{color:var(--muted); font-size:17px; margin:0}
-  .beat-nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px}
-  .beat-nav a{font-size:14px; font-weight:700; text-decoration:none; color:var(--accent);
-    border:1.5px solid var(--accent); border-radius:999px; padding:4px 12px}
-  .beat-nav a:hover{background:var(--accent); color:#fff}
   section{background:var(--card); border:1px solid var(--line); border-radius:12px;
     padding:20px 22px; margin:18px 0; box-shadow:0 1px 2px rgba(20,40,60,.04)}
   h2{font-size:22px; margin:0 0 12px; display:flex; align-items:baseline; gap:10px}
@@ -71,6 +67,48 @@
     padding-top:12px}
   .hint{font-size:14px; color:var(--muted); margin:2px 0 0}
   input[type=file]{font-size:14px}
+
+  /* ---- pinned widget + stepped beats (prototype) ---- */
+  .stage{display:block}
+  .stage>section{margin:0 0 18px}
+  /* two columns only when there's room for big plots; below this the widget goes full-width */
+  @media(min-width:1080px){
+    .stage{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(330px,.85fr);
+      gap:24px; align-items:start}
+    .stage>section{margin:0}
+    .widget{position:sticky; top:16px}
+  }
+  .widget .wtitle{font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--muted); margin:0 0 12px; display:block}
+  .widget .plots{display:grid; grid-template-columns:repeat(6,1fr); gap:16px}
+  .widget .plots .p-ts{grid-column:span 4}  .widget .plots .p-hist{grid-column:span 2}
+  .widget .plots .p-psd{grid-column:span 3} .widget .plots .p-adev{grid-column:span 3}
+  @media(max-width:680px){ .widget .plots{grid-template-columns:1fr}
+    .widget .plots>figure{grid-column:auto} }
+  .stepper{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px}
+  .step{font:inherit; font-size:13.5px; font-weight:800; cursor:pointer; color:var(--muted);
+    background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:5px 12px}
+  .step:hover{border-color:var(--accent); color:var(--accent)}
+  .step[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .step.visited:not([aria-selected="true"]){color:var(--accent); border-color:#9ad2cb}
+  .panels{min-height:230px}
+  .beatpanel{padding:14px 2px 0}
+  .beatpanel h2{margin-top:0}
+  .beatpanel:focus{outline:none}
+  body.stepper-on .beatpanel{display:none}
+  body.stepper-on .beatpanel.is-active{display:block}
+  .stepnav{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-top:14px; border-top:1px solid var(--line); padding-top:14px}
+  .stepnav button{border-color:var(--accent); color:var(--accent); background:#fff}
+  .stepnav button:hover:not(:disabled){background:var(--accent); color:#fff}
+  .stepnav button:disabled{opacity:.4; cursor:default; border-color:var(--line); color:var(--muted)}
+  .stepcount{font-size:14px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+  @media print{
+    body.stepper-on .beatpanel{display:block !important}
+    .stepper,.stepnav{display:none}
+    .widget{position:static}
+    .stage{display:block}
+  }
 </style>
 </head>
 <body>
@@ -82,21 +120,13 @@
   <h1>Noise &amp; the limits of averaging</h1>
   <p class="sub">A time series → its power spectrum (PSD) → its Allan deviation. Mix three kinds of
   noise and watch <i>when averaging stops helping</i>.</p>
-  <nav class="beat-nav">
-    <a href="#try">1 · Try this</a>
-    <a href="#notice">2 · Notice this</a>
-    <a href="#explain">3 · Explain this</a>
-    <a href="#connect">4 · Now connect it</a>
-  </nav>
 </header>
 
-<!-- ============ TRY ============ -->
-<section id="try">
-  <h2><span class="beat">Try this</span> Mix the noise, watch all three views</h2>
+<div class="stage">
 
-  <p style="margin:0 0 14px"><b>The question:</b> you averaged your phone’s accelerometer for
-  longer and longer — <i>why did the reading stop getting better?</i> Build a recipe (or load a
-  real trace) and find out.</p>
+<!-- ============ PINNED WIDGET (always visible) ============ -->
+<section class="widget" aria-label="Interactive: build a noise recipe and read its three views">
+  <span class="wtitle">The instrument — mix noise, read three views</span>
 
   <div class="presets" id="presets">
     <button class="preset" data-preset="white">White only</button>
@@ -138,33 +168,52 @@
     <input type="file" id="csv" accept=".csv,.txt,text/plain">
     <span class="hint" id="csv-status">one number per line; resets on any preset/slider</span>
   </div>
-</section>
 
-<section>
   <div class="plots">
-    <figure class="full">
-      <canvas id="ts" width="1040" height="240"></canvas>
-      <figcaption>① <b>Time series</b> — the raw reading vs time (mean removed). White looks fuzzy; random walk wanders.</figcaption>
+    <figure class="p-ts">
+      <canvas id="ts" width="1040" height="416"></canvas>
+      <figcaption>① <b>Time series</b> — Δg vs time (mean removed). White looks fuzzy; drift wanders off.</figcaption>
     </figure>
-    <figure>
+    <figure class="p-hist">
+      <canvas id="hist" width="520" height="416"></canvas>
+      <figcaption>④ <b>Histogram</b> of Δg vs a matched <span style="color:#dc2626">Gaussian</span>. White ≈ a clean bell; drift goes lumpy.</figcaption>
+    </figure>
+    <figure class="p-psd">
       <canvas id="psd" width="510" height="360"></canvas>
-      <figcaption>② <b>Power spectral density</b> (log–log) — slope tells the noise type: <span class="pill white">white ≈ 0</span> <span class="pill pink">pink ≈ −1</span> <span class="pill rw">walk ≈ −2</span></figcaption>
+      <figcaption>② <b>Power spectral density</b> (log–log) — slope tells the type: <span class="pill white">white ≈ 0</span> <span class="pill pink">pink ≈ −1</span> <span class="pill rw">walk ≈ −2</span></figcaption>
     </figure>
-    <figure>
+    <figure class="p-adev">
       <canvas id="adev" width="510" height="360"></canvas>
-      <figcaption>③ <b>Allan deviation</b> (log–log vs averaging time τ) — the <span class="pill mark">red line</span> marks where more averaging stops helping.</figcaption>
+      <figcaption>③ <b>Allan deviation</b> (log–log vs τ) — slopes <span class="pill white">white −½</span> <span class="pill pink">pink 0</span> <span class="pill rw">walk +½</span>; <span class="pill mark">red line</span> = where averaging stops helping.</figcaption>
     </figure>
   </div>
-</section>
+</section><!-- /.widget -->
 
-<!-- ============ NOTICE ============ -->
-<section id="notice">
-  <h2><span class="beat">Notice this</span> What the curves are telling you</h2>
-  <p class="readout" id="readout">…</p>
-</section>
+<!-- ============ STEPPED BEATS (one at a time) ============ -->
+<section class="coach" aria-label="Guided steps — Try, Notice, Explain, Connect">
+  <div class="stepper" role="tablist" aria-label="Lesson steps">
+    <button class="step" role="tab" id="tab-try"     aria-controls="try"     aria-selected="true">1 · Try</button>
+    <button class="step" role="tab" id="tab-notice"  aria-controls="notice"  aria-selected="false" tabindex="-1">2 · Notice</button>
+    <button class="step" role="tab" id="tab-explain" aria-controls="explain" aria-selected="false" tabindex="-1">3 · Explain</button>
+    <button class="step" role="tab" id="tab-connect" aria-controls="connect" aria-selected="false" tabindex="-1">4 · Connect</button>
+  </div>
 
-<!-- ============ EXPLAIN ============ -->
-<section id="explain">
+  <div class="panels">
+
+  <div class="beatpanel is-active" id="try" role="tabpanel" aria-labelledby="tab-try" tabindex="-1">
+    <h2><span class="beat">Try this</span> Mix the noise, watch all three views</h2>
+    <p style="margin:0 0 10px"><b>The question:</b> you averaged your phone’s accelerometer for longer
+    and longer — <i>why did the reading stop getting better?</i> Build a recipe with the presets and
+    sliders (or load the exercise trace), then watch plot ③ — the Allan deviation.</p>
+    <p class="hint">Got a feel for it? Step to <b>2 · Notice</b> →</p>
+  </div>
+
+  <div class="beatpanel" id="notice" role="tabpanel" aria-labelledby="tab-notice" tabindex="-1">
+    <h2><span class="beat">Notice this</span> What the curves are telling you</h2>
+    <p class="readout" id="readout">…</p>
+  </div>
+
+  <div class="beatpanel" id="explain" role="tabpanel" aria-labelledby="tab-explain" tabindex="-1">
   <h2><span class="beat">Explain this</span></h2>
   <p>You just saw the Allan deviation fall, flatten, then rise as you add pink and random-walk noise.
      <b>In your own words: why does averaging <i>eventually stop helping</i> — and why doesn’t more data fix it?</b></p>
@@ -184,25 +233,26 @@
     <p><b>White noise:</b> samples are independent, so averaging m of them shrinks the mean’s standard
     deviation by √m. With τ = m/f<sub>s</sub>, that is σ(τ) ∝ τ<sup>−1/2</sup>; the flat power spectrum
     (slope 0) is the frequency-domain face of the same fact. This −½ line <i>is</i> the
-    <b>standard quantum limit</b> 1/√N when the “samples” are independent quanta (→ anchor 4).<br>
+    <b>standard quantum limit</b> 1/√N when the “samples” are independent quanta (→ anchor 3).<br>
     <b>Flicker / pink:</b> power ∝ 1/f means fluctuations are correlated across <i>all</i> timescales —
     a longer average can’t cancel what drifts with it, so the Allan deviation goes <i>flat</i> (the floor).<br>
     <b>Random walk:</b> the value is the running sum of little kicks (power ∝ 1/f²); the longer you wait,
     the further it has wandered, so averaging over a long window <i>adds</i> error and σ(τ) ∝ τ<sup>+1/2</sup>.
     The bathtub minimum is where the −½ and +½ lines cross.</p>
   </details>
-</section>
+  </div><!-- /#explain -->
 
-<!-- ============ CONNECT ============ -->
-<section id="connect" class="connect">
+  <div class="beatpanel connect" id="connect" role="tabpanel" aria-labelledby="tab-connect" tabindex="-1">
   <h2><span class="beat">Now connect it</span></h2>
   <ul>
     <li><b>Back to the lecture:</b> this is the “systematic offset &amp; noise” story behind the
       smartphone-<i>g</i> measurement — mean &amp; standard error tell you precision only if the noise is
       white; PSD and Allan deviation reveal when it is <i>not</i>.</li>
-    <li><b>Forward to the ladder (anchor 4):</b> the white-noise −½ slope <i>is</i> the standard quantum
-      limit, 1/√N. Squeezing and entanglement are ways to bend that slope — but they can do nothing about
-      a flicker floor or a drift. First know which wall you are hitting.</li>
+    <li><b>Forward to anchors 3, 4 &amp; 5:</b> this white-noise −½ slope has the <i>same</i> 1/√N scaling as
+      the <a href="anchor-3-sql.html">standard quantum limit</a> — and <i>is</i> the SQL exactly when the
+      white noise is the shot / projection noise of quanta (not, say, an amplifier's classical white floor).
+      <a href="squeezing-sql.html">Squeezing (anchor 5)</a> and entanglement bend that slope — but they can
+      do nothing about a flicker floor or a drift. First know which wall you are hitting.</li>
   </ul>
   <p style="margin-top:14px"><b>What good looks like:</b></p>
   <ul>
@@ -220,7 +270,18 @@
     Allan deviation bottoms out, and say in one line <i>which</i> noise dominates just below it and just
     above it. (That τ is exactly where “more averaging stops helping.”)
   </div>
-</section>
+  </div><!-- /#connect -->
+
+  </div><!-- /.panels -->
+
+  <div class="stepnav">
+    <button id="prevBeat" disabled>← Back</button>
+    <span class="stepcount" id="stepCount">Step 1 of 4</span>
+    <button id="nextBeat">Next →</button>
+  </div>
+</section><!-- /.coach -->
+
+</div><!-- /.stage -->
 
 <footer>
   Single-file, offline, no tracking. Sources: Riehle, <i>Frequency Standards</i> (Allan/PSD, ch. 3);
@@ -350,8 +411,6 @@ function allanDev(series, tau0){
 //==================================================================================
 // 1. Canvas plotting (log–log and linear), DPR-aware, projector-legible.
 //==================================================================================
-// Logical drawing sizes (match each canvas's attribute width/height).
-const CANVAS_LOGICAL={ ts:{w:1040,h:240}, psd:{w:510,h:360}, adev:{w:510,h:360} };
 function setupCanvas(cv, LW, LH){
   const dpr=Math.max(1, Math.min(3, window.devicePixelRatio||1));
   cv.width  = Math.round(LW*dpr);
@@ -361,6 +420,13 @@ function setupCanvas(cv, LW, LH){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,W,H);
   return {ctx,W,H};
+}
+// Render at the canvas's actual CSS width (logical px == CSS px), so axis labels/ticks keep their
+// real size at any column width instead of shrinking when the canvas is scaled down. aspect = h/w.
+function cdims(cv, aspect){
+  const w0=Math.round(cv.getBoundingClientRect().width);
+  const w=(w0 && w0>60) ? w0 : 500;            // fallback before first layout pass
+  return {w, h:Math.round(w*aspect)};
 }
 function niceTicksLog(min,max){
   const ticks=[]; let e=Math.floor(Math.log10(min));
@@ -375,36 +441,61 @@ function fmt(v){
 }
 function sup(n){ const m={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
   return String(n).split('').map(c=>m[c]||c).join(''); }
+// ~n nice round tick values on a linear axis
+function niceTicksLin(mn,mx,n){
+  const span=mx-mn; if(!(span>0)) return [mn];
+  const raw=span/((n||5)-1), mag=Math.pow(10,Math.floor(Math.log10(raw))), norm=raw/mag;
+  const step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag, out=[];
+  for(let v=Math.ceil(mn/step)*step; v<=mx+step*1e-6; v+=step) out.push(Math.abs(v)<step*1e-6?0:v);
+  return out;
+}
+function fmtLin(v){
+  if(Math.abs(v)<1e-12) return '0';
+  const a=Math.abs(v);
+  return (a>=1e4||a<1e-3) ? v.toExponential(0) : (Math.round(v*1e4)/1e4).toString();
+}
 
-function plotLinear(cv, ys, color, title, LW, LH){
+function plotLinear(cv, ys, color, title, LW, LH, yRange){
   const {ctx,W,H}=setupCanvas(cv, LW, LH);
-  const padL=58,padR=14,padT=30,padB=34, w=W-padL-padR, h=H-padT-padB;
-  let mn=Infinity,mx=-Infinity; for(const y of ys){ if(y<mn)mn=y; if(y>mx)mx=y; }
-  if(mn===mx){mn-=1;mx+=1;} const pad=(mx-mn)*0.08; mn-=pad; mx+=pad;
+  const padL=52,padR=12,padT=30,padB=32, w=W-padL-padR, h=H-padT-padB;
+  let mn,mx,ticks;
+  if(yRange){ mn=yRange.min; mx=yRange.max; ticks=yRange.ticks; }       // fixed scale
+  else{ mn=Infinity;mx=-Infinity; for(const y of ys){ if(y<mn)mn=y; if(y>mx)mx=y; }
+    if(mn===mx){mn-=1;mx+=1;} const pd=(mx-mn)*0.12; mn-=pd; mx+=pd; ticks=niceTicksLin(mn,mx,5); }
   const X=i=> padL + i/(ys.length-1)*w;
   const Y=v=> padT + (1-(v-mn)/(mx-mn))*h;
-  // frame + zero line
   ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.strokeRect(padL,padT,w,h);
-  if(mn<0&&mx>0){ ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(padL,Y(0)); ctx.lineTo(padL+w,Y(0)); ctx.stroke(); }
-  // curve
-  ctx.strokeStyle=color; ctx.lineWidth=1.4; ctx.beginPath();
+  // y grid + ticks (0-line emphasised)
+  ctx.font='12px sans-serif'; ctx.textAlign='right';
+  for(const t of ticks){ if(t<mn||t>mx) continue; const y=Y(t);
+    ctx.strokeStyle = Math.abs(t)<1e-9 ? '#cbd5e1' : '#eef2f6';
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+w,y); ctx.stroke();
+    ctx.fillStyle='#5b6b7b'; ctx.fillText(fmtLin(t), padL-6, y+4); }
+  // y-axis label Δg
+  ctx.save(); ctx.translate(13, padT+h/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#5b6b7b'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText('Δg [m/s²]', 0, 0); ctx.restore();
+  // curve (clipped to the frame so a fixed scale can clip cleanly)
+  ctx.save(); ctx.beginPath(); ctx.rect(padL,padT,w,h); ctx.clip();
+  ctx.strokeStyle=color; ctx.lineWidth=1.3; ctx.beginPath();
   for(let i=0;i<ys.length;i++){ const x=X(i),y=Y(ys[i]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
-  ctx.stroke();
-  // labels
-  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left';
-  ctx.fillText(title, padL, 20);
-  ctx.fillStyle='#5b6b7b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('time  →   ('+(ys.length/FS).toFixed(1)+' s at '+FS+' Hz)', padL+w/2, H-10);
+  ctx.stroke(); ctx.restore();
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillText(title, padL, 20);
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('time → ('+(ys.length/FS).toFixed(1)+' s @ '+FS+' Hz)', padL+w/2, H-10);
 }
 
 function plotLogLog(cv, data, opts, LW, LH){
   const {ctx,W,H}=setupCanvas(cv, LW, LH);
-  const padL=66,padR=16,padT=30,padB=44, w=W-padL-padR, h=H-padT-padB;
+  const padL=72,padR=16,padT=30,padB=44, w=W-padL-padR, h=H-padT-padB;
   const xs=data.x, ys=data.y.map(v=> v<=0? 1e-12 : v);
   let xmn=Infinity,xmx=-Infinity,ymn=Infinity,ymx=-Infinity;
   for(let i=0;i<xs.length;i++){ if(xs[i]<xmn)xmn=xs[i]; if(xs[i]>xmx)xmx=xs[i];
     if(ys[i]<ymn)ymn=ys[i]; if(ys[i]>ymx)ymx=ys[i]; }
-  const lymn=Math.log10(ymn), lymx=Math.log10(ymx); const ypad=(lymx-lymn)*0.1||0.5;
+  // fixed ranges (when given) make slider changes comparable; otherwise auto-fit (e.g. loaded traces)
+  if(opts.xMin!=null){ xmn=opts.xMin; xmx=opts.xMax; }
+  if(opts.yMin!=null){ ymn=opts.yMin; ymx=opts.yMax; }
+  const lymn=Math.log10(ymn), lymx=Math.log10(ymx);
+  const ypad = opts.yMin!=null ? 0 : ((lymx-lymn)*0.1||0.5);
   const lxmn=Math.log10(xmn), lxmx=Math.log10(xmx);
   const X=v=> padL + (Math.log10(v)-lxmn)/(lxmx-lxmn)*w;
   const Y=v=> padT + (1-(Math.log10(v)-(lymn-ypad))/((lymx+ypad)-(lymn-ypad)))*h;
@@ -414,6 +505,7 @@ function plotLogLog(cv, data, opts, LW, LH){
   for(const t of niceTicksLog(ymn/10,ymx*10)){ if(t<Math.pow(10,lymn-ypad)||t>Math.pow(10,lymx+ypad))continue;
     const y=Y(t); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+w,y); ctx.stroke(); }
   ctx.strokeStyle='#e2e8f0'; ctx.strokeRect(padL,padT,w,h);
+  ctx.save(); ctx.beginPath(); ctx.rect(padL,padT,w,h); ctx.clip();   // clip data to the (possibly fixed) frame
   // optional slope guides
   if(opts.guides) for(const g of opts.guides){
     const xa=xmn, xb=xmx, k=g.slope;
@@ -434,6 +526,7 @@ function plotLogLog(cv, data, opts, LW, LH){
     ctx.font='600 13px sans-serif'; ctx.textAlign= mx> padL+w*0.6?'right':'left';
     ctx.fillText(opts.mark.label, mx + (mx>padL+w*0.6? -8:8), padT+14);
   }
+  ctx.restore();   // end data clip
   // axis ticks + labels
   ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
   for(const t of niceTicksLog(xmn,xmx)){ ctx.fillText(fmt(t), X(t), padT+h+16); }
@@ -444,6 +537,40 @@ function plotLogLog(cv, data, opts, LW, LH){
   ctx.fillText(opts.title, padL, 20);
   ctx.fillStyle='#5b6b7b'; ctx.font='13px sans-serif'; ctx.textAlign='center';
   ctx.fillText(opts.xlabel, padL+w/2, H-12);
+  if(opts.ylabel){ ctx.save(); ctx.translate(15, padT+h/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#5b6b7b'; ctx.font='600 13px sans-serif'; ctx.textAlign='center'; ctx.fillText(opts.ylabel, 0, 0); ctx.restore(); }
+}
+
+// Histogram of the (mean-removed) samples with a matched-σ Gaussian overlaid — "is this noise Gaussian?"
+// White/pink fill a clean bell; a single random-walk realisation is lumpy and misses the Gaussian.
+function drawHist(cv, vals, LW, LH, xRange){
+  const {ctx,W,H}=setupCanvas(cv, LW, LH);
+  const padL=38,padR=12,padT=30,padB=30, w=W-padL-padR, h=H-padT-padB;
+  let s2=0; for(const v of vals) s2+=v*v; const sig=Math.sqrt(s2/Math.max(1,vals.length))||1e-9;
+  let lo,hi,ticks;
+  if(xRange){ lo=xRange.min; hi=xRange.max; ticks=xRange.ticks; }
+  else{ let m=0; for(const v of vals) m=Math.max(m,Math.abs(v)); m=(m||1)*1.05; lo=-m; hi=m; ticks=niceTicksLin(lo,hi,5); }
+  const bins=33, bw=(hi-lo)/bins, cnt=new Array(bins).fill(0);
+  for(const v of vals){ const b=Math.floor((v-lo)/bw); if(b>=0&&b<bins) cnt[b]++; }
+  const n=vals.length, dens=cnt.map(c=> c/(n*bw));                       // density (count / N_total — bars and Gaussian lose the same tail)
+  const clipFrac = 1 - cnt.reduce((a,b)=>a+b,0)/Math.max(1,n);           // fraction of samples beyond the fixed ±4 frame
+  const g=x=> Math.exp(-x*x/(2*sig*sig))/(sig*Math.sqrt(2*Math.PI));     // Gaussian pdf, same σ (area = 1)
+  let ymax=g(0); for(const d of dens) if(d>ymax) ymax=d; ymax*=1.12;
+  const X=v=> padL + (v-lo)/(hi-lo)*w, Y=d=> padT + (1-d/ymax)*h;
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.strokeRect(padL,padT,w,h);
+  ctx.strokeStyle='#cbd5e1'; ctx.beginPath(); ctx.moveTo(X(0),padT); ctx.lineTo(X(0),padT+h); ctx.stroke();
+  ctx.save(); ctx.beginPath(); ctx.rect(padL,padT,w,h); ctx.clip();
+  ctx.fillStyle='rgba(51,65,85,.5)';
+  for(let b=0;b<bins;b++){ if(dens[b]<=0) continue; const x0=X(lo+b*bw), x1=X(lo+(b+1)*bw), y=Y(dens[b]);
+    ctx.fillRect(x0+0.5, y, Math.max(1,x1-x0-1), padT+h-y); }
+  ctx.strokeStyle='#dc2626'; ctx.lineWidth=2.2; ctx.beginPath();
+  for(let px=0;px<=w;px+=2){ const xv=lo+(px/w)*(hi-lo), Xp=padL+px, Yp=Y(g(xv)); px?ctx.lineTo(Xp,Yp):ctx.moveTo(Xp,Yp); }
+  ctx.stroke(); ctx.restore();
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  for(const t of ticks){ if(t<lo||t>hi) continue; ctx.fillText(fmtLin(t), X(t), padT+h+16); }
+  ctx.fillStyle='#15212e'; ctx.font='600 15px sans-serif'; ctx.textAlign='left'; ctx.fillText('④ Histogram vs Gaussian', padL, 20);
+  if(clipFrac>0.03){ ctx.fillStyle='#991b1b'; ctx.font='600 11.5px sans-serif'; ctx.textAlign='right'; ctx.fillText(Math.round(clipFrac*100)+'% beyond ±4', padL+w, 20); }
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('Δg [m/s²] →', padL+w/2, H-10);
 }
 
 //==================================================================================
@@ -454,7 +581,8 @@ const els={
   rw:document.getElementById('rw'), npow:document.getElementById('npow'),
   vwhite:document.getElementById('v-white'), vpink:document.getElementById('v-pink'),
   vrw:document.getElementById('v-rw'), vn:document.getElementById('v-n'),
-  ts:document.getElementById('ts'), psd:document.getElementById('psd'), adev:document.getElementById('adev'),
+  ts:document.getElementById('ts'), hist:document.getElementById('hist'),
+  psd:document.getElementById('psd'), adev:document.getElementById('adev'),
   readout:document.getElementById('readout'), presets:document.getElementById('presets'),
   resample:document.getElementById('resample'), csv:document.getElementById('csv'),
   csvStatus:document.getElementById('csv-status'), loadtrace:document.getElementById('loadtrace')
@@ -501,14 +629,18 @@ function render(){
   let mean=0; for(let i=0;i<series.length;i++) mean+=series[i]; mean/=series.length;
   const centred=Array.from(series, v=>v-mean);
 
-  plotLinear(els.ts, centred, '#334155', '① Time series (mean removed)',
-    CANVAS_LOGICAL.ts.w, CANVAS_LOGICAL.ts.h);
+  const fixed = !loadedTrace;                                  // fixed scale for recipes; auto-fit a loaded trace
+  const yR = fixed ? {min:-4, max:4, ticks:[-4,-2,0,2,4]} : null;
+  const Dts=cdims(els.ts,0.40), Dhist=cdims(els.hist,0.80), Dpsd=cdims(els.psd,0.706), Dad=cdims(els.adev,0.706);
+  plotLinear(els.ts, centred, '#334155', '① Time series', Dts.w, Dts.h, yR);
+  drawHist(els.hist, centred, Dhist.w, Dhist.h, yR);
 
   const P=computePSD(series, FS);
   plotLogLog(els.psd, P, {
-    color:'#1d4ed8', title:'② Power spectral density', xlabel:'frequency  f  [Hz]  →',
-    guides:[{slope:0,color:'#2563eb'},{slope:-1,color:'#ea580c'},{slope:-2,color:'#16a34a'}]
-  }, CANVAS_LOGICAL.psd.w, CANVAS_LOGICAL.psd.h);
+    color:'#1d4ed8', title:'② Power spectral density', xlabel:'frequency  f  [Hz]  →', ylabel:'S(f)  [(m/s²)²/Hz]',
+    guides:[{slope:0,color:'#2563eb'},{slope:-1,color:'#ea580c'},{slope:-2,color:'#16a34a'}],
+    xMin: fixed?0.01:null, xMax: fixed?50:null, yMin: fixed?1e-5:null, yMax: fixed?1e2:null
+  }, Dpsd.w, Dpsd.h);
 
   const A=allanDev(series, 1/FS);
   // find minimum (where averaging stops helping)
@@ -516,10 +648,11 @@ function render(){
   const tauOpt=A.taus[mi], adevMin=A.adevs[mi];
   const atEnd = mi>=A.adevs.length-2, atStart= mi<=1;
   plotLogLog(els.adev, {x:A.taus,y:A.adevs}, {
-    color:'#0f766e', title:'③ Allan deviation σ(τ)', xlabel:'averaging time  τ  [s]  →',
-    guides:[{slope:-0.5,color:'#2563eb'}],
+    color:'#0f766e', title:'③ Allan deviation σ(τ)', xlabel:'averaging time  τ  [s]  →', ylabel:'σ(τ)  [m/s²]',
+    guides:[{slope:-0.5,color:'#2563eb'},{slope:0,color:'#ea580c'},{slope:0.5,color:'#16a34a'}],
+    xMin: fixed?0.01:null, xMax: fixed?30:null, yMin: fixed?1e-3:null, yMax: fixed?1e1:null,
     mark: atEnd? null : {x:tauOpt,y:adevMin,label:' τ_opt — averaging stops helping'}
-  }, CANVAS_LOGICAL.adev.w, CANVAS_LOGICAL.adev.h);
+  }, Dad.w, Dad.h);
 
   updateReadout(A, mi, atStart, atEnd);
 }
@@ -540,9 +673,10 @@ function updateReadout(A, mi, atStart, atEnd){
     let floor = (p>r) ? `a <span class="pill pink">flicker (pink) floor</span>` : `a <span class="pill rw">random-walk drift</span>`;
     lead = `Mixed noise: averaging helps down to <b>τ ≈ ${tauOpt} s</b> <span class="pill mark">(red line)</span>, then ${floor} takes over and the curve flattens/rises. <b>That τ is your optimal averaging time</b> — average that long and no longer.`;
   }
-  els.readout.innerHTML = lead +
-    `<br><span style="font-size:15px;color:#5b6b7b">Sliders now — white ${w}, pink ${p}, walk ${r}. ` +
-    `On the PSD, the faint guide lines show slopes 0 / −1 / −2 for white / pink / walk; on the Allan plot, −½ is the white-noise ideal.</span>`;
+  const tail = loadedTrace
+    ? `Axes are <b>auto-scaled</b> to this loaded trace. PSD slope guides (0 / −1 / −2) and the Allan −½ line are shown for reference.`
+    : `Sliders now — white ${w}, pink ${p}, walk ${r}. Axes are on a <b>fixed scale</b>, so turning a knob up visibly grows the trace, widens the histogram, lifts the PSD and shifts the Allan curve. Guides: PSD 0 / −1 / −2 (white/pink/walk), Allan −½ (white ideal).`;
+  els.readout.innerHTML = lead + `<br><span style="font-size:15px;color:#5b6b7b">${tail}</span>`;
 }
 
 // CSV / text loader: take the first numeric token per line.
@@ -581,9 +715,51 @@ els.loadtrace.addEventListener('click',()=>{
 });
 els.presets.addEventListener('click', e=>{ const b=e.target.closest('.preset'); if(b) applyPreset(b.dataset.preset); });
 window.addEventListener('resize',()=>render());
+window.addEventListener('load',()=>render());     // re-measure once layout (and fonts) are settled
 
 // Boot.
 applyPreset('real');
+</script>
+
+<script>
+"use strict";
+// ---- stepped beats (Try · Notice · Explain · Connect): show one panel at a time ----
+// Progressive enhancement: with JS off, body never gets .stepper-on, so ALL panels stay visible.
+(function(){
+  const beats=['try','notice','explain','connect'];
+  const panels=beats.map(id=>document.getElementById(id));
+  const tabs=beats.map(id=>document.getElementById('tab-'+id));
+  const prev=document.getElementById('prevBeat'), next=document.getElementById('nextBeat'),
+        count=document.getElementById('stepCount');
+  if(panels.some(p=>!p) || tabs.some(t=>!t) || !prev || !next) return;   // markup missing → leave all visible
+  let i=0, booted=false;
+  function show(n, focus){
+    i=Math.max(0, Math.min(beats.length-1, n));
+    panels.forEach((p,k)=>p.classList.toggle('is-active', k===i));
+    tabs.forEach((t,k)=>{ const on=k===i; t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex=on?0:-1; t.classList.toggle('visited', k<=i); });
+    prev.disabled = i===0; next.disabled = i===beats.length-1;
+    count.textContent='Step '+(i+1)+' of '+beats.length;
+    if(booted){ try{ history.replaceState(null,'','#'+beats[i]); }catch(e){} }
+    if(focus) panels[i].focus();
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click', ()=>show(k));
+    t.addEventListener('keydown', e=>{
+      const last=beats.length-1;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=i>=last?0:i+1; tabs[n].focus(); show(n); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const n=i<=0?last:i-1; tabs[n].focus(); show(n); }
+      else if(e.key==='Home'){ e.preventDefault(); tabs[0].focus(); show(0); }
+      else if(e.key==='End'){ e.preventDefault(); tabs[last].focus(); show(last); }
+    });
+  });
+  prev.addEventListener('click', ()=>show(i-1, true));
+  next.addEventListener('click', ()=>show(i+1, true));
+  window.addEventListener('hashchange', ()=>{ const at=beats.indexOf((location.hash||'').replace('#','')); if(at>=0) show(at,true); });
+  document.body.classList.add('stepper-on');
+  const h=(location.hash||'').replace('#',''); const at=beats.indexOf(h);
+  show(at>=0?at:0); booted=true;                       // honour a deep link / refresh; no focus on boot (no scroll)
+})();
 </script>
 </body>
 </html>
