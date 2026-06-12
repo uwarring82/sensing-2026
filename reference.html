@@ -89,7 +89,7 @@
     <li><a href="#a2">2 · Noise · PSD · Allan</a><span class="t core">core</span></li>
     <li><a href="#a3">3 · Standard quantum limit</a><span class="t micro">micro</span></li>
     <li><a href="#a4">4 · Quantum ladder</a><span class="t core">core</span></li>
-    <li><a href="#a5">5 · Back-action · squeezing</a><span class="t core">core</span></li>
+    <li><a href="#a5">5 · Back-action &amp; squeezing</a><span class="t core">core</span></li>
     <li><a href="#a6">6 · Transduction</a><span class="t bridge">bridge</span></li>
   </ol>
   <p style="margin:12px 0 0;font-size:15px"><b style="color:#1f4e6b">Platform primers</b>
@@ -112,7 +112,7 @@
   operating point on the triangle — not a maximum of all three at once.</p>
 
   <div class="lab">Canonical relations</div>
-  <div class="eq">Dynamic range:&nbsp; DR [dB] = 20 · log<sub>10</sub>(x<sub>max</sub> / x<sub>min</sub>)</div>
+  <div class="eq">Dynamic range:&nbsp; DR [dB] = 20 · log<sub>10</sub>(x<sub>max</sub> / x<sub>min</sub>) <span class="lbl">(amplitude; use 10 · log<sub>10</sub> for power/energy)</span></div>
   <div class="eq">Precision from averaging:&nbsp; σ<sub>x̄</sub> = σ / √N &nbsp;<span class="lbl">(N independent samples — until correlations bite, → anchor 2)</span></div>
 
   <div class="lab">Boundary / common misuse</div>
@@ -151,7 +151,7 @@
 
   <div class="lab">Canonical equations</div>
   <div class="eq">Standard error of the mean:&nbsp; σ<sub>x̄</sub> = σ / √N</div>
-  <div class="eq">Allan variance:&nbsp; σ<sub>y</sub><sup>2</sup>(τ) = ½ ⟨ (ȳ<sub>i+1</sub> − ȳ<sub>i</sub>)<sup>2</sup> ⟩</div>
+  <div class="eq">Allan variance:&nbsp; σ<sub>y</sub><sup>2</sup>(τ) = ½ ⟨ (ȳ<sub>i+1</sub> − ȳ<sub>i</sub>)<sup>2</sup> ⟩ <span class="lbl">with y = Δν/ν<sub>0</sub> the fractional frequency deviation</span></div>
   <div class="eq">Noise slopes:&nbsp; white σ<sub>y</sub> ∝ τ<sup>−1/2</sup>; flicker ∝ τ<sup>0</sup>; random walk ∝ τ<sup>+1/2</sup></div>
 
   <div class="lab">Boundary / common misuse</div>
@@ -189,7 +189,7 @@
 
   <div class="lab">Canonical equations</div>
   <div class="eq">SQL scaling:&nbsp; Δφ<sub>SQL</sub> ∝ 1 / √N</div>
-  <div class="eq">Counting origin:&nbsp; Var(N) = N&nbsp; ⇒ &nbsp;ΔN / N = 1 / √N <span class="lbl">(independent Poisson/Bernoulli)</span></div>
+  <div class="eq">Counting origin:&nbsp; Var(N) = N <span class="lbl">(Poisson counts)</span>, or Np(1−p) for N Bernoulli trials <span class="lbl">(= N/4 at p = ½)</span>&nbsp; ⇒ &nbsp;ΔN / N ≈ 1 / √N</div>
   <div class="eq">Vacuum quadrature variance:&nbsp; ⟨ΔX²⟩ = ½ <span class="lbl">(the SQL "disk")</span></div>
 
   <div class="lab">Boundary / common misuse</div>
@@ -216,7 +216,7 @@
 
   <div class="lab">Definition</div>
   <p>Quantum metrology is a ladder of resources. A <b>coherent</b> probe gives the SQL, 1/√N;
-  <b>squeezing</b> lowers the prefactor to ξ/√N (ξ&lt;1); multipartite <b>entanglement</b> (GHZ/NOON)
+  <b>squeezing</b> lowers the prefactor to ξ/√N (ξ&lt;1); multipartite <b>entanglement</b> — GHZ (Greenberger–Horne–Zeilinger) and NOON states —
   reaches the <b>Heisenberg limit</b>, 1/N; and entanglement <b>protected by error correction</b> aims to
   keep 1/N in a noisy world. Each rung trades a stronger resource for greater fragility.</p>
 
@@ -261,7 +261,7 @@
 
   <div class="lab">Canonical equations</div>
   <div class="eq">Heisenberg (area fixed):&nbsp; ΔX · ΔP ≥ ½</div>
-  <div class="eq">Squeezed / anti-squeezed variance:&nbsp; V<sub>∓</sub> = ½ e<sup>∓2r</sup></div>
+  <div class="eq">Squeezed / anti-squeezed variance:&nbsp; V<sub>∓</sub> = ½ e<sup>∓2r</sup> <span class="lbl">(r ≥ 0: the squeezing parameter)</span></div>
   <div class="eq">Measured along angle θ:&nbsp; V(θ) = ½ ( e<sup>−2r</sup>cos²θ + e<sup>+2r</sup>sin²θ )</div>
 
   <div class="lab">Boundary / common misuse</div>
@@ -428,7 +428,7 @@ motion, with the tools to wire them together.</p>
   never rehosted (course reference PDFs remain "for course use only"). This is the archive (lookup); the
   interactive workshop is the <a href="workshop.html">hub</a>. Schematics harvested from the 2025 typeset notes
   (U. Warring); bespoke figures deferred to v2.
-  <br>Text &amp; figures © 2026 U. Warring · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC&nbsp;BY&nbsp;4.0</a> · v2026.06.3.
+  <br>Text &amp; figures © 2026 U. Warring · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC&nbsp;BY&nbsp;4.0</a> · v2026.06.4.
 </footer>
 
 </div>
